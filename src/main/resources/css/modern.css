@@ -1,0 +1,456 @@
+/* Design moderne inspiré de Tailwind CSS et Material Design */
+
+.root {
+    -fx-font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+    -fx-background-color: linear-gradient(to bottom right, #f8fafc, #e2e8f0);
+}
+
+/* Sidebar moderne avec glassmorphism */
+.sidebar {
+    -fx-background-color: linear-gradient(to bottom, #1e293b, #0f172a);
+    -fx-background-radius: 0 20 20 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 20, 0, 0, 5);
+    -fx-padding: 30 20;
+}
+
+.sidebar-button {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-background-radius: 12;
+    -fx-text-fill: #e2e8f0;
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+    -fx-padding: 15 20;
+    -fx-cursor: hand;
+    -fx-border-width: 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);
+    -fx-transition: all 0.3s ease;
+}
+
+.sidebar-button:hover {
+    -fx-background-color: rgba(59, 130, 246, 0.2);
+    -fx-text-fill: #60a5fa;
+    -fx-translate-x: 5;
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.3), 10, 0, 0, 3);
+}
+
+.sidebar-button:selected {
+    -fx-background-color: linear-gradient(to right, #3b82f6, #2563eb);
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.5), 15, 0, 0, 5);
+}
+
+/* Cards modernes avec glassmorphism */
+.modern-card {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-background-radius: 16;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 20, 0, 0, 4);
+    -fx-padding: 24;
+    -fx-background-insets: 0;
+    -fx-border-width: 1;
+    -fx-border-color: rgba(226, 232, 240, 0.8);
+    -fx-border-radius: 16;
+}
+
+.modern-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 25, 0, 0, 6);
+    -fx-translate-y: -2;
+}
+
+/* KPI Widgets modernes */
+.kpi-widget {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 25, 0, 0, 8);
+    -fx-padding: 24;
+    -fx-border-width: 0;
+    -fx-background-insets: 0;
+}
+
+.kpi-widget:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 30, 0, 0, 10);
+    -fx-translate-y: -4;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+/* Boutons modernes */
+.btn-modern {
+    -fx-background-color: linear-gradient(to right, #3b82f6, #2563eb);
+    -fx-background-radius: 12;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-padding: 12 24;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.4), 10, 0, 0, 4);
+    -fx-border-width: 0;
+}
+
+.btn-modern:hover {
+    -fx-background-color: linear-gradient(to right, #2563eb, #1d4ed8);
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.6), 15, 0, 0, 6);
+    -fx-translate-y: -2;
+}
+
+.btn-modern:pressed {
+    -fx-translate-y: 0;
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.3), 8, 0, 0, 3);
+}
+
+.btn-success {
+    -fx-background-color: linear-gradient(to right, #10b981, #059669);
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.4), 10, 0, 0, 4);
+}
+
+.btn-success:hover {
+    -fx-background-color: linear-gradient(to right, #059669, #047857);
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.6), 15, 0, 0, 6);
+}
+
+.btn-danger {
+    -fx-background-color: linear-gradient(to right, #ef4444, #dc2626);
+    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.4), 10, 0, 0, 4);
+}
+
+.btn-danger:hover {
+    -fx-background-color: linear-gradient(to right, #dc2626, #b91c1c);
+    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.6), 15, 0, 0, 6);
+}
+
+/* TableView moderne */
+.table-view {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 15, 0, 0, 3);
+    -fx-border-width: 0;
+}
+
+.table-view .column-header {
+    -fx-background-color: linear-gradient(to bottom, #f8fafc, #e2e8f0);
+    -fx-text-fill: #475569;
+    -fx-font-weight: 600;
+    -fx-font-size: 13px;
+    -fx-padding: 12;
+    -fx-border-width: 0 0 2 0;
+    -fx-border-color: #e2e8f0;
+}
+
+.table-row-cell {
+    -fx-background-color: white;
+    -fx-border-width: 0;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: #f1f5f9;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: linear-gradient(to right, #dbeafe, #bfdbfe);
+    -fx-text-fill: #1e40af;
+}
+
+/* Inputs modernes */
+.text-field-modern, .password-field-modern {
+    -fx-background-color: white;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-width: 2;
+    -fx-border-color: #e2e8f0;
+    -fx-padding: 12 16;
+    -fx-font-size: 14px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.02), 5, 0, 0, 1);
+}
+
+.text-field-modern:focused, .password-field-modern:focused {
+    -fx-border-color: #3b82f6;
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.2), 10, 0, 0, 3);
+}
+
+/* Titres modernes */
+.title-modern {
+    -fx-font-size: 32px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+    -fx-letter-spacing: -0.5px;
+}
+
+.subtitle-modern {
+    -fx-font-size: 18px;
+    -fx-font-weight: 500;
+    -fx-text-fill: #64748b;
+}
+
+/* Badges modernes */
+.badge {
+    -fx-background-color: #e0e7ff;
+    -fx-background-radius: 12;
+    -fx-padding: 4 12;
+    -fx-text-fill: #4338ca;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.badge-success {
+    -fx-background-color: #d1fae5;
+    -fx-text-fill: #065f46;
+}
+
+.badge-danger {
+    -fx-background-color: #fee2e2;
+    -fx-text-fill: #991b1b;
+}
+
+.badge-warning {
+    -fx-background-color: #fef3c7;
+    -fx-text-fill: #92400e;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        -fx-opacity: 0;
+    }
+    to {
+        -fx-opacity: 1;
+    }
+}
+
+@keyframes slideIn {
+    from {
+        -fx-translate-x: -20;
+        -fx-opacity: 0;
+    }
+    to {
+        -fx-translate-x: 0;
+        -fx-opacity: 1;
+    }
+}
+
+.fade-in {
+    -fx-opacity: 0;
+}
+
+.slide-in {
+    -fx-translate-x: -20;
+    -fx-opacity: 0;
+}
+
+/* ScrollPane moderne */
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+
+.scroll-pane .viewport {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: rgba(148, 163, 184, 0.5);
+    -fx-background-radius: 5;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: rgba(148, 163, 184, 0.8);
+}
+
+/* Graphiques modernes avec style Tailwind */
+.chart {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 25, 0, 0, 8);
+    -fx-padding: 30;
+    -fx-border-width: 0;
+}
+
+.chart-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1e293b;
+    -fx-padding: 0 0 20 0;
+}
+
+/* Axes des graphiques - Style Tailwind avec meilleur contraste */
+.chart .axis {
+    -fx-tick-label-fill: #1e293b;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.chart .axis-label {
+    -fx-text-fill: #0f172a;
+    -fx-font-size: 15px;
+    -fx-font-weight: 700;
+}
+
+.chart .axis-tick-mark {
+    -fx-stroke: #cbd5e1;
+    -fx-stroke-width: 1;
+}
+
+.chart .axis-minor-tick-mark {
+    -fx-stroke: #e2e8f0;
+}
+
+/* Légendes - Style moderne et visible */
+.chart-legend {
+    -fx-background-color: rgba(255, 255, 255, 0.95);
+    -fx-background-radius: 12;
+    -fx-padding: 15 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 10, 0, 0, 2);
+    -fx-border-width: 1;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 12;
+}
+
+.chart-legend-item {
+    -fx-text-fill: #1e293b;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-padding: 5 10;
+}
+
+/* Lignes des graphiques */
+.chart-line-symbol {
+    -fx-background-color: #3b82f6, white;
+    -fx-background-radius: 5;
+    -fx-padding: 5px;
+}
+
+.chart-series-line {
+    -fx-stroke-width: 3px;
+}
+
+/* Barres des graphiques - Gradients modernes et visibles */
+.default-color0.chart-bar {
+    -fx-bar-fill: linear-gradient(to top, #2563eb, #3b82f6, #60a5fa);
+    -fx-background-radius: 4 4 0 0;
+}
+
+.default-color1.chart-bar {
+    -fx-bar-fill: linear-gradient(to top, #059669, #10b981, #34d399);
+    -fx-background-radius: 4 4 0 0;
+}
+
+.default-color2.chart-bar {
+    -fx-bar-fill: linear-gradient(to top, #d97706, #f59e0b, #fbbf24);
+    -fx-background-radius: 4 4 0 0;
+}
+
+.chart-bar:hover {
+    -fx-opacity: 0.9;
+}
+
+/* Camembert - Labels visibles */
+.chart-pie-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #0f172a;
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-background-radius: 6;
+    -fx-padding: 4 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);
+}
+
+.chart-pie-label-line {
+    -fx-stroke: #475569;
+    -fx-stroke-width: 2;
+}
+
+/* Zones des graphiques */
+.chart-plot-background {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1;
+}
+
+/* Titres des onglets - Style Tailwind moderne */
+.tab-pane {
+    -fx-background-color: transparent;
+    -fx-tab-min-width: 180;
+    -fx-tab-min-height: 50;
+}
+
+.tab-pane .tab {
+    -fx-background-color: rgba(241, 245, 249, 0.8);
+    -fx-background-radius: 12 12 0 0;
+    -fx-padding: 15 30;
+    -fx-font-size: 15px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #64748b;
+    -fx-cursor: hand;
+}
+
+.tab-pane .tab:hover {
+    -fx-background-color: rgba(226, 232, 240, 0.9);
+    -fx-text-fill: #475569;
+}
+
+.tab-pane .tab:selected {
+    -fx-background-color: white;
+    -fx-text-fill: #1e293b;
+    -fx-border-width: 0 0 4 0;
+    -fx-border-color: #3b82f6;
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.2), 10, 0, 0, 2);
+}
+
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: transparent;
+}
+
+.tab-pane .tab-content-area {
+    -fx-background-color: transparent;
+}
+
+/* Glassmorphism effect */
+.glass {
+    -fx-background-color: rgba(255, 255, 255, 0.7);
+    -fx-background-radius: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 20, 0, 0, 5);
+    -fx-border-width: 1;
+    -fx-border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Améliorations supplémentaires pour les graphiques */
+.chart-plot-background {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #e2e8f0;
+    -fx-border-width: 1;
+}
+
+.chart-horizontal-grid-lines {
+    -fx-stroke: #e2e8f0;
+    -fx-stroke-width: 1;
+}
+
+.chart-vertical-grid-lines {
+    -fx-stroke: #e2e8f0;
+    -fx-stroke-width: 1;
+}
+
+.chart-alternative-column-fill {
+    -fx-fill: #f8fafc;
+}
+
+.chart-alternative-row-fill {
+    -fx-fill: #f8fafc;
+}
+
+/* Amélioration de la visibilité des tooltips */
+.chart-tooltip-label {
+    -fx-background-color: rgba(15, 23, 42, 0.95);
+    -fx-text-fill: white;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-padding: 8 12;
+    -fx-background-radius: 8;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 10, 0, 0, 4);
+}
+
+
+

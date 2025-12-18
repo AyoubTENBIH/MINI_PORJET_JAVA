@@ -1,0 +1,133 @@
+/* Page de login avec effet Glassmorphism */
+
+.root {
+    -fx-font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+    -fx-background-color: linear-gradient(to bottom right, #0f172a, #1e293b, #334155);
+}
+
+/* Container principal du login */
+.login-container {
+    -fx-background-color: rgba(30, 41, 59, 0.7);
+    -fx-background-radius: 24;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 40, 0, 0, 10);
+    -fx-padding: 50;
+    -fx-border-width: 1;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-radius: 24;
+    -fx-background-insets: 0;
+}
+
+.login-container:hover {
+    -fx-background-color: rgba(30, 41, 59, 0.8);
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.3), 50, 0, 0, 15);
+}
+
+/* Titre de l'application */
+.app-title {
+    -fx-text-fill: #f1f5f9;
+    -fx-font-size: 32px;
+    -fx-font-weight: 700;
+    -fx-padding: 0 0 10 0;
+}
+
+.app-subtitle {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 16px;
+    -fx-font-weight: 400;
+    -fx-padding: 0 0 30 0;
+}
+
+/* Labels */
+.label {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+}
+
+/* Champs de texte */
+.text-field {
+    -fx-background-color: rgba(15, 23, 42, 0.6);
+    -fx-background-radius: 12;
+    -fx-text-fill: #f1f5f9;
+    -fx-font-size: 14px;
+    -fx-padding: 14 18;
+    -fx-border-width: 1;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0, 0, 1);
+    -fx-pref-width: 300;
+}
+
+.text-field:focused {
+    -fx-background-color: rgba(15, 23, 42, 0.8);
+    -fx-border-color: rgba(16, 185, 129, 0.5);
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.3), 10, 0, 0, 2);
+}
+
+.text-field:hover {
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Bouton de connexion */
+.login-button {
+    -fx-background-color: linear-gradient(to right, rgba(16, 185, 129, 0.9), rgba(5, 150, 105, 1.0));
+    -fx-background-radius: 12;
+    -fx-text-fill: white;
+    -fx-font-size: 16px;
+    -fx-font-weight: 600;
+    -fx-padding: 14 0;
+    -fx-pref-width: 300;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.4), 15, 0, 0, 5);
+    -fx-border-width: 0;
+}
+
+.login-button:hover {
+    -fx-background-color: linear-gradient(to right, rgba(16, 185, 129, 1.0), rgba(5, 150, 105, 1.0));
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.6), 20, 0, 0, 7);
+    -fx-translate-y: -2;
+}
+
+.login-button:pressed {
+    -fx-translate-y: 0;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.3), 10, 0, 0, 3);
+}
+
+/* Message d'erreur */
+.error-label {
+    -fx-text-fill: #ef4444;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+    -fx-background-color: rgba(239, 68, 68, 0.1);
+    -fx-background-radius: 8;
+    -fx-padding: 10;
+    -fx-border-width: 1;
+    -fx-border-color: rgba(239, 68, 68, 0.3);
+    -fx-border-radius: 8;
+}
+
+/* Séparateur */
+.separator {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Icônes et images */
+.image-view {
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.3), 10, 0, 0, 3);
+}
+
+/* VBox et HBox */
+.vbox, .hbox {
+    -fx-background-color: transparent;
+}
+
+/* Animation de fade in */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
