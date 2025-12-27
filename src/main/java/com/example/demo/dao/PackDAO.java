@@ -10,7 +10,29 @@ import java.util.List;
 import java.util.logging.Logger;
 
 /**
- * DAO pour la gestion des packs/abonnements
+ * DAO (Data Access Object) pour la gestion des packs/abonnements.
+ * 
+ * <p>Cette classe fournit toutes les opérations CRUD (Create, Read, Update, Delete)
+ * pour la table des packs, ainsi que des méthodes spécialisées pour les recherches
+ * et analyses de distribution.</p>
+ * 
+ * <p>Méthodes principales :
+ * <ul>
+ *   <li>{@link #create(Pack)} - Créer un nouveau pack</li>
+ *   <li>{@link #update(Pack)} - Mettre à jour un pack existant</li>
+ *   <li>{@link #delete(Integer)} - Désactiver un pack (soft delete)</li>
+ *   <li>{@link #findById(Integer)} - Récupérer un pack par ID</li>
+ *   <li>{@link #findAll()} - Récupérer tous les packs</li>
+ *   <li>{@link #findAllActive()} - Récupérer tous les packs actifs</li>
+ *   <li>{@link #search(String)} - Rechercher des packs par nom</li>
+ *   <li>{@link #getDistributionByAdherents()} - Obtenir la distribution des packs par nombre d'adhérents</li>
+ * </ul>
+ * </p>
+ * 
+ * @author Dashboard Team
+ * @version 1.0
+ * @see Pack
+ * @see DatabaseManager
  */
 public class PackDAO {
     private static final Logger logger = Logger.getLogger(PackDAO.class.getName());
@@ -25,8 +47,8 @@ public class PackDAO {
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """;
 
-        try (Connection conn = DatabaseManager.getInstance().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             stmt.setString(1, pack.getNom());
             stmt.setDouble(2, pack.getPrix());
@@ -51,9 +73,9 @@ public class PackDAO {
                 if (generatedKeys.next()) {
                     pack.setId(generatedKeys.getInt(1));
                 } else {
-                    // Fallback: utiliser last_insert_rowid() si RETURN_GENERATED_KEYS ne fonctionne pas
+                    // Fallback: utiliser LAST_INSERT_ID() si RETURN_GENERATED_KEYS ne fonctionne pas
                     try (Statement idStmt = conn.createStatement();
-                         ResultSet rs = idStmt.executeQuery("SELECT last_insert_rowid() as id")) {
+                         ResultSet rs = idStmt.executeQuery("SELECT LAST_INSERT_ID() as id")) {
                         if (rs.next()) {
                             pack.setId(rs.getInt("id"));
                         }
@@ -61,8 +83,13 @@ public class PackDAO {
                 }
             }
 
+            conn.commit(); // ✅ Commiter la transaction
             logger.info("Pack créé avec succès: " + pack.getNom());
             return pack;
+        } catch (SQLException e) {
+            conn.rollback(); // ✅ Rollback en cas d'erreur
+            logger.severe("Erreur lors de la création du pack: " + e.getMessage());
+            throw e;
         }
     }
 
@@ -76,8 +103,8 @@ public class PackDAO {
             WHERE id=?
         """;
 
-        try (Connection conn = DatabaseManager.getInstance().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setString(1, pack.getNom());
             stmt.setDouble(2, pack.getPrix());
@@ -93,8 +120,13 @@ public class PackDAO {
             stmt.setInt(12, pack.getId());
 
             stmt.executeUpdate();
+            conn.commit(); // ✅ Commiter la transaction
             logger.info("Pack mis à jour avec succès: " + pack.getNom());
             return pack;
+        } catch (SQLException e) {
+            conn.rollback(); // ✅ Rollback en cas d'erreur
+            logger.severe("Erreur lors de la mise à jour du pack: " + e.getMessage());
+            throw e;
         }
     }
 
@@ -104,12 +136,17 @@ public class PackDAO {
     public void delete(Integer id) throws SQLException {
         String sql = "UPDATE packs SET actif=0 WHERE id=?";
 
-        try (Connection conn = DatabaseManager.getInstance().getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection conn = DatabaseManager.getInstance().getConnection();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
 
             stmt.setInt(1, id);
             stmt.executeUpdate();
+            conn.commit(); // ✅ Commiter la transaction
             logger.info("Pack désactivé: " + id);
+        } catch (SQLException e) {
+            conn.rollback(); // ✅ Rollback en cas d'erreur
+            logger.severe("Erreur lors de la désactivation du pack: " + e.getMessage());
+            throw e;
         }
     }
 
@@ -182,6 +219,47 @@ public class PackDAO {
         return packs;
     }
 
+    /**
+     * Récupère la distribution des packs par nombre d'adhérents.
+     * 
+     * <p>Cette méthode joint la table des packs avec la table des adhérents
+     * pour compter le nombre d'adhérents par pack.</p>
+     * 
+     * @return Une Map associant chaque Pack à son nombre d'adhérents
+     * @throws SQLException Si une erreur survient lors de la requête
+     */
+    public java.util.Map<Pack, Integer> getDistributionByAdherents() throws SQLException {
+        java.util.Map<Pack, Integer> distribution = new java.util.HashMap<>();
+        
+        String sql = """
+            SELECT p.id, p.nom, p.prix, p.activites, p.jours_disponibilite, p.horaires, 
+                   p.duree, p.unite_duree, p.seances_semaine, p.acces_coach, p.actif, 
+                   p.description, p.date_creation,
+                   COUNT(a.id) as nombre_adherents
+            FROM packs p
+            LEFT JOIN adherents a ON p.id = a.pack_id AND a.actif = 1
+            WHERE p.actif = 1
+            GROUP BY p.id, p.nom, p.prix, p.activites, p.jours_disponibilite, p.horaires, 
+                     p.duree, p.unite_duree, p.seances_semaine, p.acces_coach, p.actif, 
+                     p.description, p.date_creation
+            ORDER BY nombre_adherents DESC
+        """;
+        
+        try (Connection conn = DatabaseManager.getInstance().getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            
+            while (rs.next()) {
+                Pack pack = mapResultSetToPack(rs);
+                int nombreAdherents = rs.getInt("nombre_adherents");
+                distribution.put(pack, nombreAdherents);
+            }
+        }
+        
+        logger.info("Distribution des packs récupérée: " + distribution.size() + " packs");
+        return distribution;
+    }
+    
     /**
      * Mappe un ResultSet vers un objet Pack
      */

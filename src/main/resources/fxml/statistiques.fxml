@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.demo.controllers.StatistiquesController"
+      spacing="25" styleClass="page-container-stats">
+    <padding>
+        <Insets top="30" right="30" bottom="30" left="30"/>
+    </padding>
+    
+    <!-- Header -->
+    <HBox fx:id="headerBox" spacing="15" alignment="CENTER_LEFT">
+        <VBox spacing="5">
+            <Label text="📊 Statistiques &amp; Analytics" styleClass="stats-title"/>
+            <Label text="Analyse complète de vos données" styleClass="stats-subtitle"/>
+        </VBox>
+    </HBox>
+    
+    <!-- Tabs -->
+    <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" styleClass="modern-tab-pane">
+        <Tab text="📈 Évolution" closable="false">
+            <VBox fx:id="inscriptionsContainer" spacing="20">
+                <padding>
+                    <Insets top="30" right="30" bottom="30" left="30"/>
+                </padding>
+            </VBox>
+        </Tab>
+        
+        <Tab text="🥧 Répartition" closable="false">
+            <VBox fx:id="packsContainer" spacing="20">
+                <padding>
+                    <Insets top="30" right="30" bottom="30" left="30"/>
+                </padding>
+            </VBox>
+        </Tab>
+        
+        <Tab text="💰 Revenus" closable="false">
+            <VBox fx:id="revenusContainer" spacing="20">
+                <padding>
+                    <Insets top="30" right="30" bottom="30" left="30"/>
+                </padding>
+            </VBox>
+        </Tab>
+        
+        <Tab text="👥 Présences" closable="false">
+            <VBox fx:id="presencesContainer" spacing="20">
+                <padding>
+                    <Insets top="30" right="30" bottom="30" left="30"/>
+                </padding>
+            </VBox>
+        </Tab>
+        
+        <Tab text="📉 Rétention" closable="false">
+            <VBox fx:id="retentionContainer" spacing="20">
+                <padding>
+                    <Insets top="30" right="30" bottom="30" left="30"/>
+                </padding>
+            </VBox>
+        </Tab>
+    </TabPane>
+</VBox>
+
+

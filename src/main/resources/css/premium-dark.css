@@ -316,6 +316,16 @@
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 20, 0, 0, 2);
 }
 
+/* App Header (Main Header avec menu et icônes) */
+.app-header {
+    -fx-background-color: #0A0D12;
+    -fx-background-radius: 0;
+    -fx-padding: 16 24;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: rgba(154, 164, 178, 0.1);
+    -fx-effect: null;
+}
+
 .header-title {
     -fx-text-fill: #E6EAF0;
     -fx-font-size: 24px;

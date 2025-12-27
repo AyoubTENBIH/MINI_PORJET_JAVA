@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane fx:id="mainContainer" xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.demo.controllers.MainController"
+            prefWidth="1280" prefHeight="720"
+            styleClass="root">
+    <left>
+        <VBox fx:id="sidebar" spacing="0" prefWidth="260" />
+    </left>
+    <center>
+        <VBox spacing="20" alignment="CENTER">
+            <Label fx:id="welcomeLabel" text="Bienvenue dans le système de gestion" />
+        </VBox>
+    </center>
+</BorderPane>
+
+

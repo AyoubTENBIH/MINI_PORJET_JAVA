@@ -1,0 +1,95 @@
+:root {
+    /* === BACKGROUNDS === */
+    --bg-app: #0A0E1A;
+    --bg-primary: #0F1419;
+    --bg-secondary: #141B2D;
+    --bg-card: #1A2332;
+    --bg-card-hover: #1F2937;
+    --bg-elevated: #212B3C;
+    --bg-hover: rgba(255, 255, 255, 0.05);
+    --bg-active: rgba(255, 255, 255, 0.08);
+    --bg-pressed: rgba(255, 255, 255, 0.12);
+    --bg-disabled: rgba(255, 255, 255, 0.02);
+    
+    /* Backgrounds avec couleurs */
+    --bg-success-subtle: rgba(0, 230, 118, 0.1);
+    --bg-success-medium: rgba(0, 230, 118, 0.15);
+    --bg-error-subtle: rgba(239, 68, 68, 0.1);
+    --bg-error-medium: rgba(239, 68, 68, 0.15);
+    --bg-warning-subtle: rgba(255, 176, 32, 0.1);
+    --bg-warning-medium: rgba(255, 176, 32, 0.15);
+    --bg-info-subtle: rgba(59, 130, 246, 0.1);
+    --bg-info-medium: rgba(59, 130, 246, 0.15);
+    
+    /* === TEXT COLORS === */
+    --text-primary: #FFFFFF;
+    --text-secondary: #8B92A8;
+    --text-tertiary: #6B7280;
+    --text-disabled: #4B5563;
+    --text-on-accent: #0A0E1A;
+    --text-success: #00E676;
+    --text-error: #EF4444;
+    --text-warning: #FFB020;
+    --text-info: #3B82F6;
+    
+    /* === ACCENT COLORS === */
+    --accent-green-primary: #7FFF00;
+    --accent-green-secondary: #00E676;
+    --color-success: #00E676;
+    --color-error: #EF4444;
+    --color-warning: #FFB020;
+    --color-info: #3B82F6;
+    
+    /* === GRADIENTS === */
+    --gradient-green: linear-gradient(135deg, #7FFF00 0%, #00E676 100%);
+    --gradient-green-hover: linear-gradient(135deg, #90FF10 0%, #10F786 100%);
+    
+    /* === BORDERS === */
+    --border-primary: #2A3441;
+    --border-secondary: #1F2937;
+    --border-light: rgba(255, 255, 255, 0.08);
+    --border-focus: #7FFF00;
+    --border-error: #EF4444;
+    
+    /* === SHADOWS === */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.25);
+    --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.3);
+    --shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.35);
+    --shadow-green: 0 4px 12px rgba(127, 255, 0, 0.3);
+    --shadow-green-lg: 0 8px 20px rgba(127, 255, 0, 0.4);
+    
+    /* === SPACING === */
+    --space-xs: 4px;
+    --space-sm: 8px;
+    --space-md: 12px;
+    --space-lg: 16px;
+    --space-xl: 20px;
+    --space-2xl: 24px;
+    --space-3xl: 32px;
+    
+    /* === RADIUS === */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-full: 9999px;
+    
+    /* === TYPOGRAPHY === */
+    --font-primary: 'Inter', 'Segoe UI', system-ui, sans-serif;
+    --font-size-xs: 11px;
+    --font-size-sm: 12px;
+    --font-size-base: 14px;
+    --font-size-lg: 16px;
+    --font-size-xl: 18px;
+    --font-size-2xl: 20px;
+    --font-size-3xl: 24px;
+    --font-size-4xl: 28px;
+    --font-size-5xl: 32px;
+    --font-size-6xl: 36px;
+    
+    --font-weight-regular: 400;
+    --font-weight-medium: 500;
+    --font-weight-semibold: 600;
+    --font-weight-bold: 700;
+    --font-weight-extrabold: 800;
+}

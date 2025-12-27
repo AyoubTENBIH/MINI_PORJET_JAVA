@@ -8,7 +8,7 @@ import java.sql.Statement;
 import java.util.logging.Logger;
 
 /**
- * Gestionnaire de connexion à la base de données SQLite
+ * Gestionnaire de connexion à la base de données MySQL
  * Implémentation du pattern Singleton
  */
 public class DatabaseManager {
@@ -16,13 +16,20 @@ public class DatabaseManager {
     private static DatabaseManager instance;
     private Connection connection;
     
-    // Charger le driver SQLite au chargement de la classe
+    // Configuration MySQL par défaut (XAMPP)
+    private static final String DB_HOST = "localhost";
+    private static final String DB_PORT = "3306";
+    private static final String DB_NAME = "gym_management";
+    private static final String DB_USER = "root";
+    private static final String DB_PASSWORD = "";
+    
+    // Charger le driver MySQL au chargement de la classe
     static {
         try {
-            Class.forName("org.sqlite.JDBC");
-            logger.info("Driver SQLite chargé avec succès");
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            logger.info("Driver MySQL chargé avec succès");
         } catch (ClassNotFoundException e) {
-            logger.severe("ERREUR: Driver SQLite non trouvé. Vérifiez que la dépendance sqlite-jdbc est dans pom.xml");
+            logger.severe("ERREUR: Driver MySQL non trouvé. Vérifiez que la dépendance mysql-connector-j est dans pom.xml");
             e.printStackTrace();
         }
     }
@@ -39,51 +46,57 @@ public class DatabaseManager {
     }
 
     /**
-     * Obtient le chemin de la base de données
+     * Obtient l'URL de connexion MySQL
      */
-    private String getDatabasePath() {
-        // Essayer d'abord dans src/main/resources/database/
-        File resourcesDb = new File("src/main/resources/database/gym_management.db");
-        if (resourcesDb.getParentFile().exists()) {
-            return "jdbc:sqlite:src/main/resources/database/gym_management.db";
-        }
+    private String getDatabaseUrl() {
+        return String.format("jdbc:mysql://%s:%s/%s?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true",
+                DB_HOST, DB_PORT, DB_NAME);
+    }
+    
+    /**
+     * Crée la base de données si elle n'existe pas
+     */
+    private void createDatabaseIfNotExists() throws SQLException {
+        // Se connecter sans spécifier la base de données
+        String urlWithoutDb = String.format("jdbc:mysql://%s:%s/?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true",
+                DB_HOST, DB_PORT);
         
-        // Sinon, créer dans le répertoire du projet
-        File projectDb = new File("gym_management.db");
-        return "jdbc:sqlite:gym_management.db";
+        try (Connection conn = DriverManager.getConnection(urlWithoutDb, DB_USER, DB_PASSWORD);
+             Statement stmt = conn.createStatement()) {
+            
+            // Créer la base de données si elle n'existe pas
+            stmt.execute("CREATE DATABASE IF NOT EXISTS " + DB_NAME + " CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
+            logger.info("Base de données '" + DB_NAME + "' vérifiée/créée avec succès");
+        }
     }
 
     /**
-     * Obtient une connexion à la base de données
+     * Obtient une connexion à la base de données MySQL
      */
     public Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
             try {
                 // Charger le driver explicitement
                 try {
-                    Class.forName("org.sqlite.JDBC");
+                    Class.forName("com.mysql.cj.jdbc.Driver");
                 } catch (ClassNotFoundException e) {
-                    logger.severe("Driver SQLite non trouvé. Vérifiez que sqlite-jdbc est dans le classpath.");
-                    throw new SQLException("Driver SQLite non trouvé. Ajoutez la dépendance dans pom.xml", e);
+                    logger.severe("Driver MySQL non trouvé. Vérifiez que mysql-connector-j est dans le classpath.");
+                    throw new SQLException("Driver MySQL non trouvé. Ajoutez la dépendance dans pom.xml", e);
                 }
                 
-                String dbUrl = getDatabasePath();
-                logger.info("Connexion à la base de données: " + dbUrl);
+                // Créer la base de données si elle n'existe pas
+                createDatabaseIfNotExists();
                 
-                // Créer le répertoire de la base de données s'il n'existe pas
-                String dbPath = dbUrl.replace("jdbc:sqlite:", "");
-                File dbFile = new File(dbPath);
-                File dbDir = dbFile.getParentFile();
-                if (dbDir != null && !dbDir.exists()) {
-                    dbDir.mkdirs();
-                    logger.info("Répertoire de la base de données créé: " + dbDir.getAbsolutePath());
-                }
+                String dbUrl = getDatabaseUrl();
+                logger.info("Connexion à la base de données MySQL: " + dbUrl);
                 
-                connection = DriverManager.getConnection(dbUrl);
-                // SQLite gère les transactions automatiquement, pas besoin de setAutoCommit(false)
-                logger.info("Connexion à la base de données établie avec succès");
+                connection = DriverManager.getConnection(dbUrl, DB_USER, DB_PASSWORD);
+                // MySQL nécessite une gestion explicite des transactions
+                connection.setAutoCommit(false);
+                logger.info("Connexion à la base de données MySQL établie avec succès");
             } catch (SQLException e) {
-                logger.severe("Erreur lors de la connexion à la base de données: " + e.getMessage());
+                logger.severe("Erreur lors de la connexion à la base de données MySQL: " + e.getMessage());
+                logger.severe("Vérifiez que XAMPP est démarré et que MySQL est actif sur le port 3306");
                 e.printStackTrace();
                 throw e;
             }
@@ -101,140 +114,223 @@ public class DatabaseManager {
             // Table des utilisateurs (pour le système de login)
             stmt.execute("""
                 CREATE TABLE IF NOT EXISTS utilisateurs (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    username TEXT NOT NULL UNIQUE,
-                    password TEXT NOT NULL,
-                    role TEXT NOT NULL DEFAULT 'RECEPTIONNISTE',
-                    nom TEXT,
-                    prenom TEXT,
-                    actif INTEGER DEFAULT 1,
-                    date_creation TEXT DEFAULT CURRENT_TIMESTAMP
-                )
+                    id INT PRIMARY KEY AUTO_INCREMENT,
+                    username VARCHAR(255) NOT NULL UNIQUE,
+                    password VARCHAR(255) NOT NULL,
+                    role VARCHAR(50) NOT NULL DEFAULT 'RECEPTIONNISTE',
+                    nom VARCHAR(255),
+                    prenom VARCHAR(255),
+                    actif TINYINT(1) DEFAULT 1,
+                    date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    INDEX idx_username (username)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             """);
 
             // Table des packs/abonnements
             stmt.execute("""
                 CREATE TABLE IF NOT EXISTS packs (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    nom TEXT NOT NULL,
-                    prix REAL NOT NULL,
+                    id INT PRIMARY KEY AUTO_INCREMENT,
+                    nom VARCHAR(255) NOT NULL,
+                    prix DECIMAL(10,2) NOT NULL,
                     activites TEXT,
-                    jours_disponibilite TEXT,
-                    horaires TEXT,
-                    duree INTEGER NOT NULL,
-                    unite_duree TEXT DEFAULT 'MOIS',
-                    seances_semaine INTEGER,
-                    acces_coach INTEGER DEFAULT 0,
-                    actif INTEGER DEFAULT 1,
+                    jours_disponibilite VARCHAR(255),
+                    horaires VARCHAR(255),
+                    duree INT NOT NULL,
+                    unite_duree VARCHAR(50) DEFAULT 'MOIS',
+                    seances_semaine INT,
+                    acces_coach TINYINT(1) DEFAULT 0,
+                    actif TINYINT(1) DEFAULT 1,
                     description TEXT,
-                    date_creation TEXT DEFAULT CURRENT_TIMESTAMP
-                )
+                    date_creation TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             """);
 
             // Table des adhérents
             stmt.execute("""
                 CREATE TABLE IF NOT EXISTS adherents (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    cin TEXT UNIQUE,
-                    nom TEXT NOT NULL,
-                    prenom TEXT NOT NULL,
-                    date_naissance TEXT,
-                    telephone TEXT,
-                    email TEXT,
+                    id INT PRIMARY KEY AUTO_INCREMENT,
+                    cin VARCHAR(50) UNIQUE,
+                    nom VARCHAR(255) NOT NULL,
+                    prenom VARCHAR(255) NOT NULL,
+                    date_naissance DATE,
+                    telephone VARCHAR(50),
+                    email VARCHAR(255),
                     adresse TEXT,
-                    photo TEXT,
-                    poids REAL,
-                    taille REAL,
+                    photo VARCHAR(500),
+                    poids DECIMAL(5,2),
+                    taille DECIMAL(5,2),
                     objectifs TEXT,
                     problemes_sante TEXT,
-                    pack_id INTEGER,
-                    date_debut TEXT,
-                    date_fin TEXT,
-                    actif INTEGER DEFAULT 1,
-                    date_inscription TEXT DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (pack_id) REFERENCES packs(id)
-                )
+                    pack_id INT,
+                    date_debut DATE,
+                    date_fin DATE,
+                    actif TINYINT(1) DEFAULT 1,
+                    date_inscription TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    CONSTRAINT fk_adherents_pack FOREIGN KEY (pack_id) REFERENCES packs(id) ON DELETE SET NULL,
+                    INDEX idx_cin (cin),
+                    INDEX idx_pack_id (pack_id),
+                    INDEX idx_actif (actif)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             """);
 
             // Table des paiements
             stmt.execute("""
                 CREATE TABLE IF NOT EXISTS paiements (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    adherent_id INTEGER NOT NULL,
-                    pack_id INTEGER,
-                    montant REAL NOT NULL,
-                    date_paiement TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    methode_paiement TEXT NOT NULL,
-                    statut TEXT DEFAULT 'VALIDE',
-                    reference TEXT,
-                    date_debut_abonnement TEXT,
-                    date_fin_abonnement TEXT,
+                    id INT PRIMARY KEY AUTO_INCREMENT,
+                    adherent_id INT NOT NULL,
+                    pack_id INT,
+                    montant DECIMAL(10,2) NOT NULL,
+                    date_paiement TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    methode_paiement VARCHAR(50) NOT NULL,
+                    statut VARCHAR(50) DEFAULT 'VALIDE',
+                    reference VARCHAR(255),
+                    date_debut_abonnement DATE,
+                    date_fin_abonnement DATE,
                     notes TEXT,
-                    FOREIGN KEY (adherent_id) REFERENCES adherents(id),
-                    FOREIGN KEY (pack_id) REFERENCES packs(id)
-                )
-            """);
-
-            // Table des présences/check-ins
-            stmt.execute("""
-                CREATE TABLE IF NOT EXISTS presences (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    adherent_id INTEGER NOT NULL,
-                    date_presence TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    heure_arrivee TEXT,
-                    heure_depart TEXT,
-                    notes TEXT,
-                    FOREIGN KEY (adherent_id) REFERENCES adherents(id)
-                )
+                    CONSTRAINT fk_paiements_adherent FOREIGN KEY (adherent_id) REFERENCES adherents(id) ON DELETE CASCADE,
+                    CONSTRAINT fk_paiements_pack FOREIGN KEY (pack_id) REFERENCES packs(id) ON DELETE SET NULL,
+                    INDEX idx_adherent_id (adherent_id),
+                    INDEX idx_date_paiement (date_paiement),
+                    INDEX idx_statut (statut)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             """);
 
             // Table des cours collectifs
             stmt.execute("""
                 CREATE TABLE IF NOT EXISTS cours_collectifs (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    nom TEXT NOT NULL,
+                    id INT PRIMARY KEY AUTO_INCREMENT,
+                    nom VARCHAR(255) NOT NULL,
                     description TEXT,
-                    coach_id INTEGER,
-                    jour_semaine TEXT,
-                    heure_debut TEXT,
-                    heure_fin TEXT,
-                    capacite_max INTEGER DEFAULT 20,
-                    actif INTEGER DEFAULT 1,
-                    FOREIGN KEY (coach_id) REFERENCES utilisateurs(id)
-                )
+                    coach_id INT,
+                    jour_semaine VARCHAR(50),
+                    heure_debut TIME,
+                    heure_fin TIME,
+                    capacite_max INT DEFAULT 20,
+                    actif TINYINT(1) DEFAULT 1,
+                    CONSTRAINT fk_cours_coach FOREIGN KEY (coach_id) REFERENCES utilisateurs(id) ON DELETE SET NULL,
+                    INDEX idx_coach_id (coach_id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             """);
 
             // Table des réservations de cours
             stmt.execute("""
                 CREATE TABLE IF NOT EXISTS reservations_cours (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    cours_id INTEGER NOT NULL,
-                    adherent_id INTEGER NOT NULL,
-                    date_reservation TEXT NOT NULL,
-                    statut TEXT DEFAULT 'CONFIRME',
-                    FOREIGN KEY (cours_id) REFERENCES cours_collectifs(id),
-                    FOREIGN KEY (adherent_id) REFERENCES adherents(id)
-                )
+                    id INT PRIMARY KEY AUTO_INCREMENT,
+                    cours_id INT NOT NULL,
+                    adherent_id INT NOT NULL,
+                    date_reservation DATE NOT NULL,
+                    statut VARCHAR(50) DEFAULT 'CONFIRME',
+                    CONSTRAINT fk_reservations_cours FOREIGN KEY (cours_id) REFERENCES cours_collectifs(id) ON DELETE CASCADE,
+                    CONSTRAINT fk_reservations_adherent FOREIGN KEY (adherent_id) REFERENCES adherents(id) ON DELETE CASCADE,
+                    INDEX idx_cours_id (cours_id),
+                    INDEX idx_adherent_id (adherent_id),
+                    INDEX idx_date_reservation (date_reservation)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             """);
 
             // Table des équipements
             stmt.execute("""
                 CREATE TABLE IF NOT EXISTS equipements (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    nom TEXT NOT NULL,
-                    type TEXT,
-                    etat TEXT DEFAULT 'FONCTIONNEL',
-                    date_achat TEXT,
-                    date_maintenance TEXT,
+                    id INT PRIMARY KEY AUTO_INCREMENT,
+                    nom VARCHAR(255) NOT NULL,
+                    type VARCHAR(100),
+                    etat VARCHAR(50) DEFAULT 'FONCTIONNEL',
+                    date_achat DATE,
+                    date_maintenance DATE,
                     notes TEXT
-                )
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            """);
+
+            // Table des notifications
+            stmt.execute("""
+                CREATE TABLE IF NOT EXISTS notifications (
+                    id INT PRIMARY KEY AUTO_INCREMENT,
+                    user_id INT,
+                    type VARCHAR(50) NOT NULL,
+                    title VARCHAR(255) NOT NULL,
+                    message TEXT NOT NULL,
+                    `read` TINYINT(1) DEFAULT 0,
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    CONSTRAINT fk_notifications_user FOREIGN KEY (user_id) REFERENCES utilisateurs(id) ON DELETE CASCADE,
+                    INDEX idx_user_id (user_id),
+                    INDEX idx_read (read),
+                    INDEX idx_created_at (created_at)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            """);
+
+            // Table des activités
+            stmt.execute("""
+                CREATE TABLE IF NOT EXISTS activities (
+                    id INT PRIMARY KEY AUTO_INCREMENT,
+                    user_id INT,
+                    type VARCHAR(50) NOT NULL,
+                    description TEXT NOT NULL,
+                    entity_type VARCHAR(50),
+                    entity_id INT,
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    CONSTRAINT fk_activities_user FOREIGN KEY (user_id) REFERENCES utilisateurs(id) ON DELETE CASCADE,
+                    INDEX idx_user_id (user_id),
+                    INDEX idx_type (type),
+                    INDEX idx_created_at (created_at)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            """);
+
+            // Table des objectifs
+            stmt.execute("""
+                CREATE TABLE IF NOT EXISTS objectifs (
+                    id INT PRIMARY KEY AUTO_INCREMENT,
+                    type VARCHAR(50) NOT NULL,
+                    valeur DECIMAL(10,2) NOT NULL,
+                    date_debut DATE NOT NULL,
+                    date_fin DATE,
+                    actif TINYINT(1) DEFAULT 1,
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    INDEX idx_type (type),
+                    INDEX idx_actif (actif)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            """);
+
+            // Table des préférences utilisateur
+            stmt.execute("""
+                CREATE TABLE IF NOT EXISTS user_preferences (
+                    id INT PRIMARY KEY AUTO_INCREMENT,
+                    user_id INT UNIQUE NOT NULL,
+                    theme VARCHAR(50) DEFAULT 'dark',
+                    language VARCHAR(10) DEFAULT 'fr',
+                    sidebar_collapsed TINYINT(1) DEFAULT 0,
+                    updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    CONSTRAINT fk_user_preferences_user FOREIGN KEY (user_id) REFERENCES utilisateurs(id) ON DELETE CASCADE,
+                    INDEX idx_user_id (user_id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            """);
+
+            // Table des favoris
+            stmt.execute("""
+                CREATE TABLE IF NOT EXISTS favoris (
+                    id INT PRIMARY KEY AUTO_INCREMENT,
+                    user_id INT NOT NULL,
+                    page_name VARCHAR(255) NOT NULL,
+                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                    CONSTRAINT fk_favoris_user FOREIGN KEY (user_id) REFERENCES utilisateurs(id) ON DELETE CASCADE,
+                    UNIQUE KEY unique_user_page (user_id, page_name),
+                    INDEX idx_user_id (user_id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+            """);
+
+            // Insérer un objectif par défaut pour le taux d'occupation
+            stmt.execute("""
+                INSERT IGNORE INTO objectifs (type, valeur, date_debut, actif)
+                VALUES ('taux_occupation', 80.0, CURDATE(), 1)
             """);
 
             // Créer un utilisateur admin par défaut (username: admin, password: admin)
             stmt.execute("""
-                INSERT OR IGNORE INTO utilisateurs (username, password, role, nom, prenom)
+                INSERT IGNORE INTO utilisateurs (username, password, role, nom, prenom)
                 VALUES ('admin', 'admin', 'ADMIN', 'Administrateur', 'Système')
             """);
+            
+            // Commit les changements
+            conn.commit();
 
             logger.info("Base de données initialisée avec succès");
 
@@ -253,7 +349,7 @@ public class DatabaseManager {
     private void insertTestData(Statement stmt, Connection conn) throws SQLException {
         // Insérer des packs de test
         stmt.execute("""
-            INSERT OR IGNORE INTO packs (nom, prix, activites, jours_disponibilite, horaires, duree, unite_duree, seances_semaine, acces_coach, description)
+            INSERT IGNORE INTO packs (nom, prix, activites, jours_disponibilite, horaires, duree, unite_duree, seances_semaine, acces_coach, description)
             VALUES 
             ('Pack Tapis + Musculation', 200.0, 'Musculation,Tapis', 'Lundi-Vendredi', 'Matin,Apres-midi', 1, 'MOIS', 5, 0, 'Accès aux machines de musculation et tapis de course'),
             ('Pack Musculation', 150.0, 'Musculation', 'Lundi-Vendredi', 'Tous', 1, 'MOIS', 7, 0, 'Accès complet à la salle de musculation'),
@@ -367,7 +463,7 @@ public class DatabaseManager {
             
             // Récupérer l'ID de l'adhérent inséré
             int adherentId = 0;
-            try (var rs = stmt.executeQuery("SELECT last_insert_rowid() as id")) {
+            try (var rs = stmt.executeQuery("SELECT LAST_INSERT_ID() as id")) {
                 if (rs.next()) {
                     adherentId = rs.getInt("id");
                 }
@@ -395,6 +491,9 @@ public class DatabaseManager {
             
             stmt.execute(insertPaiement);
         }
+        
+        // Commit toutes les insertions
+        conn.commit();
 
         logger.info("Données de test insérées: " + adherentsData.length + " adhérents avec leurs paiements");
     }

@@ -2,6 +2,7 @@ package com.example.demo;
 
 import com.example.demo.controllers.LoginController;
 import com.example.demo.utils.DatabaseManager;
+import com.example.demo.utils.InsertAdherents;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -17,7 +18,14 @@ public class HelloApplication extends Application {
     public void start(Stage primaryStage) {
         try {
             // Initialisation de la base de données
+            System.out.println("=== Initialisation de la base de données ===");
             DatabaseManager.getInstance().initializeDatabase();
+            System.out.println("=== Base de données initialisée ===");
+            
+            // Insertion automatique de 50 adhérents pour les statistiques (si aucun n'existe)
+            System.out.println("=== Démarrage de l'insertion automatique ===");
+            InsertAdherents.insert50();
+            System.out.println("=== Fin de l'insertion automatique ===");
             
             // Chargement de la vue de connexion
             LoginController loginController = new LoginController();

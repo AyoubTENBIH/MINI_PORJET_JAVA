@@ -1,0 +1,46 @@
+/* Styles spécifiques pour les tabs de paiement - Priorité élevée */
+.tab-pane.paiement-tabs {
+    -fx-background-color: #1a1a1a;
+    -fx-tab-min-width: 200px;
+    -fx-tab-min-height: 48px;
+}
+
+.tab-pane.paiement-tabs .tab {
+    -fx-background-color: #2d2d2d;
+    -fx-background-radius: 12px 12px 0 0;
+    -fx-text-fill: #f3f4f6;
+    -fx-font-weight: 500;
+    -fx-font-size: 14px;
+    -fx-padding: 14px 28px;
+    -fx-border-width: 0;
+    -fx-cursor: hand;
+}
+
+.tab-pane.paiement-tabs .tab:hover {
+    -fx-background-color: #374151;
+    -fx-text-fill: #f9fafb;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 6, 0, 0, 2);
+}
+
+.tab-pane.paiement-tabs .tab:selected {
+    -fx-background-color: #059669;
+    -fx-text-fill: #f9fafb;
+    -fx-font-weight: 600;
+    -fx-effect: dropshadow(gaussian, rgba(5, 150, 105, 0.4), 10, 0, 0, 3);
+}
+
+.tab-pane.paiement-tabs .tab:selected:hover {
+    -fx-background-color: #10b981;
+    -fx-text-fill: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.5), 12, 0, 0, 4);
+}
+
+.tab-pane.paiement-tabs .tab-header-area .tab-header-background {
+    -fx-background-color: #1a1a1a;
+}
+
+.tab-pane.paiement-tabs .tab-content-area {
+    -fx-background-color: #0d0f1a;
+    -fx-background-radius: 0 0 12px 12px;
+}
+

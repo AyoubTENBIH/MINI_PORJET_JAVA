@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.demo.controllers.AdherentManagementController"
+      spacing="15" styleClass="page-container">
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+    
+    <!-- Title -->
+    <Label text="Gestion des Adhérents" styleClass="page-title-large"/>
+    
+    <!-- Top Bar: Search and Actions -->
+    <HBox fx:id="topBar" spacing="10">
+        <TextField fx:id="searchField" promptText="Rechercher par nom, CIN, téléphone..." 
+                   prefWidth="400"/>
+        <Button fx:id="addButton" text="+ Nouvel Adhérent" styleClass="btn-success"/>
+        <Button fx:id="editButton" text="Modifier" styleClass="btn-primary"/>
+        <Button fx:id="deleteButton" text="Supprimer" styleClass="btn-danger"/>
+    </HBox>
+    
+    <!-- Adherents Table -->
+    <TableView fx:id="adherentsTable" prefHeight="500" VBox.vgrow="ALWAYS">
+        <columns>
+            <TableColumn fx:id="cinColumn" text="CIN" prefWidth="120"/>
+            <TableColumn fx:id="nomColumn" text="Nom" prefWidth="150"/>
+            <TableColumn fx:id="prenomColumn" text="Prénom" prefWidth="150"/>
+            <TableColumn fx:id="telephoneColumn" text="Téléphone" prefWidth="120"/>
+            <TableColumn fx:id="packColumn" text="Pack" prefWidth="150"/>
+            <TableColumn fx:id="dateDebutColumn" text="Date Début" prefWidth="120"/>
+            <TableColumn fx:id="dateFinColumn" text="Date Fin" prefWidth="120"/>
+            <TableColumn fx:id="statutColumn" text="Statut" prefWidth="100"/>
+        </columns>
+    </TableView>
+</VBox>
+
+

@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.example.demo.controllers.DashboardController"
+            styleClass="root">
+    
+    <!-- Header -->
+    <top>
+        <HBox fx:id="header" spacing="16" alignment="CENTER_LEFT" 
+              styleClass="header" prefHeight="70">
+            <padding>
+                <Insets top="16" right="32" bottom="16" left="32"/>
+            </padding>
+            <children>
+                <Button fx:id="menuBtn" styleClass="header-icon-btn"/>
+                <Button fx:id="starBtn" styleClass="header-icon-btn"/>
+                <Label fx:id="breadcrumbLabel" text="Dashboard / Overview" 
+                       styleClass="breadcrumb-label"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button fx:id="moonBtn" styleClass="header-icon-btn"/>
+                <Button fx:id="refreshBtn" styleClass="header-icon-btn"/>
+                <StackPane fx:id="bellContainer">
+                    <Button fx:id="bellBtn" styleClass="header-icon-btn"/>
+                    <Label fx:id="notificationBadge" styleClass="notification-badge" visible="false"/>
+                </StackPane>
+                <Button fx:id="globeBtn" styleClass="header-icon-btn"/>
+            </children>
+        </HBox>
+    </top>
+    
+    <!-- Title and Filter Section -->
+    <center>
+        <VBox spacing="0">
+            <HBox fx:id="titleFilterSection" alignment="CENTER_LEFT" prefHeight="60">
+                <padding>
+                    <Insets top="24" right="32" bottom="24" left="32"/>
+                </padding>
+                <children>
+                    <Label fx:id="titleLabel" text="Overview" styleClass="page-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button fx:id="filterBtn" styleClass="filter-button">
+                        <HBox alignment="CENTER" spacing="8">
+                            <Label fx:id="filterLabel" text="Today" styleClass="filter-label"/>
+                            <Node fx:id="chevronIcon"/>
+                        </HBox>
+                    </Button>
+                </children>
+            </HBox>
+            
+            <!-- Content Area -->
+            <ScrollPane fx:id="contentScroll" fitToWidth="true" fitToHeight="true" 
+                       hbarPolicy="NEVER" styleClass="content-area">
+                <VBox fx:id="contentWrapper" styleClass="content-wrapper">
+                    <padding>
+                        <Insets top="20" right="24" bottom="20" left="24"/>
+                    </padding>
+                    <children>
+                        <!-- KPI Grid -->
+                        <HBox fx:id="kpiGrid" spacing="20"/>
+                        
+                        <!-- Charts Row -->
+                        <HBox fx:id="chartsRow" spacing="20"/>
+                        
+                        <!-- Area Chart -->
+                        <VBox fx:id="areaChartCard" spacing="0"/>
+                        
+                        <!-- Bottom Row -->
+                        <HBox fx:id="bottomRow" spacing="20"/>
+                    </children>
+                </VBox>
+            </ScrollPane>
+        </VBox>
+    </center>
+    
+    <!-- Right Sidebar -->
+    <right>
+        <VBox fx:id="rightSidebar" spacing="20" styleClass="right-sidebar">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+            <children>
+                <!-- Notifications Panel -->
+                <VBox fx:id="notificationPanel" spacing="10" styleClass="panel"/>
+                
+                <!-- Activity Panel -->
+                <VBox fx:id="activityPanel" spacing="10" styleClass="panel"/>
+            </children>
+        </VBox>
+    </right>
+</BorderPane>
+
+

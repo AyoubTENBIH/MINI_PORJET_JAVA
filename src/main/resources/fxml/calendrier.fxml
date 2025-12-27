@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.demo.controllers.CalendrierController"
+      spacing="24" styleClass="page-container">
+    <padding>
+        <Insets top="24" right="24" bottom="24" left="24"/>
+    </padding>
+    
+    <!-- Title -->
+    <Label text="Calendrier Dynamique" styleClass="page-title-large"/>
+    
+    <!-- Controls: Navigation -->
+    <HBox fx:id="controlsBox" spacing="10" alignment="CENTER_LEFT">
+        <Button fx:id="prevMonthBtn" text="◀ Mois Précédent" styleClass="btn-secondary"/>
+        <Button fx:id="todayBtn" text="Aujourd'hui" styleClass="btn-secondary"/>
+        <Button fx:id="nextMonthBtn" text="Mois Suivant ▶" styleClass="btn-secondary"/>
+        <Label fx:id="monthLabel" styleClass="month-label"/>
+    </HBox>
+    
+    <!-- Legend -->
+    <HBox fx:id="legendBox" spacing="20" styleClass="legend-box">
+        <padding>
+            <Insets top="10" right="10" bottom="10" left="10"/>
+        </padding>
+        <children>
+            <Label text="Légende :" styleClass="legend-title"/>
+            <Label fx:id="legendGreen" text="🟢 Actif" styleClass="legend-item"/>
+            <Label fx:id="legendOrange" text="🟠 Expire bientôt" styleClass="legend-item"/>
+            <Label fx:id="legendRed" text="🔴 Expiré" styleClass="legend-item"/>
+        </children>
+    </HBox>
+    
+    <!-- Calendar Grid -->
+    <GridPane fx:id="calendarGrid" hgap="8" vgap="8" styleClass="calendar-grid">
+        <padding>
+            <Insets top="16" right="16" bottom="16" left="16"/>
+        </padding>
+    </GridPane>
+</VBox>
+
+

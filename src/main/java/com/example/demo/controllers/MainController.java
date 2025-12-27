@@ -51,7 +51,9 @@ public class MainController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/main.fxml"));
             loader.setController(this);
-            return loader.load();
+            Parent root = loader.load();
+            // initialize() sera appelé automatiquement par JavaFX après le chargement
+            return root;
         } catch (Exception e) {
             // Si le FXML n'existe pas, créer une vue basique
             return createBasicMainView();
@@ -63,11 +65,12 @@ public class MainController {
         root.setPrefSize(1280, 720);
         root.getStyleClass().add("root");
 
-        // Créer la sidebar premium
+        // Créer la sidebar premium (hauteur 100%)
         VBox sidebar = createPremiumSidebar();
+        sidebar.setPrefHeight(Double.MAX_VALUE);
         root.setLeft(sidebar);
 
-        // Zone de contenu principale
+        // Zone de contenu principale (contiendra le header et le contenu)
         this.mainContainer = root;
         showDashboard();
 
@@ -101,15 +104,6 @@ public class MainController {
         Region spacer2 = new Region();
         spacer2.setPrefHeight(24);
         sidebar.getChildren().add(spacer2);
-
-        // 3. SEARCH BAR
-        HBox searchBar = createSearchBar();
-        sidebar.getChildren().add(searchBar);
-        
-        // Espacement (24px entre sections)
-        Region spacer3 = new Region();
-        spacer3.setPrefHeight(24);
-        sidebar.getChildren().add(spacer3);
 
         // 4. DASHBOARDS SECTION
         Label dashboardsLabel = createSectionTitle("DASHBOARDS");
@@ -172,9 +166,8 @@ public class MainController {
         HBox logoSection = new HBox(12);
         logoSection.setAlignment(Pos.CENTER_LEFT);
         
-        // Icône/Logo
-        Label logoIcon = new Label("🏋️");
-        logoIcon.setStyle("-fx-font-size: 24px;");
+        // Icône/Logo SVG
+        Node logoIcon = loadSVGIcon("icon-gym", 24, "#9AA4B2");
         
         VBox logoText = new VBox(2);
         Label appName = new Label("GYM");
@@ -346,12 +339,18 @@ public class MainController {
                 SVGPath svgPathNode = new SVGPath();
                 svgPathNode.setContent(svgPath);
                 
-                // Configuration du style (stroke pour les icônes outline)
-                svgPathNode.setFill(null); // Pas de fill pour les icônes outline
-                svgPathNode.setStroke(Color.web(color)); // Couleur personnalisée
-                svgPathNode.setStrokeWidth(2.0);
-                svgPathNode.setStrokeLineCap(StrokeLineCap.ROUND);
-                svgPathNode.setStrokeLineJoin(StrokeLineJoin.ROUND);
+                // Configuration du style
+                // Pour l'icône gym (remplie), utiliser fill. Pour les autres (outline), utiliser stroke
+                if ("icon-gym".equals(iconName)) {
+                    svgPathNode.setFill(Color.web(color)); // Fill pour l'icône gym
+                    svgPathNode.setStroke(null);
+                } else {
+                    svgPathNode.setFill(null); // Pas de fill pour les icônes outline
+                    svgPathNode.setStroke(Color.web(color)); // Couleur personnalisée
+                    svgPathNode.setStrokeWidth(2.0);
+                    svgPathNode.setStrokeLineCap(StrokeLineCap.ROUND);
+                    svgPathNode.setStrokeLineJoin(StrokeLineJoin.ROUND);
+                }
                 
                 // Calculer le scale pour obtenir la taille désirée
                 // Les SVG sont conçus pour un viewBox de 24x24
@@ -390,7 +389,12 @@ public class MainController {
     private void setIconColor(Node iconContainer, String color) {
         if (iconContainer.getUserData() instanceof SVGPath) {
             SVGPath svgPath = (SVGPath) iconContainer.getUserData();
-            svgPath.setStroke(Color.web(color));
+            // Pour l'icône gym (remplie), changer le fill. Pour les autres, changer le stroke
+            if (svgPath.getFill() != null) {
+                svgPath.setFill(Color.web(color));
+            } else {
+                svgPath.setStroke(Color.web(color));
+            }
         }
     }
     
@@ -409,6 +413,13 @@ public class MainController {
             case "icon-help" -> SvgIcons.HELP;
             case "icon-search" -> SvgIcons.SEARCH;
             case "icon-chevron-down" -> SvgIcons.CHEVRON_DOWN;
+            case "icon-gym" -> SvgIcons.GYM;
+            case "icon-menu" -> SvgIcons.MENU;
+            case "icon-star" -> SvgIcons.STAR;
+            case "icon-moon" -> SvgIcons.MOON;
+            case "icon-refresh" -> SvgIcons.REFRESH;
+            case "icon-bell" -> SvgIcons.BELL;
+            case "icon-globe" -> SvgIcons.GLOBE;
             default -> null;
         };
     }
@@ -460,6 +471,13 @@ public class MainController {
             case "icon-help": return "❓";
             case "icon-search": return "🔍";
             case "icon-chevron-down": return "⌄";
+            case "icon-gym": return "🏋️";
+            case "icon-menu": return "☰";
+            case "icon-star": return "⭐";
+            case "icon-moon": return "🌙";
+            case "icon-refresh": return "↻";
+            case "icon-bell": return "🔔";
+            case "icon-globe": return "🌐";
             default: return "•";
         }
     }
@@ -541,6 +559,97 @@ public class MainController {
         if (welcomeLabel != null) {
             welcomeLabel.setText("Bienvenue dans le système de gestion");
         }
+        
+        // Si la sidebar existe (chargée depuis FXML), la remplir avec le contenu
+        if (sidebar != null && sidebar.getChildren().isEmpty()) {
+            populateSidebar();
+        }
+        
+        // Initialiser le dashboard par défaut
+        if (mainContainer != null) {
+            showDashboard();
+        }
+    }
+    
+    /**
+     * Remplit la sidebar avec tous les éléments du menu
+     */
+    private void populateSidebar() {
+        if (sidebar == null) return;
+        
+        sidebar.setPrefWidth(260);
+        sidebar.setPadding(new Insets(24, 16, 24, 16));
+        sidebar.getStyleClass().add("sidebar");
+        sidebar.setStyle("-fx-background-color: linear-gradient(to bottom, #0A0D12, #070A0E);");
+        
+        // 1. LOGO & BRANDING (Haut)
+        HBox logoSection = createLogoSection();
+        sidebar.getChildren().add(logoSection);
+        
+        // Espacement (24px entre sections)
+        Region spacer1 = new Region();
+        spacer1.setPrefHeight(24);
+        sidebar.getChildren().add(spacer1);
+        
+        // 2. USER CARD
+        VBox userCard = createUserCard();
+        sidebar.getChildren().add(userCard);
+        
+        // Espacement (24px entre sections)
+        Region spacer2 = new Region();
+        spacer2.setPrefHeight(24);
+        sidebar.getChildren().add(spacer2);
+        
+        // 4. DASHBOARDS SECTION
+        Label dashboardsLabel = createSectionTitle("DASHBOARDS");
+        sidebar.getChildren().add(dashboardsLabel);
+        
+        Button dashboardBtn = createMenuItem("Dashboard", "mdi-view-dashboard", "dashboard");
+        Button statistiquesBtn = createMenuItem("Statistiques", "mdi-chart-line", "statistiques");
+        
+        sidebar.getChildren().addAll(dashboardBtn, statistiquesBtn);
+        
+        // Espacement (24px entre sections)
+        Region spacer4 = new Region();
+        spacer4.setPrefHeight(24);
+        sidebar.getChildren().add(spacer4);
+        
+        // 5. GESTION SECTION
+        Label gestionLabel = createSectionTitle("GESTION");
+        sidebar.getChildren().add(gestionLabel);
+        
+        Button packsBtn = createMenuItem("Packs", "mdi-package-variant", "packs");
+        Button adherentsBtn = createMenuItem("Adhérents", "mdi-account-group", "adherents");
+        Button paiementsBtn = createMenuItem("Paiements", "mdi-credit-card", "paiements");
+        Button calendrierBtn = createMenuItem("Calendrier", "mdi-calendar", "calendrier");
+        
+        sidebar.getChildren().addAll(packsBtn, adherentsBtn, paiementsBtn, calendrierBtn);
+        
+        // Espacement (24px entre sections)
+        Region spacer5 = new Region();
+        spacer5.setPrefHeight(24);
+        sidebar.getChildren().add(spacer5);
+        
+        // 6. SETTINGS SECTION
+        Label settingsLabel = createSectionTitle("SETTINGS");
+        sidebar.getChildren().add(settingsLabel);
+        
+        Button settingsBtn = createMenuItem("Paramètres", "mdi-cog", "settings");
+        Button helpBtn = createMenuItem("Aide", "mdi-help-circle", "help");
+        
+        sidebar.getChildren().addAll(settingsBtn, helpBtn);
+        
+        // Spacer pour pousser le footer en bas
+        Region bottomSpacer = new Region();
+        VBox.setVgrow(bottomSpacer, Priority.ALWAYS);
+        sidebar.getChildren().add(bottomSpacer);
+        
+        // 7. FOOTER (Logo/Version)
+        HBox footer = createFooter();
+        sidebar.getChildren().add(footer);
+        
+        // Animer la sidebar
+        AnimationUtils.slideInLeft(sidebar);
     }
 
     private void showDashboard() {
@@ -549,6 +658,7 @@ public class MainController {
         }
         if (mainContainer != null) {
             mainContainer.setCenter(dashboardController.getView());
+            dashboardController.updateBreadcrumb("dashboard");
         }
     }
 
@@ -594,6 +704,10 @@ public class MainController {
         }
         if (mainContainer != null) {
             mainContainer.setCenter(statistiquesController.getView());
+            if (dashboardController != null) {
+                dashboardController.updateBreadcrumb("statistiques");
+            }
         }
     }
+    
 }

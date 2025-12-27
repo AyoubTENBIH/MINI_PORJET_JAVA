@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           fx:controller="com.example.demo.controllers.LoginController"
+           styleClass="root"
+           alignment="CENTER">
+    <VBox alignment="CENTER" spacing="20" styleClass="login-container" prefWidth="400" prefHeight="500">
+        <padding>
+            <Insets top="30" right="30" bottom="30" left="30"/>
+        </padding>
+        
+        <Label text="🏋️ Gym Management System" styleClass="app-title"/>
+        <Label text="Système de gestion de salle de sport" styleClass="app-subtitle"/>
+        
+        <Label text="Nom d'utilisateur"/>
+        <TextField fx:id="usernameField" promptText="Nom d'utilisateur" prefWidth="300" styleClass="text-field"/>
+        
+        <Label text="Mot de passe"/>
+        <PasswordField fx:id="passwordField" promptText="Mot de passe" prefWidth="300" styleClass="text-field"/>
+        
+        <Button fx:id="loginButton" text="Se connecter" styleClass="login-button" onAction="#handleLogin"/>
+        
+        <Label fx:id="errorLabel" styleClass="error-label" visible="false"/>
+    </VBox>
+</StackPane>
+
+

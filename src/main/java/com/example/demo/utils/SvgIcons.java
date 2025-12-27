@@ -73,6 +73,67 @@ public class SvgIcons {
     public static final String CHEVRON_DOWN = 
         "M 6 10 L 12 16 L 18 10 L 6 10 Z";
     
+    // Gym - Weight/Barbell icon (extrait depuis gym-svgrepo-com.svg)
+    // Path original avec virgules remplacées par des espaces pour compatibilité SVGPath JavaFX
+    public static final String GYM = 
+        "M 22.942 6.837 L 20.76 4.654 L 21.707 3.707 A 1 1 0 1 0 20.293 2.293 L 19.346 3.24 L 17.163 1.058 A 3.7 3.7 0 0 0 12.058 1.058 A 3.609 3.609 0 0 0 12.058 6.163 L 14.24 8.346 L 8.346 14.24 L 6.163 12.058 A 3.7 3.7 0 0 0 1.058 12.058 A 3.609 3.609 0 0 0 1.058 17.163 L 3.24 19.346 L 2.293 20.293 A 1 1 0 1 0 3.707 21.707 L 4.654 20.76 L 6.837 22.942 A 3.609 3.609 0 0 0 11.942 22.942 A 3.608 3.608 0 0 0 11.942 17.837 L 9.76 15.655 L 15.655 9.76 L 17.837 11.942 A 3.609 3.609 0 0 0 22.942 11.942 A 3.608 3.608 0 0 0 22.942 6.837 Z " +
+        "M 11 20.39 A 1.6 1.6 0 0 1 10.528 21.528 A 1.647 1.647 0 0 1 8.251 21.528 L 2.472 15.749 A 1.61 1.61 0 1 1 4.749 13.472 L 10.528 19.251 A 1.6 1.6 0 0 1 11 20.39 Z " +
+        "M 21.528 10.528 A 1.647 1.647 0 0 1 19.251 10.528 L 13.472 4.749 A 1.61 1.61 0 1 1 15.749 2.472 L 21.528 8.251 A 1.609 1.609 0 0 1 21.528 10.528 Z";
+    
+    // Menu - Hamburger icon (3 lignes horizontales)
+    public static final String MENU = 
+        "M 3 12 L 21 12 M 3 6 L 21 6 M 3 18 L 21 18";
+    
+    // Star icon
+    public static final String STAR = 
+        "M 12 2 L 15.09 8.26 L 22 9.27 L 17 14.14 L 18.18 21.02 L 12 17.77 L 5.82 21.02 L 7 14.14 L 2 9.27 L 8.91 8.26 Z";
+    
+    // Moon - Dark mode icon
+    public static final String MOON = 
+        "M 21 12.79 A 9 9 0 1 1 11.21 3 A 7 7 0 0 0 21 12.79 Z";
+    
+    // Refresh - Reload icon
+    public static final String REFRESH = 
+        "M 1 4 L 1 10 L 7 10 M 23 20 L 23 14 L 17 14 M 20.49 9 A 9 9 0 0 0 5.64 5.64 L 1 10 M 23 14 L 18.64 18.36 A 9 9 0 0 1 3.51 15";
+    
+    // Bell - Notification icon
+    public static final String BELL = 
+        "M 18 8 A 6 6 0 0 0 6 8 C 6 15 3 17 3 17 H 21 S 18 15 18 8 M 13.73 21 A 2 2 0 0 1 10.27 21";
+    
+    // Globe - World/Language icon
+    public static final String GLOBE = 
+        "M 12 2 A 10 10 0 1 1 12 22 A 10 10 0 1 1 12 2 M 2 12 L 22 12 M 12 2 A 15.3 15.3 0 0 1 16 12 A 15.3 15.3 0 0 1 12 22 A 15.3 15.3 0 0 1 8 12 A 15.3 15.3 0 0 1 12 2";
+    
+    // Trending Up - Chart line going up (depuis trending-up.svg)
+    public static final String TRENDING_UP = 
+        "M 23 6 L 13.5 15.5 L 8.5 10.5 L 1 18 M 17 6 L 23 6 L 23 12";
+    
+    // Trending Down - Chart line going down (depuis trending-down.svg)
+    public static final String TRENDING_DOWN = 
+        "M 23 18 L 13.5 8.5 L 8.5 13.5 L 1 6 M 17 18 L 23 18 L 23 12";
+    
+    // Edit - Pencil icon (depuis edit.svg)
+    // Path 1: M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7
+    // Path 2: M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z
+    public static final String EDIT = 
+        "M 11 4 L 4 4 A 2 2 0 0 0 2 6 L 2 20 A 2 2 0 0 0 4 22 L 18 22 A 2 2 0 0 0 20 20 L 20 13 " +
+        "M 18.5 2.5 A 2.121 2.121 0 0 1 21.5 5.5 L 12 15 L 8 16 L 9 12 L 18.5 2.5 Z";
+    
+    // Dollar Sign - Currency icon (depuis dollar-sign.svg)
+    // Line: x1="12" y1="1" x2="12" y2="23"
+    // Path: M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6
+    public static final String DOLLAR_SIGN = 
+        "M 12 1 L 12 23 M 17 5 L 9.5 5 A 3.5 3.5 0 0 0 9.5 12 L 14.5 12 A 3.5 3.5 0 0 1 14.5 19 L 6 19";
+    
+    // Alert Octagon - Warning icon (depuis alert-octagon.svg)
+    public static final String ALERT_OCTAGON = 
+        "M 7.86 2 L 16.14 2 L 22 7.86 L 22 16.14 L 16.14 22 L 7.86 22 L 2 16.14 L 2 7.86 Z " +
+        "M 12 8 L 12 12 M 12 16 L 12.01 16";
+    
+    // Bar Chart 2 - Statistics icon (depuis bar-chart-2.svg)
+    public static final String BAR_CHART_2 = 
+        "M 18 20 L 18 10 M 12 20 L 12 4 M 6 20 L 6 14";
+    
     private SvgIcons() {
         // Classe utilitaire - pas d'instanciation
     }
