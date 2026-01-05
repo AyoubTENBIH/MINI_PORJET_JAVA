@@ -1,0 +1,327 @@
+/* ============================================
+   STATISTIQUES CSS - Styles pour le module Statistiques
+   ============================================ */
+
+/* ============================================
+   ICONS
+   ============================================ */
+.icon-container {
+    -fx-pref-width: 20px;
+    -fx-pref-height: 20px;
+    -fx-min-width: 20px;
+    -fx-min-height: 20px;
+    -fx-max-width: 20px;
+    -fx-max-height: 20px;
+    -fx-alignment: center;
+    -fx-background-color: transparent;
+}
+
+.icon-svg {
+    -fx-fill: null;
+    -fx-stroke: #9AA4B2;
+    -fx-stroke-width: 2.0;
+    -fx-stroke-line-cap: round;
+    -fx-stroke-line-join: round;
+    -fx-scale-x: 0.83;
+    -fx-scale-y: 0.83;
+}
+
+.statistiques-header-icon-btn {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6px;
+    -fx-padding: 4px;
+    -fx-cursor: hand;
+    -fx-pref-width: 28px;
+    -fx-pref-height: 28px;
+    -fx-min-width: 28px;
+    -fx-min-height: 28px;
+    -fx-max-width: 28px;
+    -fx-max-height: 28px;
+}
+
+.statistiques-header-icon-btn:hover {
+    -fx-background-color: rgba(27, 34, 44, 0.8);
+}
+
+.statistiques-header-icon-btn:hover .icon-svg {
+    -fx-stroke: #9EFF00;
+}
+
+/* ============================================
+   ROOT & LAYOUT
+   ============================================ */
+.statistiques-root {
+    -fx-background-color: #0d0f1a;
+}
+
+.statistiques-content-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.statistiques-content-wrapper {
+    -fx-background-color: #0d0f1a;
+    -fx-max-width: Infinity;
+}
+
+.statistiques-content-container {
+    -fx-background-color: transparent;
+    -fx-max-width: Infinity;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+.statistiques-header {
+    -fx-background-color: #0A0D12;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: rgba(154, 164, 178, 0.1);
+}
+
+.statistiques-breadcrumb-label {
+    -fx-text-fill: #9AA4B2;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+}
+
+/* ============================================
+   TITLE SECTION
+   ============================================ */
+.statistiques-title-section {
+    -fx-background-color: #0B0F14;
+}
+
+.statistiques-title-label {
+    -fx-text-fill: #E6EAF0;
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+}
+
+/* ============================================
+   NAVIGATION TABS
+   ============================================ */
+.statistiques-navigation-tabs {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+.statistiques-nav-tab {
+    -fx-background-color: transparent;
+    -fx-text-fill: #9AA4B2;
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+    -fx-border-width: 0 0 2 0;
+    -fx-border-color: transparent;
+    -fx-padding: 12px 20px;
+    -fx-cursor: hand;
+}
+
+.statistiques-nav-tab:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.05);
+    -fx-text-fill: #FFFFFF;
+}
+
+.statistiques-nav-tab.active {
+    -fx-background-color: transparent;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: 600;
+    -fx-border-width: 0 0 2 0;
+    -fx-border-color: #00E676;
+}
+
+/* ============================================
+   KPI CARDS
+   ============================================ */
+.statistiques-kpi-card {
+    -fx-background-color: #1A2332;
+    -fx-background-radius: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 8, 0, 0, 2);
+    -fx-min-height: 140px;
+    -fx-pref-height: 140px;
+    -fx-max-height: 140px;
+    -fx-padding: 24px;
+    -fx-spacing: 12px;
+}
+
+.statistiques-kpi-label {
+    -fx-text-fill: #8B92A8;
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+}
+
+.statistiques-kpi-value {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 36px;
+    -fx-font-weight: 700;
+}
+
+.statistiques-kpi-change {
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+}
+
+.statistiques-kpi-change.positive {
+    -fx-text-fill: #00E676;
+}
+
+.statistiques-kpi-change.negative {
+    -fx-text-fill: #EF4444;
+}
+
+/* ============================================
+   CHART CARDS
+   ============================================ */
+.statistiques-chart-card {
+    -fx-background-color: #1A2332;
+    -fx-background-radius: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 8, 0, 0, 2);
+    -fx-padding: 20px;
+    -fx-spacing: 12px;
+    -fx-min-height: 400px;
+}
+
+.statistiques-chart-title {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 18px;
+    -fx-font-weight: 600;
+}
+
+/* ============================================
+   CHARTS - LINECHART
+   ============================================ */
+.statistiques-linechart {
+    -fx-background-color: transparent;
+}
+
+.statistiques-linechart .chart-plot-background {
+    -fx-background-color: transparent;
+}
+
+.statistiques-linechart .chart-legend {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 12px;
+}
+
+.statistiques-linechart .axis {
+    -fx-tick-label-fill: #FFFFFF;
+    -fx-font-size: 11px;
+}
+
+.statistiques-linechart .axis-label {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 11px;
+}
+
+.statistiques-linechart-axis {
+    -fx-tick-label-fill: #FFFFFF;
+    -fx-font-size: 11px;
+    -fx-tick-label-font-size: 11px;
+}
+
+.statistiques-linechart .chart-series-line {
+    -fx-stroke-width: 2px;
+}
+
+.statistiques-linechart .chart-line-symbol {
+    -fx-background-color: #00E676;
+    -fx-background-radius: 4px;
+    -fx-padding: 4px;
+}
+
+/* ============================================
+   CHARTS - PIECHART
+   ============================================ */
+.statistiques-piechart {
+    -fx-background-color: transparent;
+    -fx-pie-label-visible: true;
+}
+
+.statistiques-piechart .chart-legend {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 12px;
+}
+
+.statistiques-piechart .chart-pie-label {
+    -fx-fill: #FFFFFF;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+.statistiques-piechart .text {
+    -fx-fill: #FFFFFF;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+}
+
+/* ============================================
+   CHARTS - BARCHART
+   ============================================ */
+.statistiques-barchart {
+    -fx-background-color: transparent;
+}
+
+.statistiques-barchart .chart-plot-background {
+    -fx-background-color: transparent;
+}
+
+.statistiques-barchart .chart-legend {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 12px;
+}
+
+.statistiques-barchart .axis {
+    -fx-tick-label-fill: #FFFFFF;
+    -fx-font-size: 11px;
+}
+
+.statistiques-barchart .axis-label {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 11px;
+}
+
+.statistiques-barchart-axis {
+    -fx-tick-label-fill: #FFFFFF;
+    -fx-font-size: 11px;
+    -fx-tick-label-font-size: 11px;
+}
+
+.statistiques-linechart-plot-background {
+    -fx-background-color: transparent;
+}
+
+.statistiques-barchart .chart-bar {
+    -fx-bar-fill: #10b981;
+}
+
+.statistiques-barchart .chart-vertical-grid-lines {
+    -fx-stroke: rgba(255, 255, 255, 0.1);
+}
+
+.statistiques-barchart .chart-horizontal-grid-lines {
+    -fx-stroke: rgba(255, 255, 255, 0.1);
+}
+
+/* ============================================
+   ERROR LABEL
+   ============================================ */
+.statistiques-error-label {
+    -fx-font-size: 16px;
+    -fx-text-fill: #ef4444;
+    -fx-font-weight: 600;
+    -fx-padding: 20px;
+    -fx-background-color: #fee2e2;
+    -fx-background-radius: 12px;
+    -fx-border-width: 1px;
+    -fx-border-color: #fecaca;
+    -fx-border-radius: 12px;
+}
+
+/* ============================================
+   ERROR VIEW
+   ============================================ */
+.statistiques-error-view {
+    -fx-alignment: center;
+    -fx-padding: 20px;
+    -fx-spacing: 10px;
+}
+

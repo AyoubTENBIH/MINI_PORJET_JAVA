@@ -238,10 +238,6 @@ public class DashboardConstants {
      */
     public static final int DEFAULT_PAGE_SIZE = 10;
     
-    // ============================================
-    // NOMS DE PAGES (pour les favoris)
-    // ============================================
-    
     /**
      * Nom de la page Dashboard
      */

@@ -48,16 +48,6 @@ CREATE TABLE IF NOT EXISTS user_preferences (
     FOREIGN KEY (user_id) REFERENCES utilisateurs(id)
 );
 
--- Table des favoris
-CREATE TABLE IF NOT EXISTS favoris (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    user_id INTEGER NOT NULL,
-    page_name TEXT NOT NULL,
-    created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES utilisateurs(id),
-    UNIQUE(user_id, page_name)
-);
-
 -- Insérer un objectif par défaut pour le taux d'occupation
 INSERT OR IGNORE INTO objectifs (type, valeur, date_debut, actif)
 VALUES ('taux_occupation', 80.0, CURRENT_TIMESTAMP, 1);

@@ -49,249 +49,185 @@ public class StatistiquesController {
     
     // État de navigation
     private String currentView = "Évolution"; // Vue actuellement affichée
-    private VBox contentContainer; // Référence au conteneur de contenu pour les mises à jour
-    private HBox navigationTabsContainer; // Référence au conteneur des tabs pour les mises à jour
 
-    @FXML
-    private TabPane tabPane;
-    @FXML
-    private VBox inscriptionsContainer;
-    @FXML
-    private VBox packsContainer;
-    @FXML
-    private VBox revenusContainer;
-    @FXML
-    private VBox retentionContainer;
-    @FXML
-    private HBox headerBox;
+    // Références aux composants UI (chargés depuis FXML)
+    @FXML private HBox header;
+    @FXML private Button menuBtn;
+    @FXML private Label breadcrumbLabel;
+    @FXML private Button moonBtn;
+    @FXML private Button refreshBtn;
+    @FXML private Button bellBtn;
+    @FXML private Button globeBtn;
+    @FXML private HBox titleFilterSection;
+    @FXML private Label titleLabel;
+    @FXML private ScrollPane contentScroll;
+    @FXML private VBox contentWrapper;
+    @FXML private HBox navigationTabsContainer;
+    @FXML private Button evolutionTabBtn;
+    @FXML private Button repartitionTabBtn;
+    @FXML private Button revenusTabBtn;
+    @FXML private Button retentionTabBtn;
+    @FXML private VBox contentContainer;
+    
+    // Anciennes références (conservées pour compatibilité si nécessaire)
+    @FXML private TabPane tabPane;
+    @FXML private VBox inscriptionsContainer;
+    @FXML private VBox packsContainer;
+    @FXML private VBox revenusContainer;
+    @FXML private VBox retentionContainer;
+    @FXML private HBox headerBox;
 
     public Parent getView() {
-        // Utiliser toujours createBasicView() pour la nouvelle structure
-        return createBasicView();
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/statistiques.fxml"));
+            loader.setController(this);
+            Parent root = loader.load();
+            
+            // Charger le CSS du module statistiques
+            if (root.getScene() != null) {
+                root.getScene().getStylesheets().add(
+                    getClass().getResource("/css/statistiques.css").toExternalForm()
+                );
+            } else {
+                // Si la scène n'existe pas encore, l'ajouter lors de l'ajout à la scène
+                root.sceneProperty().addListener((obs, oldScene, newScene) -> {
+                    if (newScene != null && !newScene.getStylesheets().contains(
+                        getClass().getResource("/css/statistiques.css").toExternalForm())) {
+                        newScene.getStylesheets().add(
+                            getClass().getResource("/css/statistiques.css").toExternalForm()
+                        );
+                    }
+                });
+            }
+            
+            return root;
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Fallback: créer la vue programmatiquement si FXML échoue
+            return createBasicView();
+        }
     }
 
     /**
-     * Vue de secours si le FXML ne charge pas - Structure complète selon design dashboard
+     * Initialise les composants après le chargement du FXML
      */
-    private Parent createBasicView() {
-        BorderPane root = new BorderPane();
-        root.getStyleClass().add("root");
+    @FXML
+    private void initialize() {
+        // Configurer le header (icônes SVG)
+        setupHeader();
         
-        BorderPane centerArea = new BorderPane();
-        HBox header = createHeader();
-        centerArea.setTop(header);
-        
-        HBox titleFilterSection = createTitleFilterSection();
-        
-        ScrollPane contentScroll = new ScrollPane();
-        contentScroll.setFitToWidth(true);
-        contentScroll.setFitToHeight(true);
-        contentScroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
-        contentScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        
-        VBox contentWrapper = new VBox();
-        contentWrapper.setPadding(new Insets(20, 24, 20, 24));
-        contentWrapper.setStyle("-fx-background-color: #0d0f1a;");
-        contentWrapper.setMaxWidth(Double.MAX_VALUE);
-        
-        // Navigation tabs
-        navigationTabsContainer = createNavigationTabs();
-        contentWrapper.getChildren().add(navigationTabsContainer);
-        
-        // Content area avec la vue actuelle
-        contentContainer = new VBox(20);
-        contentContainer.setPadding(new Insets(0));
-        contentContainer.setStyle("-fx-background-color: transparent;");
-        contentContainer.setMaxWidth(Double.MAX_VALUE);
+        // Configurer les boutons de navigation
+        setupNavigationTabs();
         
         // Afficher la vue par défaut
-        contentContainer.getChildren().addAll(createViewContent(currentView));
+        if (contentContainer != null) {
+            contentContainer.getChildren().addAll(createViewContent(currentView));
+        }
         
-        contentWrapper.getChildren().add(contentContainer);
-        contentScroll.setContent(contentWrapper);
+        // Charger les données
+        Platform.runLater(() -> {
+            refreshContent();
+        });
+    }
+    
+    /**
+     * Configure les icônes SVG du header
+     */
+    private void setupHeader() {
+        if (menuBtn != null) {
+            Node icon = loadSVGIcon("icon-menu", 20, "#9AA4B2");
+            if (icon != null) menuBtn.setGraphic(icon);
+        }
+        if (moonBtn != null) {
+            Node icon = loadSVGIcon("icon-moon", 20, "#9AA4B2");
+            if (icon != null) moonBtn.setGraphic(icon);
+            moonBtn.setOnAction(e -> handleMoonClick());
+        }
+        if (refreshBtn != null) {
+            Node icon = loadSVGIcon("icon-refresh", 20, "#9AA4B2");
+            if (icon != null) refreshBtn.setGraphic(icon);
+            refreshBtn.setOnAction(e -> refreshContent());
+        }
+        if (bellBtn != null) {
+            Node icon = loadSVGIcon("icon-bell", 20, "#9AA4B2");
+            if (icon != null) bellBtn.setGraphic(icon);
+        }
+        if (globeBtn != null) {
+            Node icon = loadSVGIcon("icon-globe", 20, "#9AA4B2");
+            if (icon != null) globeBtn.setGraphic(icon);
+        }
+    }
+    
+    /**
+     * Gère le clic sur le bouton moon (thème)
+     */
+    private void handleMoonClick() {
+        try {
+            com.example.demo.services.ThemeService themeService = 
+                com.example.demo.services.ThemeService.getInstance();
+            if (moonBtn != null && moonBtn.getScene() != null) {
+                themeService.toggleTheme(moonBtn.getScene());
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    /**
+     * Configure les boutons de navigation
+     */
+    private void setupNavigationTabs() {
+        if (evolutionTabBtn != null) {
+            evolutionTabBtn.setOnAction(e -> switchView("Évolution"));
+        }
+        if (repartitionTabBtn != null) {
+            repartitionTabBtn.setOnAction(e -> switchView("Répartition"));
+        }
+        if (revenusTabBtn != null) {
+            revenusTabBtn.setOnAction(e -> switchView("Revenus"));
+        }
+        if (retentionTabBtn != null) {
+            retentionTabBtn.setOnAction(e -> switchView("Rétention"));
+        }
         
-        VBox centerContent = new VBox(0);
-        centerContent.getChildren().addAll(titleFilterSection, contentScroll);
-        VBox.setVgrow(contentScroll, Priority.ALWAYS);
-        
-        centerArea.setCenter(centerContent);
-        root.setCenter(centerArea);
-        
-        return root;
+        // Définir le bouton actif initial
+        updateNavigationTabsStyle();
+    }
+    
+    /**
+     * Met à jour les styles des boutons de navigation selon la vue active
+     */
+    private void updateNavigationTabsStyle() {
+        if (evolutionTabBtn != null) {
+            evolutionTabBtn.getStyleClass().setAll("statistiques-nav-tab", 
+                currentView.equals("Évolution") ? "active" : "");
+        }
+        if (repartitionTabBtn != null) {
+            repartitionTabBtn.getStyleClass().setAll("statistiques-nav-tab", 
+                currentView.equals("Répartition") ? "active" : "");
+        }
+        if (revenusTabBtn != null) {
+            revenusTabBtn.getStyleClass().setAll("statistiques-nav-tab", 
+                currentView.equals("Revenus") ? "active" : "");
+        }
+        if (retentionTabBtn != null) {
+            retentionTabBtn.getStyleClass().setAll("statistiques-nav-tab", 
+                currentView.equals("Rétention") ? "active" : "");
+        }
     }
 
     /**
-     * Crée le header avec menu, star, breadcrumb et icônes utilitaires (identique au dashboard)
+     * Vue de secours minimale si le FXML ne charge pas
      */
-    private HBox createHeader() {
-        HBox header = new HBox(16);
-        header.setPadding(new Insets(16, 32, 16, 32));
-        header.setAlignment(Pos.CENTER_LEFT);
-        header.setPrefHeight(70);
-        header.setStyle("-fx-background-color: #0A0D12; -fx-border-width: 0 0 1 0; -fx-border-color: rgba(154, 164, 178, 0.1);");
-        
-        // Menu icon (pas de fonction pour statistiques, peut être vide)
-        Button menuBtn = createHeaderIconButton("icon-menu", 20);
-        menuBtn.setVisible(false); // Caché pour statistiques
-        
-        // Star icon (Favoris)
-        Button starBtn = createHeaderIconButton("icon-star", 20);
-        starBtn.setOnAction(e -> {
-            try {
-                com.example.demo.dao.FavorisDAO favorisDAO = new com.example.demo.dao.FavorisDAO();
-                String pageName = "STATISTIQUES";
-                boolean isFavorite = favorisDAO.toggleFavorite(1, pageName);
-                if (isFavorite) {
-                    starBtn.setStyle(starBtn.getStyle() + "; -fx-opacity: 1.0;");
-                } else {
-                    starBtn.setStyle(starBtn.getStyle() + "; -fx-opacity: 0.5;");
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-        });
-        
-        // Breadcrumb
-        Label breadcrumbLabel = new Label("Statistiques & Analytics");
-        breadcrumbLabel.setStyle("-fx-text-fill: #9AA4B2; -fx-font-size: 13px; -fx-font-weight: 500;");
-        
-        // Spacer
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        
-        // Moon icon (Dark mode)
-        Button moonBtn = createHeaderIconButton("icon-moon", 20);
-        moonBtn.setOnAction(e -> {
-            try {
-                com.example.demo.services.ThemeService themeService = com.example.demo.services.ThemeService.getInstance();
-                javafx.scene.Scene scene = moonBtn.getScene();
-                if (scene != null) {
-                    themeService.toggleTheme(scene);
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
-        
-        // Refresh icon
-        Button refreshBtn = createHeaderIconButton("icon-refresh", 20);
-        refreshBtn.setOnAction(e -> refreshContent());
-        
-        // Bell icon (Notifications) - simplifié pour statistiques
-        Button bellBtn = createHeaderIconButton("icon-bell", 20);
-        
-        // Globe icon
-        Button globeBtn = createHeaderIconButton("icon-globe", 20);
-        
-        header.getChildren().addAll(menuBtn, starBtn, breadcrumbLabel, spacer, moonBtn, refreshBtn, bellBtn, globeBtn);
-        
-        return header;
+    private Parent createBasicView() {
+        VBox errorView = new VBox(10);
+        errorView.getStyleClass().add("statistiques-error-view");
+        Label errorLabel = new Label("Erreur lors du chargement de l'interface. Veuillez vérifier le fichier FXML.");
+        errorLabel.getStyleClass().add("statistiques-error-label");
+        errorView.getChildren().add(errorLabel);
+        return errorView;
     }
-    
-    /**
-     * Crée la section titre + filtre sous le header (identique au dashboard)
-     */
-    private HBox createTitleFilterSection() {
-        HBox section = new HBox();
-        section.setPadding(new Insets(24, 32, 24, 32));
-        section.setAlignment(Pos.CENTER_LEFT);
-        section.setPrefHeight(60);
-        section.setStyle("-fx-background-color: #0B0F14;");
-        
-        // Titre "Statistiques & Analytics" à gauche
-        Label titleLabel = new Label("Statistiques & Analytics");
-        titleLabel.setStyle("-fx-text-fill: #E6EAF0; -fx-font-size: 24px; -fx-font-weight: 700;");
-        
-        // Spacer
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        
-        section.getChildren().addAll(titleLabel, spacer);
-        
-        return section;
-    }
-    
-    /**
-     * Crée les boutons de navigation (remplace TabPane)
-     */
-    private HBox createNavigationTabs() {
-        HBox tabsContainer = new HBox(8);
-        tabsContainer.setPadding(new Insets(0));
-        tabsContainer.setStyle("-fx-background-color: transparent;");
-        
-        String[] tabLabels = {"Évolution", "Répartition", "Revenus", "Rétention"};
-        
-        for (String label : tabLabels) {
-            Button tabBtn = createNavigationTabButton(label);
-            tabsContainer.getChildren().add(tabBtn);
-        }
-        
-        return tabsContainer;
-    }
-    
-    /**
-     * Crée un bouton de navigation
-     */
-    private Button createNavigationTabButton(String label) {
-        Button btn = new Button(label);
-        btn.setPadding(new Insets(12, 20, 12, 20));
-        btn.setStyle(
-            "-fx-background-color: transparent; " +
-            "-fx-text-fill: #9AA4B2; " +
-            "-fx-font-size: 14px; " +
-            "-fx-font-weight: 500; " +
-            "-fx-border-width: 0 0 2 0; " +
-            "-fx-border-color: transparent; " +
-            "-fx-cursor: hand;"
-        );
-        
-        // Style selon si c'est la vue active
-        if (label.equals(currentView)) {
-            btn.setStyle(
-                "-fx-background-color: transparent; " +
-                "-fx-text-fill: #FFFFFF; " +
-                "-fx-font-size: 14px; " +
-                "-fx-font-weight: 600; " +
-                "-fx-border-width: 0 0 2 0; " +
-                "-fx-border-color: #00E676; " +
-                "-fx-cursor: hand;"
-            );
-        }
-        
-        // Hover effect
-        btn.setOnMouseEntered(e -> {
-            if (!label.equals(currentView)) {
-                btn.setStyle(
-                    "-fx-background-color: rgba(255, 255, 255, 0.05); " +
-                    "-fx-text-fill: #FFFFFF; " +
-                    "-fx-font-size: 14px; " +
-                    "-fx-font-weight: 500; " +
-                    "-fx-border-width: 0 0 2 0; " +
-                    "-fx-border-color: transparent; " +
-                    "-fx-cursor: hand;"
-                );
-            }
-        });
-        
-        btn.setOnMouseExited(e -> {
-            if (!label.equals(currentView)) {
-                btn.setStyle(
-                    "-fx-background-color: transparent; " +
-                    "-fx-text-fill: #9AA4B2; " +
-                    "-fx-font-size: 14px; " +
-                    "-fx-font-weight: 500; " +
-                    "-fx-border-width: 0 0 2 0; " +
-                    "-fx-border-color: transparent; " +
-                    "-fx-cursor: hand;"
-                );
-            }
-        });
-        
-        // Action
-        btn.setOnAction(e -> switchView(label));
-        
-        return btn;
-    }
+
     
     /**
      * Change de vue
@@ -435,12 +371,13 @@ public class StatistiquesController {
                 svgPathNode.setScaleY(scale);
                 
                 StackPane container = new StackPane();
+                container.getStyleClass().add("icon-container");
                 container.setPrefSize(size, size);
                 container.setMaxSize(size, size);
                 container.setMinSize(size, size);
-                container.setAlignment(Pos.CENTER);
                 container.getChildren().add(svgPathNode);
-                container.setStyle("-fx-background-color: transparent;");
+                
+                svgPathNode.getStyleClass().add("icon-svg");
                 
                 return container;
             }
@@ -485,7 +422,7 @@ public class StatistiquesController {
      */
     private VBox createEvolutionView() {
         VBox view = new VBox(20);
-        view.setStyle("-fx-background-color: transparent;");
+        view.getStyleClass().add("statistiques-content-container");
         
         // Cartes KPI
         HBox statCards = createEvolutionStatCards();
@@ -503,7 +440,7 @@ public class StatistiquesController {
      */
     private HBox createEvolutionStatCards() {
         HBox container = new HBox(16);
-        container.setStyle("-fx-background-color: transparent;");
+        container.getStyleClass().add("statistiques-content-container");
         
         try {
             List<Adherent> adherents = adherentDAO.findAll();
@@ -533,35 +470,19 @@ public class StatistiquesController {
     }
     
     /**
-     * Crée la carte KPI selon le style dashboard
+     * Crée la carte KPI selon le style dashboard (utilise CSS)
      */
     private VBox createKPICard(String label, String value, String change, boolean positive) {
         VBox card = new VBox(12);
-        card.setPadding(new Insets(24));
-        card.setMinHeight(140);
-        card.setPrefHeight(140);
-        card.setMaxHeight(140);
-        card.setStyle(
-            "-fx-background-color: #1A2332; " +
-            "-fx-background-radius: 16px; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 8, 0, 0, 2);"
-        );
+        card.getStyleClass().add("statistiques-kpi-card");
         
         // Label
         Label labelLabel = new Label(label);
-        labelLabel.setStyle(
-            "-fx-text-fill: #8B92A8; " +
-            "-fx-font-size: 14px; " +
-            "-fx-font-weight: 500;"
-        );
+        labelLabel.getStyleClass().add("statistiques-kpi-label");
         
         // Value
         Label valueLabel = new Label(value);
-        valueLabel.setStyle(
-            "-fx-text-fill: #FFFFFF; " +
-            "-fx-font-size: 36px; " +
-            "-fx-font-weight: 700;"
-        );
+        valueLabel.getStyleClass().add("statistiques-kpi-value");
         
         card.getChildren().addAll(labelLabel, valueLabel);
         
@@ -576,11 +497,8 @@ public class StatistiquesController {
             
             if (trendIcon != null) {
                 Label changeLabel = new Label(change);
-                changeLabel.setStyle(
-                    "-fx-text-fill: " + iconColor + "; " +
-                    "-fx-font-size: 12px; " +
-                    "-fx-font-weight: 600;"
-                );
+                changeLabel.getStyleClass().add("statistiques-kpi-change");
+                changeLabel.getStyleClass().add(positive ? "positive" : "negative");
                 changeContainer.getChildren().addAll(trendIcon, changeLabel);
                 card.getChildren().add(changeContainer);
             }
@@ -590,21 +508,15 @@ public class StatistiquesController {
     }
     
     /**
-     * Crée la carte de graphique Évolution
+     * Crée la carte de graphique Évolution (utilise CSS)
      */
     private VBox createEvolutionChartCard() {
         VBox container = new VBox(12);
-        container.setPadding(new Insets(20));
-        container.setStyle(
-            "-fx-background-color: #1A2332; " +
-            "-fx-background-radius: 16px; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 8, 0, 0, 2);"
-        );
-        container.setMinHeight(400);
+        container.getStyleClass().add("statistiques-chart-card");
         
         // Titre
         Label titleLabel = new Label("Évolution des Inscriptions (12 derniers mois)");
-        titleLabel.setStyle("-fx-text-fill: #FFFFFF; -fx-font-size: 18px; -fx-font-weight: 600;");
+        titleLabel.getStyleClass().add("statistiques-chart-title");
         
         // Graphique
         LineChart<String, Number> chart = createEvolutionLineChart();
@@ -616,22 +528,22 @@ public class StatistiquesController {
     }
     
     /**
-     * Crée le LineChart pour l'évolution
+     * Crée le LineChart pour l'évolution (utilise CSS)
      */
     private LineChart<String, Number> createEvolutionLineChart() {
         CategoryAxis xAxis = new CategoryAxis();
         xAxis.setLabel("Mois");
-        xAxis.setStyle("-fx-tick-label-fill: #FFFFFF; -fx-font-size: 11px; -fx-tick-label-font-size: 11px;");
+        xAxis.getStyleClass().add("statistiques-linechart-axis");
         
         NumberAxis yAxis = new NumberAxis();
         yAxis.setLabel("Nombre d'inscriptions");
-        yAxis.setStyle("-fx-tick-label-fill: #FFFFFF; -fx-font-size: 11px; -fx-tick-label-font-size: 11px;");
+        yAxis.getStyleClass().add("statistiques-linechart-axis");
         
         LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
         lineChart.setTitle("");
         lineChart.setLegendVisible(true);
         lineChart.setAnimated(true);
-        lineChart.setStyle("-fx-background-color: transparent;");
+        lineChart.getStyleClass().add("statistiques-linechart");
         
         try {
             List<Adherent> adherents = adherentDAO.findAll();
@@ -683,7 +595,7 @@ public class StatistiquesController {
      */
     private VBox createRepartitionView() {
         VBox view = new VBox(20);
-        view.setStyle("-fx-background-color: transparent;");
+        view.getStyleClass().add("statistiques-content-container");
         
         VBox chartCard = createRepartitionChartCard();
         view.getChildren().add(chartCard);
@@ -696,7 +608,7 @@ public class StatistiquesController {
      */
     private VBox createRevenusView() {
         VBox view = new VBox(20);
-        view.setStyle("-fx-background-color: transparent;");
+        view.getStyleClass().add("statistiques-content-container");
         
         // Cartes KPI
         HBox statCards = createRevenusStatCards();
@@ -714,7 +626,7 @@ public class StatistiquesController {
      */
     private VBox createRetentionView() {
         VBox view = new VBox(20);
-        view.setStyle("-fx-background-color: transparent;");
+        view.getStyleClass().add("statistiques-content-container");
         
         VBox chartCard = createRetentionChartCard();
         view.getChildren().add(chartCard);
@@ -723,20 +635,15 @@ public class StatistiquesController {
     }
     
     /**
-     * Crée la carte PieChart pour la répartition
+     * Crée la carte PieChart pour la répartition (utilise CSS)
      */
     private VBox createRepartitionChartCard() {
         VBox container = new VBox(12);
-        container.setPadding(new Insets(20));
-        container.setStyle(
-            "-fx-background-color: #1A2332; " +
-            "-fx-background-radius: 16px; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 8, 0, 0, 2);"
-        );
+        container.getStyleClass().add("statistiques-chart-card");
         container.setMinHeight(500);
         
         Label titleLabel = new Label("Répartition des Adhérents par Pack");
-        titleLabel.setStyle("-fx-text-fill: #FFFFFF; -fx-font-size: 18px; -fx-font-weight: 600;");
+        titleLabel.getStyleClass().add("statistiques-chart-title");
         
         PieChart pieChart = createPacksPieChart();
         pieChart.setPrefHeight(450);
@@ -789,10 +696,7 @@ public class StatistiquesController {
         pieChart.setTitle("");
         pieChart.setLabelsVisible(true);
         pieChart.setLegendVisible(true);
-        pieChart.setStyle(
-            "-fx-background-color: transparent; " +
-            "-fx-pie-label-visible: true;"
-        );
+        pieChart.getStyleClass().add("statistiques-piechart");
         
         // Appliquer les couleurs après que le graphique soit rendu (avec délai pour laisser les labels se créer)
         PauseTransition pause = new PauseTransition(Duration.millis(150));
@@ -835,10 +739,7 @@ public class StatistiquesController {
                         }
                     }
                     
-                    Node legend = pieChart.lookup(".chart-legend");
-                    if (legend != null) {
-                        legend.setStyle("-fx-text-fill: #FFFFFF; -fx-font-size: 12px;");
-                    }
+                    // Les styles de la légende sont appliqués via CSS
                 } catch (Exception e) {
                     // Ignorer les erreurs de style
                     e.printStackTrace();
@@ -855,7 +756,7 @@ public class StatistiquesController {
      */
     private HBox createRevenusStatCards() {
         HBox container = new HBox(16);
-        container.setStyle("-fx-background-color: transparent;");
+        container.getStyleClass().add("statistiques-content-container");
         
         try {
             double totalRevenus = 0.0;
@@ -882,20 +783,14 @@ public class StatistiquesController {
     }
     
     /**
-     * Crée la carte BarChart pour les revenus
+     * Crée la carte BarChart pour les revenus (utilise CSS)
      */
     private VBox createRevenusChartCard() {
         VBox container = new VBox(12);
-        container.setPadding(new Insets(20));
-        container.setStyle(
-            "-fx-background-color: #1A2332; " +
-            "-fx-background-radius: 16px; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 8, 0, 0, 2);"
-        );
-        container.setMinHeight(400);
+        container.getStyleClass().add("statistiques-chart-card");
         
         Label titleLabel = new Label("Revenus Mensuels (12 derniers mois)");
-        titleLabel.setStyle("-fx-text-fill: #FFFFFF; -fx-font-size: 18px; -fx-font-weight: 600;");
+        titleLabel.getStyleClass().add("statistiques-chart-title");
         
         BarChart<String, Number> barChart = createRevenusBarChart();
         barChart.setPrefHeight(350);
@@ -921,10 +816,7 @@ public class StatistiquesController {
         barChart.setTitle("");
         barChart.setLegendVisible(true);
         barChart.setAnimated(true);
-        barChart.setStyle(
-            "-fx-background-color: transparent; " +
-            "-chart-bar-fill: #10b981;"
-        );
+        barChart.getStyleClass().add("statistiques-barchart");
         
         try {
             XYChart.Series<String, Number> dataSeries = new XYChart.Series<>();
@@ -1004,20 +896,14 @@ public class StatistiquesController {
     }
     
     /**
-     * Crée la carte LineChart pour la rétention
+     * Crée la carte LineChart pour la rétention (utilise CSS)
      */
     private VBox createRetentionChartCard() {
         VBox container = new VBox(12);
-        container.setPadding(new Insets(20));
-        container.setStyle(
-            "-fx-background-color: #1A2332; " +
-            "-fx-background-radius: 16px; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 8, 0, 0, 2);"
-        );
-        container.setMinHeight(400);
+        container.getStyleClass().add("statistiques-chart-card");
         
         Label titleLabel = new Label("Taux de Rétention des Abonnements (%)");
-        titleLabel.setStyle("-fx-text-fill: #FFFFFF; -fx-font-size: 18px; -fx-font-weight: 600;");
+        titleLabel.getStyleClass().add("statistiques-chart-title");
         
         LineChart<String, Number> lineChart = createRetentionLineChart();
         lineChart.setPrefHeight(350);
@@ -1028,22 +914,22 @@ public class StatistiquesController {
     }
     
     /**
-     * Crée le LineChart pour la rétention
+     * Crée le LineChart pour la rétention (utilise CSS)
      */
     private LineChart<String, Number> createRetentionLineChart() {
         CategoryAxis xAxis = new CategoryAxis();
         xAxis.setLabel("Mois");
-        xAxis.setStyle("-fx-tick-label-fill: #FFFFFF; -fx-font-size: 11px; -fx-tick-label-font-size: 11px;");
+        xAxis.getStyleClass().add("statistiques-linechart-axis");
         
         NumberAxis yAxis = new NumberAxis(0, 100, 10);
         yAxis.setLabel("Taux (%)");
-        yAxis.setStyle("-fx-tick-label-fill: #FFFFFF; -fx-font-size: 11px; -fx-tick-label-font-size: 11px;");
+        yAxis.getStyleClass().add("statistiques-linechart-axis");
         
         LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
         lineChart.setTitle("");
         lineChart.setLegendVisible(true);
         lineChart.setAnimated(true);
-        lineChart.setStyle("-fx-background-color: transparent;");
+        lineChart.getStyleClass().add("statistiques-linechart");
         
         try {
             List<Adherent> adherents = adherentDAO.findAll();
@@ -1112,21 +998,11 @@ public class StatistiquesController {
     }
     
     /**
-     * Crée un label d'erreur stylisé
+     * Crée un label d'erreur stylisé (utilise CSS)
      */
     private Label createErrorLabel(String message) {
         Label error = new Label("❌ " + message);
-        error.setStyle("""
-            -fx-font-size: 16px;
-            -fx-text-fill: #ef4444;
-            -fx-font-weight: 600;
-            -fx-padding: 20;
-            -fx-background-color: #fee2e2;
-            -fx-background-radius: 12;
-            -fx-border-width: 1;
-            -fx-border-color: #fecaca;
-            -fx-border-radius: 12;
-        """);
+        error.getStyleClass().add("statistiques-error-label");
         return error;
     }
 }

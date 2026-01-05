@@ -40,8 +40,6 @@ public class PackManagementController {
     @FXML
     private Button menuBtn;
     @FXML
-    private Button starBtn;
-    @FXML
     private Label breadcrumbLabel;
     @FXML
     private Button moonBtn;
@@ -189,9 +187,6 @@ public class PackManagementController {
         }
         
         // Header buttons
-        if (starBtn != null) {
-            starBtn.setOnAction(e -> handleStarClick());
-        }
         if (moonBtn != null) {
             moonBtn.setOnAction(e -> handleMoonClick());
         }
@@ -202,22 +197,6 @@ public class PackManagementController {
         // Cacher le menu button
         if (menuBtn != null) {
             menuBtn.setVisible(false);
-        }
-    }
-    
-    /**
-     * Gère le clic sur le bouton star (favoris)
-     */
-    private void handleStarClick() {
-        try {
-            com.example.demo.dao.FavorisDAO favorisDAO = new com.example.demo.dao.FavorisDAO();
-            String pageName = "PACKS";
-            boolean isFavorite = favorisDAO.toggleFavorite(1, pageName);
-            if (starBtn != null) {
-                starBtn.setOpacity(isFavorite ? 1.0 : 0.5);
-            }
-        } catch (SQLException ex) {
-            ex.printStackTrace();
         }
     }
     
@@ -707,9 +686,6 @@ public class PackManagementController {
         if (menuBtn != null) {
             menuBtn.setGraphic(createSVGIcon("icon-menu", 20));
         }
-        if (starBtn != null) {
-            starBtn.setGraphic(createSVGIcon("icon-star", 20));
-        }
         if (moonBtn != null) {
             moonBtn.setGraphic(createSVGIcon("icon-moon", 20));
         }
@@ -765,7 +741,6 @@ public class PackManagementController {
     private String getSvgPathForIcon(String iconName) {
         return switch (iconName) {
             case "icon-menu" -> SvgIcons.MENU;
-            case "icon-star" -> SvgIcons.STAR;
             case "icon-moon" -> SvgIcons.MOON;
             case "icon-refresh" -> SvgIcons.REFRESH;
             case "icon-bell" -> SvgIcons.BELL;

@@ -3,65 +3,123 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.SVGPath?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.example.demo.controllers.StatistiquesController"
-      spacing="25" styleClass="page-container-stats">
-    <padding>
-        <Insets top="30" right="30" bottom="30" left="30"/>
-    </padding>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            styleClass="statistiques-root">
     
-    <!-- Header -->
-    <HBox fx:id="headerBox" spacing="15" alignment="CENTER_LEFT">
-        <VBox spacing="5">
-            <Label text="📊 Statistiques &amp; Analytics" styleClass="stats-title"/>
-            <Label text="Analyse complète de vos données" styleClass="stats-subtitle"/>
-        </VBox>
-    </HBox>
-    
-    <!-- Tabs -->
-    <TabPane fx:id="tabPane" tabClosingPolicy="UNAVAILABLE" styleClass="modern-tab-pane">
-        <Tab text="📈 Évolution" closable="false">
-            <VBox fx:id="inscriptionsContainer" spacing="20">
-                <padding>
-                    <Insets top="30" right="30" bottom="30" left="30"/>
-                </padding>
-            </VBox>
-        </Tab>
-        
-        <Tab text="🥧 Répartition" closable="false">
-            <VBox fx:id="packsContainer" spacing="20">
-                <padding>
-                    <Insets top="30" right="30" bottom="30" left="30"/>
-                </padding>
-            </VBox>
-        </Tab>
-        
-        <Tab text="💰 Revenus" closable="false">
-            <VBox fx:id="revenusContainer" spacing="20">
-                <padding>
-                    <Insets top="30" right="30" bottom="30" left="30"/>
-                </padding>
-            </VBox>
-        </Tab>
-        
-        <Tab text="👥 Présences" closable="false">
-            <VBox fx:id="presencesContainer" spacing="20">
-                <padding>
-                    <Insets top="30" right="30" bottom="30" left="30"/>
-                </padding>
-            </VBox>
-        </Tab>
-        
-        <Tab text="📉 Rétention" closable="false">
-            <VBox fx:id="retentionContainer" spacing="20">
-                <padding>
-                    <Insets top="30" right="30" bottom="30" left="30"/>
-                </padding>
-            </VBox>
-        </Tab>
-    </TabPane>
-</VBox>
-
-
+    <!-- ==================== CENTER AREA ==================== -->
+    <center>
+        <BorderPane>
+            <!-- Header -->
+            <top>
+                <HBox fx:id="header" spacing="16" alignment="CENTER_LEFT" 
+                      styleClass="statistiques-header" prefHeight="70">
+                    <padding>
+                        <Insets top="16" right="32" bottom="16" left="32"/>
+                    </padding>
+                    
+                    <!-- Menu icon (caché) -->
+                    <Button fx:id="menuBtn" styleClass="statistiques-header-icon-btn" visible="false">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <SVGPath styleClass="icon-svg"/>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                    
+                    <!-- Breadcrumb -->
+                    <Label fx:id="breadcrumbLabel" text="Statistiques &amp; Analytics" 
+                           styleClass="statistiques-breadcrumb-label"/>
+                    
+                    <!-- Spacer -->
+                    <Region HBox.hgrow="ALWAYS"/>
+                    
+                    <!-- Moon icon (Dark mode) -->
+                    <Button fx:id="moonBtn" styleClass="statistiques-header-icon-btn">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <SVGPath styleClass="icon-svg"/>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                    
+                    <!-- Refresh icon -->
+                    <Button fx:id="refreshBtn" styleClass="statistiques-header-icon-btn">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <SVGPath styleClass="icon-svg"/>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                    
+                    <!-- Bell icon -->
+                    <Button fx:id="bellBtn" styleClass="statistiques-header-icon-btn">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <SVGPath styleClass="icon-svg"/>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                    
+                    <!-- Globe icon -->
+                    <Button fx:id="globeBtn" styleClass="statistiques-header-icon-btn">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <SVGPath styleClass="icon-svg"/>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                </HBox>
+            </top>
+            
+            <!-- Title Filter Section -->
+            <center>
+                <VBox spacing="0">
+                    <HBox fx:id="titleFilterSection" alignment="CENTER_LEFT" 
+                          styleClass="statistiques-title-section" prefHeight="60">
+                        <padding>
+                            <Insets top="24" right="32" bottom="24" left="32"/>
+                        </padding>
+                        
+                        <!-- Title -->
+                        <Label fx:id="titleLabel" text="Statistiques &amp; Analytics" 
+                               styleClass="statistiques-title-label"/>
+                        
+                        <!-- Spacer -->
+                        <Region HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    
+                    <!-- Content Scroll -->
+                    <ScrollPane fx:id="contentScroll" fitToWidth="true" fitToHeight="true"
+                               hbarPolicy="NEVER" styleClass="statistiques-content-scroll" 
+                               VBox.vgrow="ALWAYS">
+                        <VBox fx:id="contentWrapper" spacing="20" styleClass="statistiques-content-wrapper">
+                            <padding>
+                                <Insets top="20" right="24" bottom="20" left="24"/>
+                            </padding>
+                            
+                            <!-- Navigation Tabs -->
+                            <HBox fx:id="navigationTabsContainer" spacing="8" styleClass="statistiques-navigation-tabs">
+                                <Button fx:id="evolutionTabBtn" text="Évolution" 
+                                        styleClass="statistiques-nav-tab"/>
+                                <Button fx:id="repartitionTabBtn" text="Répartition" 
+                                        styleClass="statistiques-nav-tab"/>
+                                <Button fx:id="revenusTabBtn" text="Revenus" 
+                                        styleClass="statistiques-nav-tab"/>
+                                <Button fx:id="retentionTabBtn" text="Rétention" 
+                                        styleClass="statistiques-nav-tab"/>
+                            </HBox>
+                            
+                            <!-- Content Container (dynamique selon la vue active) -->
+                            <VBox fx:id="contentContainer" spacing="20" styleClass="statistiques-content-container">
+                                <!-- Le contenu sera ajouté dynamiquement par le controller -->
+                            </VBox>
+                        </VBox>
+                    </ScrollPane>
+                </VBox>
+            </center>
+        </BorderPane>
+    </center>
+</BorderPane>

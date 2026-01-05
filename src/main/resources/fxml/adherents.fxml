@@ -3,40 +3,152 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.SVGPath?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.example.demo.controllers.AdherentManagementController"
-      spacing="15" styleClass="page-container">
-    <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
-    </padding>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            styleClass="adherents-root">
     
-    <!-- Title -->
-    <Label text="Gestion des Adhérents" styleClass="page-title-large"/>
-    
-    <!-- Top Bar: Search and Actions -->
-    <HBox fx:id="topBar" spacing="10">
-        <TextField fx:id="searchField" promptText="Rechercher par nom, CIN, téléphone..." 
-                   prefWidth="400"/>
-        <Button fx:id="addButton" text="+ Nouvel Adhérent" styleClass="btn-success"/>
-        <Button fx:id="editButton" text="Modifier" styleClass="btn-primary"/>
-        <Button fx:id="deleteButton" text="Supprimer" styleClass="btn-danger"/>
-    </HBox>
-    
-    <!-- Adherents Table -->
-    <TableView fx:id="adherentsTable" prefHeight="500" VBox.vgrow="ALWAYS">
-        <columns>
-            <TableColumn fx:id="cinColumn" text="CIN" prefWidth="120"/>
-            <TableColumn fx:id="nomColumn" text="Nom" prefWidth="150"/>
-            <TableColumn fx:id="prenomColumn" text="Prénom" prefWidth="150"/>
-            <TableColumn fx:id="telephoneColumn" text="Téléphone" prefWidth="120"/>
-            <TableColumn fx:id="packColumn" text="Pack" prefWidth="150"/>
-            <TableColumn fx:id="dateDebutColumn" text="Date Début" prefWidth="120"/>
-            <TableColumn fx:id="dateFinColumn" text="Date Fin" prefWidth="120"/>
-            <TableColumn fx:id="statutColumn" text="Statut" prefWidth="100"/>
-        </columns>
-    </TableView>
-</VBox>
-
-
+    <!-- ==================== CENTER AREA ==================== -->
+    <center>
+        <BorderPane>
+            <!-- Header -->
+            <top>
+                <HBox fx:id="header" spacing="16" alignment="CENTER_LEFT" 
+                      styleClass="adherents-header" prefHeight="70">
+                    <padding>
+                        <Insets top="16" right="32" bottom="16" left="32"/>
+                    </padding>
+                    
+                    <!-- Menu icon (caché) -->
+                    <Button fx:id="menuBtn" styleClass="adherents-header-icon-btn" visible="false">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <SVGPath styleClass="icon-svg"/>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                    
+                    <!-- Breadcrumb -->
+                    <Label fx:id="breadcrumbLabel" text="Gestion des Adhérents" 
+                           styleClass="adherents-breadcrumb-label"/>
+                    
+                    <!-- Spacer -->
+                    <Region HBox.hgrow="ALWAYS"/>
+                    
+                    <!-- Moon icon (Dark mode) -->
+                    <Button fx:id="moonBtn" styleClass="adherents-header-icon-btn">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <SVGPath styleClass="icon-svg"/>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                    
+                    <!-- Refresh icon -->
+                    <Button fx:id="refreshBtn" styleClass="adherents-header-icon-btn">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <SVGPath styleClass="icon-svg"/>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                    
+                    <!-- Bell icon -->
+                    <Button fx:id="bellBtn" styleClass="adherents-header-icon-btn">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <SVGPath styleClass="icon-svg"/>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                    
+                    <!-- Globe icon -->
+                    <Button fx:id="globeBtn" styleClass="adherents-header-icon-btn">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <SVGPath styleClass="icon-svg"/>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                </HBox>
+            </top>
+            
+            <!-- Title Filter Section -->
+            <center>
+                <VBox spacing="0">
+                    <HBox fx:id="titleFilterSection" alignment="CENTER_LEFT" 
+                          styleClass="adherents-title-section" prefHeight="60">
+                        <padding>
+                            <Insets top="24" right="32" bottom="24" left="32"/>
+                        </padding>
+                        
+                        <!-- Title -->
+                        <Label fx:id="titleLabel" text="Gestion des Adhérents" 
+                               styleClass="adherents-title-label"/>
+                        
+                        <!-- Spacer -->
+                        <Region HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    
+                    <!-- Content Scroll -->
+                    <ScrollPane fx:id="contentScroll" fitToWidth="true" fitToHeight="true"
+                               hbarPolicy="NEVER" styleClass="adherents-content-scroll" 
+                               VBox.vgrow="ALWAYS">
+                        <VBox fx:id="contentWrapper" spacing="20" styleClass="adherents-content-wrapper">
+                            <padding>
+                                <Insets top="20" right="24" bottom="20" left="24"/>
+                            </padding>
+                            
+                            <!-- Search Card -->
+                            <VBox fx:id="searchCard" spacing="16" styleClass="adherents-search-card">
+                                <padding>
+                                    <Insets top="20" right="20" bottom="20" left="20"/>
+                                </padding>
+                                
+                                <HBox fx:id="searchBar" spacing="12" alignment="CENTER_LEFT">
+                                    <TextField fx:id="searchField" promptText="Rechercher par nom, CIN, téléphone..." 
+                                               styleClass="adherents-search-field" HBox.hgrow="ALWAYS"/>
+                                    <Button fx:id="addButton" text="+ Nouvel Adhérent" 
+                                            styleClass="adherents-btn-success"/>
+                                    <Button fx:id="editButton" text="Modifier" 
+                                            styleClass="adherents-btn-primary"/>
+                                    <Button fx:id="deleteButton" text="Supprimer" 
+                                            styleClass="adherents-btn-danger"/>
+                                </HBox>
+                            </VBox>
+                            
+                            <!-- Table Card -->
+                            <VBox fx:id="tableCard" spacing="0" styleClass="adherents-table-card">
+                                <padding>
+                                    <Insets top="20" right="20" bottom="20" left="20"/>
+                                </padding>
+                                
+                                <TableView fx:id="adherentsTable" styleClass="adherents-table">
+                                    <columns>
+                                        <TableColumn fx:id="cinColumn" text="CIN" styleClass="adherents-table-column"
+                                                    minWidth="100" prefWidth="120" maxWidth="150" resizable="true"/>
+                                        <TableColumn fx:id="nomColumn" text="Nom" styleClass="adherents-table-column"
+                                                    minWidth="120" prefWidth="150" maxWidth="200" resizable="true"/>
+                                        <TableColumn fx:id="prenomColumn" text="Prénom" styleClass="adherents-table-column"
+                                                    minWidth="120" prefWidth="150" maxWidth="200" resizable="true"/>
+                                        <TableColumn fx:id="telephoneColumn" text="Téléphone" styleClass="adherents-table-column"
+                                                    minWidth="100" prefWidth="120" maxWidth="150" resizable="true"/>
+                                        <TableColumn fx:id="packColumn" text="Pack" styleClass="adherents-table-column"
+                                                    minWidth="150" prefWidth="200" resizable="true"/>
+                                        <TableColumn fx:id="dateDebutColumn" text="Date Début" styleClass="adherents-table-column"
+                                                    minWidth="100" prefWidth="120" maxWidth="150" resizable="true"/>
+                                        <TableColumn fx:id="dateFinColumn" text="Date Fin" styleClass="adherents-table-column"
+                                                    minWidth="100" prefWidth="120" maxWidth="150" resizable="true"/>
+                                        <TableColumn fx:id="statutColumn" text="Statut" styleClass="adherents-table-column"
+                                                    minWidth="80" prefWidth="100" maxWidth="120" resizable="true"/>
+                                    </columns>
+                                </TableView>
+                            </VBox>
+                        </VBox>
+                    </ScrollPane>
+                </VBox>
+            </center>
+        </BorderPane>
+    </center>
+</BorderPane>

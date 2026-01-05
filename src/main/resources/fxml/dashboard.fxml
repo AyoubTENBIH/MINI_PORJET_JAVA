@@ -8,7 +8,7 @@
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
-            styleClass="root">
+            styleClass="dashboard-root">
     
     <!-- ==================== HEADER ==================== -->
     <top>
@@ -23,14 +23,6 @@
                 <graphic>
                     <StackPane styleClass="icon-container">
                         <SVGPath fx:id="menuIcon" styleClass="icon-svg"/>
-                    </StackPane>
-                </graphic>
-            </Button>
-            
-            <Button fx:id="starBtn" styleClass="header-icon-btn">
-                <graphic>
-                    <StackPane styleClass="icon-container">
-                        <SVGPath fx:id="starIcon" styleClass="icon-svg"/>
                     </StackPane>
                 </graphic>
             </Button>
@@ -108,12 +100,13 @@
             </HBox>
             
             <!-- Scrollable Content Area -->
-            <ScrollPane fx:id="contentScroll" fitToWidth="true" 
+            <ScrollPane fx:id="contentScroll" fitToWidth="true" fitToHeight="true"
                        hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
-                       styleClass="content-scroll">
+                       styleClass="content-scroll" VBox.vgrow="ALWAYS"
+                       pannable="true">
                 <VBox fx:id="contentWrapper" styleClass="content-wrapper">
                     <padding>
-                        <Insets top="20" right="24" bottom="20" left="24"/>
+                        <Insets top="20" right="24" bottom="40" left="24"/>
                     </padding>
                     
                     <VBox fx:id="content" spacing="20" styleClass="main-content">
@@ -165,8 +158,9 @@
                                            styleClass="kpi-goal-label"/>
                                 </VBox>
                                 <!-- Gauge placeholder (to be drawn by controller) -->
-                                <Canvas fx:id="gaugeCanvas" width="65" height="65" 
-                                       StackPane.alignment="BOTTOM_RIGHT"/>
+                                <Canvas fx:id="gaugeCanvas" width="65" height="65">
+                                    <StackPane.alignment>BOTTOM_RIGHT</StackPane.alignment>
+                                </Canvas>
                             </StackPane>
                             
                             <!-- KPI Card 4: Nouveaux Abonnements -->
@@ -316,14 +310,13 @@
                             </padding>
                             <Label text="Évolution des Revenus" styleClass="card-title"/>
                             <!-- Area Chart placeholder (to be added by controller) -->
-                            <StackPane fx:id="areaChartContainer" styleClass="chart-container" 
-                                      VBox.vgrow="ALWAYS"/>
+                            <StackPane fx:id="areaChartContainer" styleClass="chart-container"/>
                         </VBox>
                         
                         <!-- ==================== ROW 4: TABLE (100% width) ==================== -->
                         <VBox fx:id="bottomRow" styleClass="table-card" spacing="0">
                             <padding>
-                                <Insets top="20" right="20" bottom="20" left="20"/>
+                                <Insets top="20" right="20" bottom="40" left="20"/>
                             </padding>
                             
                             <!-- Table Header -->
@@ -343,31 +336,32 @@
                                 
                                 <!-- Adhérent Column Header -->
                                 <HBox spacing="12" alignment="CENTER_LEFT" 
-                                     styleClass="table-header-cell" HBox.hgrow="SOMETIMES" minWidth="200">
+                                     styleClass="table-header-cell" HBox.hgrow="ALWAYS" minWidth="150">
                                     <Region prefWidth="48" minWidth="48" maxWidth="48"/>
                                     <Label text="Adhérent" styleClass="table-header-label"/>
                                 </HBox>
                                 
                                 <!-- Pack Column Header -->
                                 <Label text="Pack" styleClass="table-header-label" 
-                                      HBox.hgrow="SOMETIMES" minWidth="120"/>
+                                      HBox.hgrow="SOMETIMES" minWidth="80"/>
                                 
                                 <!-- Statut Column Header -->
                                 <Label text="Statut" styleClass="table-header-label" 
-                                      HBox.hgrow="SOMETIMES" minWidth="120"/>
+                                      HBox.hgrow="SOMETIMES" minWidth="100"/>
                                 
                                 <!-- Expiration Column Header -->
                                 <Label text="Expiration" styleClass="table-header-label" 
-                                      HBox.hgrow="SOMETIMES" minWidth="120"/>
+                                      HBox.hgrow="SOMETIMES" minWidth="100"/>
                             </HBox>
                             
                             <!-- Table Body (Scrollable) -->
-                            <ScrollPane fx:id="tableScrollPane" fitToWidth="true" 
+                            <ScrollPane fx:id="tableScrollPane" fitToWidth="true" fitToHeight="false"
                                        hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
-                                       styleClass="table-scroll" VBox.vgrow="ALWAYS">
+                                       styleClass="table-scroll" VBox.vgrow="ALWAYS"
+                                       pannable="true">
                                 <VBox fx:id="tableBody" spacing="0" styleClass="table-body">
                                     <padding>
-                                        <Insets top="0" right="0" bottom="8" left="0"/>
+                                        <Insets top="0" right="0" bottom="20" left="0"/>
                                     </padding>
                                     <!-- Table rows will be added by controller -->
                                 </VBox>
@@ -383,30 +377,19 @@
     <right>
         <VBox fx:id="rightSidebar" spacing="0" styleClass="right-sidebar" prefWidth="250">
             <padding>
-                <Insets top="24" right="20" bottom="24" left="20"/>
+                <Insets top="24" right="0" bottom="24" left="20"/>
             </padding>
             
-            <!-- Notifications Panel -->
-            <VBox fx:id="notificationPanel" spacing="12" styleClass="sidebar-panel">
-                <Label text="Notifications" styleClass="sidebar-panel-title"/>
-                <VBox fx:id="notificationsList" spacing="0" styleClass="notifications-list">
-                    <!-- Notification items will be added by controller -->
-                </VBox>
-            </VBox>
-            
-            <!-- Separator -->
-            <Region styleClass="sidebar-separator">
-                <VBox.margin>
-                    <Insets top="20" bottom="20"/>
-                </VBox.margin>
-            </Region>
-            
-            <!-- Activity Panel -->
-            <VBox fx:id="activityPanel" spacing="12" styleClass="sidebar-panel">
-                <Label text="Activities" styleClass="sidebar-panel-title"/>
-                <VBox fx:id="activitiesList" spacing="0" styleClass="activities-list">
-                    <!-- Activity items will be added by controller -->
-                </VBox>
+            <!-- Combined Panel - Notifications & Activities -->
+            <VBox fx:id="combinedPanel" spacing="12" styleClass="sidebar-panel" VBox.vgrow="ALWAYS">
+                <Label text="Notifications &amp; Activities" styleClass="sidebar-panel-title"/>
+                <ScrollPane fx:id="combinedScrollPane" fitToWidth="true" fitToHeight="true"
+                           hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                           styleClass="sidebar-scroll" VBox.vgrow="ALWAYS">
+                    <VBox fx:id="combinedList" spacing="0" styleClass="combined-list">
+                        <!-- Notification and Activity items will be added by controller -->
+                    </VBox>
+                </ScrollPane>
             </VBox>
         </VBox>
     </right>

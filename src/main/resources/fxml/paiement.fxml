@@ -3,30 +3,142 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.SVGPath?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.example.demo.controllers.PaiementManagementController"
-      spacing="15" styleClass="page-container">
-    <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
-    </padding>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            styleClass="paiements-root">
     
-    <!-- Title -->
-    <Label text="Gestion des Paiements &amp; Cotisations" 
-           styleClass="page-title-large"/>
-    
-    <!-- Top Bar: Search and Actions -->
-    <HBox fx:id="topBar" spacing="10">
-        <TextField fx:id="searchPaymentsField" promptText="Rechercher par adhérent, montant..." 
-                   prefWidth="400"/>
-        <Button fx:id="addPaymentButton" text="+ Nouveau Paiement" styleClass="btn-success"/>
-    </HBox>
-    
-    <!-- Payments Table -->
-    <TableView fx:id="paiementsTable" prefHeight="500" VBox.vgrow="ALWAYS">
-        <!-- Columns will be created programmatically in controller -->
-    </TableView>
-</VBox>
-
-
+    <!-- ==================== CENTER AREA ==================== -->
+    <center>
+        <BorderPane>
+            <!-- Header -->
+            <top>
+                <HBox fx:id="header" spacing="16" alignment="CENTER_LEFT" 
+                      styleClass="paiements-header" prefHeight="70">
+                    <padding>
+                        <Insets top="16" right="32" bottom="16" left="32"/>
+                    </padding>
+                    
+                    <!-- Menu icon (caché) -->
+                    <Button fx:id="menuBtn" styleClass="paiements-header-icon-btn" visible="false">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <SVGPath styleClass="icon-svg"/>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                    
+                    <!-- Breadcrumb -->
+                    <Label fx:id="breadcrumbLabel" text="Gestion des Paiements" 
+                           styleClass="paiements-breadcrumb-label"/>
+                    
+                    <!-- Spacer -->
+                    <Region HBox.hgrow="ALWAYS"/>
+                    
+                    <!-- Moon icon (Dark mode) -->
+                    <Button fx:id="moonBtn" styleClass="paiements-header-icon-btn">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <SVGPath styleClass="icon-svg"/>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                    
+                    <!-- Refresh icon -->
+                    <Button fx:id="refreshBtn" styleClass="paiements-header-icon-btn">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <SVGPath styleClass="icon-svg"/>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                    
+                    <!-- Bell icon -->
+                    <Button fx:id="bellBtn" styleClass="paiements-header-icon-btn">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <SVGPath styleClass="icon-svg"/>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                    
+                    <!-- Globe icon -->
+                    <Button fx:id="globeBtn" styleClass="paiements-header-icon-btn">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <SVGPath styleClass="icon-svg"/>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                </HBox>
+            </top>
+            
+            <!-- Title Filter Section -->
+            <center>
+                <VBox spacing="0">
+                    <HBox fx:id="titleFilterSection" alignment="CENTER_LEFT" 
+                          styleClass="paiements-title-section" prefHeight="60">
+                        <padding>
+                            <Insets top="24" right="32" bottom="24" left="32"/>
+                        </padding>
+                        
+                        <!-- Title -->
+                        <Label fx:id="titleLabel" text="Gestion des Paiements &amp; Cotisations" 
+                               styleClass="paiements-title-label"/>
+                        
+                        <!-- Spacer -->
+                        <Region HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    
+                    <!-- Content Scroll -->
+                    <ScrollPane fx:id="contentScroll" fitToWidth="true" fitToHeight="true"
+                               hbarPolicy="NEVER" styleClass="paiements-content-scroll" 
+                               VBox.vgrow="ALWAYS">
+                        <VBox fx:id="contentWrapper" spacing="20" styleClass="paiements-content-wrapper">
+                            <padding>
+                                <Insets top="20" right="24" bottom="20" left="24"/>
+                            </padding>
+                            
+                            <!-- Search Card -->
+                            <VBox fx:id="searchCard" spacing="16" styleClass="paiements-search-card">
+                                <padding>
+                                    <Insets top="20" right="20" bottom="20" left="20"/>
+                                </padding>
+                                
+                                <HBox fx:id="searchBar" spacing="12" alignment="CENTER_LEFT">
+                                    <TextField fx:id="searchPaymentsField" promptText="Rechercher par adhérent, montant..." 
+                                               styleClass="paiements-search-field" HBox.hgrow="ALWAYS"/>
+                                    <Button fx:id="addPaymentButton" text="+ Nouveau Paiement" 
+                                            styleClass="paiements-btn-success"/>
+                                </HBox>
+                            </VBox>
+                            
+                            <!-- Table Card -->
+                            <VBox fx:id="tableCard" spacing="0" styleClass="paiements-table-card">
+                                <padding>
+                                    <Insets top="20" right="20" bottom="20" left="20"/>
+                                </padding>
+                                
+                                <TableView fx:id="paiementsTable" styleClass="paiements-table">
+                                    <columns>
+                                        <TableColumn fx:id="adherentColumn" text="Adhérent" styleClass="paiements-table-column"
+                                                    minWidth="150" prefWidth="250" maxWidth="400" resizable="true"/>
+                                        <TableColumn fx:id="montantColumn" text="Montant" styleClass="paiements-table-column"
+                                                    minWidth="100" prefWidth="130" maxWidth="180" resizable="true"/>
+                                        <TableColumn fx:id="dateColumn" text="Date Paiement" styleClass="paiements-table-column"
+                                                    minWidth="130" prefWidth="160" maxWidth="200" resizable="true"/>
+                                        <TableColumn fx:id="methodeColumn" text="Méthode" styleClass="paiements-table-column"
+                                                    minWidth="100" prefWidth="130" maxWidth="180" resizable="true"/>
+                                        <TableColumn fx:id="dateFinColumn" text="Date Fin Abonnement" styleClass="paiements-table-column"
+                                                    minWidth="130" prefWidth="180" maxWidth="250" resizable="true"/>
+                                    </columns>
+                                </TableView>
+                            </VBox>
+                        </VBox>
+                    </ScrollPane>
+                </VBox>
+            </center>
+        </BorderPane>
+    </center>
+</BorderPane>

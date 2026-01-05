@@ -304,19 +304,6 @@ public class DatabaseManager {
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             """);
 
-            // Table des favoris
-            stmt.execute("""
-                CREATE TABLE IF NOT EXISTS favoris (
-                    id INT PRIMARY KEY AUTO_INCREMENT,
-                    user_id INT NOT NULL,
-                    page_name VARCHAR(255) NOT NULL,
-                    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-                    CONSTRAINT fk_favoris_user FOREIGN KEY (user_id) REFERENCES utilisateurs(id) ON DELETE CASCADE,
-                    UNIQUE KEY unique_user_page (user_id, page_name),
-                    INDEX idx_user_id (user_id)
-                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-            """);
-
             // Insérer un objectif par défaut pour le taux d'occupation
             stmt.execute("""
                 INSERT IGNORE INTO objectifs (type, valeur, date_debut, actif)

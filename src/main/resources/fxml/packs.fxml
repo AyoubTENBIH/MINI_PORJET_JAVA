@@ -29,15 +29,6 @@
                         </graphic>
                     </Button>
                     
-                    <!-- Star icon (Favoris) -->
-                    <Button fx:id="starBtn" styleClass="packs-header-icon-btn">
-                        <graphic>
-                            <StackPane styleClass="icon-container">
-                                <SVGPath styleClass="icon-svg"/>
-                            </StackPane>
-                        </graphic>
-                    </Button>
-                    
                     <!-- Breadcrumb -->
                     <Label fx:id="breadcrumbLabel" text="Gestion des Packs" 
                            styleClass="packs-breadcrumb-label"/>
