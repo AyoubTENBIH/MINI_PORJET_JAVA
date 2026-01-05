@@ -193,3 +193,6 @@ private StackPane createTotalProfitCardWithBackgroundChart() {
 
 
 
+
+
+

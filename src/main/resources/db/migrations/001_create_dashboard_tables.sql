@@ -64,3 +64,6 @@ VALUES ('taux_occupation', 80.0, CURRENT_TIMESTAMP, 1);
 
 
 
+
+
+

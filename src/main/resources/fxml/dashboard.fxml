@@ -3,95 +3,412 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.canvas.Canvas?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.example.demo.controllers.DashboardController"
             styleClass="root">
     
-    <!-- Header -->
+    <!-- ==================== HEADER ==================== -->
     <top>
         <HBox fx:id="header" spacing="16" alignment="CENTER_LEFT" 
               styleClass="header" prefHeight="70">
             <padding>
                 <Insets top="16" right="32" bottom="16" left="32"/>
             </padding>
-            <children>
-                <Button fx:id="menuBtn" styleClass="header-icon-btn"/>
-                <Button fx:id="starBtn" styleClass="header-icon-btn"/>
-                <Label fx:id="breadcrumbLabel" text="Dashboard / Overview" 
-                       styleClass="breadcrumb-label"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Button fx:id="moonBtn" styleClass="header-icon-btn"/>
-                <Button fx:id="refreshBtn" styleClass="header-icon-btn"/>
-                <StackPane fx:id="bellContainer">
-                    <Button fx:id="bellBtn" styleClass="header-icon-btn"/>
-                    <Label fx:id="notificationBadge" styleClass="notification-badge" visible="false"/>
-                </StackPane>
-                <Button fx:id="globeBtn" styleClass="header-icon-btn"/>
-            </children>
+            
+            <!-- Left Section -->
+            <Button fx:id="menuBtn" styleClass="header-icon-btn">
+                <graphic>
+                    <StackPane styleClass="icon-container">
+                        <SVGPath fx:id="menuIcon" styleClass="icon-svg"/>
+                    </StackPane>
+                </graphic>
+            </Button>
+            
+            <Button fx:id="starBtn" styleClass="header-icon-btn">
+                <graphic>
+                    <StackPane styleClass="icon-container">
+                        <SVGPath fx:id="starIcon" styleClass="icon-svg"/>
+                    </StackPane>
+                </graphic>
+            </Button>
+            
+            <Label fx:id="breadcrumbLabel" text="Dashboard / Overview" 
+                   styleClass="breadcrumb-label"/>
+            
+            <!-- Spacer -->
+            <Region HBox.hgrow="ALWAYS"/>
+            
+            <!-- Right Section -->
+            <Button fx:id="moonBtn" styleClass="header-icon-btn">
+                <graphic>
+                    <StackPane styleClass="icon-container">
+                        <SVGPath fx:id="moonIcon" styleClass="icon-svg"/>
+                    </StackPane>
+                </graphic>
+            </Button>
+            
+            <Button fx:id="refreshBtn" styleClass="header-icon-btn">
+                <graphic>
+                    <StackPane styleClass="icon-container">
+                        <SVGPath fx:id="refreshIcon" styleClass="icon-svg"/>
+                    </StackPane>
+                </graphic>
+            </Button>
+            
+            <StackPane fx:id="bellContainer">
+                <Button fx:id="bellBtn" styleClass="header-icon-btn">
+                    <graphic>
+                        <StackPane styleClass="icon-container">
+                            <SVGPath fx:id="bellIcon" styleClass="icon-svg"/>
+                        </StackPane>
+                    </graphic>
+                </Button>
+                <Label fx:id="notificationBadge" styleClass="notification-badge" 
+                       visible="false" text="0"/>
+            </StackPane>
+            
+            <Button fx:id="globeBtn" styleClass="header-icon-btn">
+                <graphic>
+                    <StackPane styleClass="icon-container">
+                        <SVGPath fx:id="globeIcon" styleClass="icon-svg"/>
+                    </StackPane>
+                </graphic>
+            </Button>
         </HBox>
     </top>
     
-    <!-- Title and Filter Section -->
+    <!-- ==================== CENTER CONTENT ==================== -->
     <center>
-        <VBox spacing="0">
-            <HBox fx:id="titleFilterSection" alignment="CENTER_LEFT" prefHeight="60">
+        <VBox spacing="0" styleClass="center-container">
+            
+            <!-- Title and Filter Section -->
+            <HBox fx:id="titleFilterSection" alignment="CENTER_LEFT" 
+                  styleClass="title-filter-section" prefHeight="60">
                 <padding>
                     <Insets top="24" right="32" bottom="24" left="32"/>
                 </padding>
-                <children>
-                    <Label fx:id="titleLabel" text="Overview" styleClass="page-title"/>
-                    <Region HBox.hgrow="ALWAYS"/>
-                    <Button fx:id="filterBtn" styleClass="filter-button">
+                
+                <Label fx:id="titleLabel" text="Overview" styleClass="page-title"/>
+                
+                <Region HBox.hgrow="ALWAYS"/>
+                
+                <Button fx:id="filterBtn" styleClass="filter-button">
+                    <graphic>
                         <HBox alignment="CENTER" spacing="8">
                             <Label fx:id="filterLabel" text="Today" styleClass="filter-label"/>
-                            <Node fx:id="chevronIcon"/>
+                            <StackPane styleClass="icon-container-small">
+                                <SVGPath fx:id="chevronIcon" styleClass="icon-svg-small"/>
+                            </StackPane>
                         </HBox>
-                    </Button>
-                </children>
+                    </graphic>
+                </Button>
             </HBox>
             
-            <!-- Content Area -->
-            <ScrollPane fx:id="contentScroll" fitToWidth="true" fitToHeight="true" 
-                       hbarPolicy="NEVER" styleClass="content-area">
+            <!-- Scrollable Content Area -->
+            <ScrollPane fx:id="contentScroll" fitToWidth="true" 
+                       hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                       styleClass="content-scroll">
                 <VBox fx:id="contentWrapper" styleClass="content-wrapper">
                     <padding>
                         <Insets top="20" right="24" bottom="20" left="24"/>
                     </padding>
-                    <children>
-                        <!-- KPI Grid -->
-                        <HBox fx:id="kpiGrid" spacing="20"/>
+                    
+                    <VBox fx:id="content" spacing="20" styleClass="main-content">
                         
-                        <!-- Charts Row -->
-                        <HBox fx:id="chartsRow" spacing="20"/>
+                        <!-- ==================== ROW 1: KPI CARDS (4 cards) ==================== -->
+                        <HBox fx:id="kpiGrid" spacing="16" styleClass="kpi-grid">
+                            
+                            <!-- KPI Card 1: Revenus du Mois -->
+                            <VBox styleClass="kpi-card" HBox.hgrow="ALWAYS">
+                                <padding>
+                                    <Insets top="12" right="20" bottom="12" left="20"/>
+                                </padding>
+                                <Label text="Revenus du Mois" styleClass="kpi-label"/>
+                                <Label fx:id="kpiRevenuValue" text="0 DH" styleClass="kpi-value"/>
+                                <HBox spacing="6" alignment="CENTER_LEFT" styleClass="kpi-change">
+                                    <StackPane styleClass="icon-container-tiny">
+                                        <SVGPath fx:id="kpiRevenuIcon" styleClass="icon-svg-tiny"/>
+                                    </StackPane>
+                                    <Label fx:id="kpiRevenuChange" text="0% vs mois dernier" 
+                                           styleClass="kpi-change-label"/>
+                                </HBox>
+                            </VBox>
+                            
+                            <!-- KPI Card 2: Adhérents Actifs -->
+                            <VBox styleClass="kpi-card" HBox.hgrow="ALWAYS">
+                                <padding>
+                                    <Insets top="12" right="20" bottom="12" left="20"/>
+                                </padding>
+                                <Label text="Adhérents Actifs" styleClass="kpi-label"/>
+                                <Label fx:id="kpiAdherentsValue" text="0" styleClass="kpi-value"/>
+                                <HBox spacing="6" alignment="CENTER_LEFT" styleClass="kpi-change">
+                                    <StackPane styleClass="icon-container-tiny">
+                                        <SVGPath fx:id="kpiAdherentsIcon" styleClass="icon-svg-tiny"/>
+                                    </StackPane>
+                                    <Label fx:id="kpiAdherentsChange" text="+0% ce mois" 
+                                           styleClass="kpi-change-label"/>
+                                </HBox>
+                            </VBox>
+                            
+                            <!-- KPI Card 3: Taux d'Occupation (with gauge) -->
+                            <StackPane styleClass="kpi-card-with-gauge" HBox.hgrow="ALWAYS">
+                                <VBox spacing="8" styleClass="kpi-card-content">
+                                    <padding>
+                                        <Insets top="12" right="20" bottom="12" left="20"/>
+                                    </padding>
+                                    <Label text="Taux d'Occupation" styleClass="kpi-label"/>
+                                    <Label fx:id="kpiTauxValue" text="0%" styleClass="kpi-value"/>
+                                    <Label fx:id="kpiTauxGoal" text="Objectif: 80" 
+                                           styleClass="kpi-goal-label"/>
+                                </VBox>
+                                <!-- Gauge placeholder (to be drawn by controller) -->
+                                <Canvas fx:id="gaugeCanvas" width="65" height="65" 
+                                       StackPane.alignment="BOTTOM_RIGHT"/>
+                            </StackPane>
+                            
+                            <!-- KPI Card 4: Nouveaux Abonnements -->
+                            <VBox styleClass="kpi-card" HBox.hgrow="ALWAYS">
+                                <padding>
+                                    <Insets top="12" right="20" bottom="12" left="20"/>
+                                </padding>
+                                <Label text="Nouveaux Abonnements" styleClass="kpi-label"/>
+                                <Label fx:id="kpiNouveauxValue" text="0" styleClass="kpi-value"/>
+                                <HBox spacing="6" alignment="CENTER_LEFT" styleClass="kpi-change">
+                                    <StackPane styleClass="icon-container-tiny">
+                                        <SVGPath fx:id="kpiNouveauxIcon" styleClass="icon-svg-tiny"/>
+                                    </StackPane>
+                                    <Label fx:id="kpiNouveauxChange" text="Ce mois" 
+                                           styleClass="kpi-change-label"/>
+                                </HBox>
+                            </VBox>
+                        </HBox>
                         
-                        <!-- Area Chart -->
-                        <VBox fx:id="areaChartCard" spacing="0"/>
+                        <!-- ==================== ROW 2: DONUT CHART + MINI CARDS ==================== -->
+                        <HBox fx:id="chartsRow" spacing="20" styleClass="charts-row">
+                            
+                            <!-- Donut Chart Card (60% width) -->
+                            <VBox styleClass="sales-overview-card" HBox.hgrow="ALWAYS">
+                                <padding>
+                                    <Insets top="12" right="12" bottom="12" left="12"/>
+                                </padding>
+                                
+                                <!-- Header -->
+                                <HBox alignment="CENTER_LEFT" spacing="0">
+                                    <Label text="Sales Overview" styleClass="card-title"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Button text="⋮" styleClass="menu-button"/>
+                                </HBox>
+                                
+                                <!-- Content: Donut + Legend -->
+                                <HBox spacing="20" alignment="CENTER" VBox.vgrow="ALWAYS">
+                                    <padding>
+                                        <Insets top="10" right="0" bottom="0" left="0"/>
+                                    </padding>
+                                    
+                                    <!-- Donut Chart Container -->
+                                    <StackPane styleClass="donut-container">
+                                        <Canvas fx:id="donutCanvas" width="250" height="250"/>
+                                        <Circle radius="60" styleClass="donut-center-circle"/>
+                                        <VBox spacing="4" alignment="CENTER" styleClass="donut-center-text">
+                                            <Label text="ABONNEMENTS" styleClass="donut-center-label"/>
+                                            <Label fx:id="donutCenterValue" text="TOTAL: 0" 
+                                                   styleClass="donut-center-value"/>
+                                        </VBox>
+                                    </StackPane>
+                                    
+                                    <!-- Legend -->
+                                    <VBox fx:id="donutLegend" spacing="10" alignment="CENTER_LEFT" 
+                                          styleClass="donut-legend">
+                                        <!-- Legend items will be added by controller -->
+                                    </VBox>
+                                </HBox>
+                            </VBox>
+                            
+                            <!-- Mini Cards Grid 2x2 (40% width) -->
+                            <GridPane fx:id="miniCardsGrid" hgap="16" vgap="16" 
+                                     styleClass="mini-cards-grid" HBox.hgrow="ALWAYS">
+                                
+                                <!-- Mini Card 1: Nouveaux adhérents -->
+                                <VBox styleClass="mini-card" GridPane.columnIndex="0" 
+                                     GridPane.rowIndex="0" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                                    <padding>
+                                        <Insets top="12" right="12" bottom="12" left="12"/>
+                                    </padding>
+                                    <HBox spacing="10" alignment="TOP_LEFT">
+                                        <StackPane styleClass="mini-card-icon-container">
+                                            <SVGPath fx:id="miniCard1Icon" styleClass="mini-card-icon"/>
+                                        </StackPane>
+                                        <Label text="Nouveaux adhérents" wrapText="true" 
+                                               styleClass="mini-card-title" HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+                                    <Label fx:id="miniCard1Value" text="0" styleClass="mini-card-value"/>
+                                    <Label fx:id="miniCard1Badge" text="Cette semaine" 
+                                           styleClass="mini-card-badge"/>
+                                    <Region VBox.vgrow="ALWAYS"/>
+                                </VBox>
+                                
+                                <!-- Mini Card 2: Total profit -->
+                                <VBox styleClass="mini-card" GridPane.columnIndex="1" 
+                                     GridPane.rowIndex="0" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                                    <padding>
+                                        <Insets top="12" right="12" bottom="12" left="12"/>
+                                    </padding>
+                                    <HBox spacing="10" alignment="TOP_LEFT">
+                                        <StackPane styleClass="mini-card-icon-container">
+                                            <SVGPath fx:id="miniCard2Icon" styleClass="mini-card-icon"/>
+                                        </StackPane>
+                                        <Label text="Total profit" wrapText="true" 
+                                               styleClass="mini-card-title" HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+                                    <Label fx:id="miniCard2Value" text="0k DH" styleClass="mini-card-value"/>
+                                    <Label fx:id="miniCard2Badge" text="+42% Weekly Profit" 
+                                           styleClass="mini-card-badge-positive"/>
+                                    <Region VBox.vgrow="ALWAYS"/>
+                                </VBox>
+                                
+                                <!-- Mini Card 3: Expirent dans 7 jours -->
+                                <VBox styleClass="mini-card" GridPane.columnIndex="0" 
+                                     GridPane.rowIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                                    <padding>
+                                        <Insets top="12" right="12" bottom="12" left="12"/>
+                                    </padding>
+                                    <HBox spacing="10" alignment="TOP_LEFT">
+                                        <StackPane styleClass="mini-card-icon-container">
+                                            <SVGPath fx:id="miniCard3Icon" styleClass="mini-card-icon"/>
+                                        </StackPane>
+                                        <Label text="Expirent dans 7 jours" wrapText="true" 
+                                               styleClass="mini-card-title" HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+                                    <Label fx:id="miniCard3Value" text="0" styleClass="mini-card-value"/>
+                                    <Label fx:id="miniCard3Badge" text="Action requise" 
+                                           styleClass="mini-card-badge-warning"/>
+                                    <Region VBox.vgrow="ALWAYS"/>
+                                </VBox>
+                                
+                                <!-- Mini Card 4: Taux moyen -->
+                                <VBox styleClass="mini-card" GridPane.columnIndex="1" 
+                                     GridPane.rowIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                                    <padding>
+                                        <Insets top="12" right="12" bottom="12" left="12"/>
+                                    </padding>
+                                    <HBox spacing="10" alignment="TOP_LEFT">
+                                        <StackPane styleClass="mini-card-icon-container">
+                                            <SVGPath fx:id="miniCard4Icon" styleClass="mini-card-icon"/>
+                                        </StackPane>
+                                        <Label text="Taux moyen" wrapText="true" 
+                                               styleClass="mini-card-title" HBox.hgrow="ALWAYS"/>
+                                    </HBox>
+                                    <Label fx:id="miniCard4Value" text="0 DH" styleClass="mini-card-value"/>
+                                    <Label fx:id="miniCard4Badge" text="Ce mois" 
+                                           styleClass="mini-card-badge-positive"/>
+                                    <Region VBox.vgrow="ALWAYS"/>
+                                </VBox>
+                            </GridPane>
+                        </HBox>
                         
-                        <!-- Bottom Row -->
-                        <HBox fx:id="bottomRow" spacing="20"/>
-                    </children>
+                        <!-- ==================== ROW 3: AREA CHART (100% width) ==================== -->
+                        <VBox fx:id="areaChartCard" styleClass="area-chart-card" spacing="12">
+                            <padding>
+                                <Insets top="20" right="20" bottom="20" left="20"/>
+                            </padding>
+                            <Label text="Évolution des Revenus" styleClass="card-title"/>
+                            <!-- Area Chart placeholder (to be added by controller) -->
+                            <StackPane fx:id="areaChartContainer" styleClass="chart-container" 
+                                      VBox.vgrow="ALWAYS"/>
+                        </VBox>
+                        
+                        <!-- ==================== ROW 4: TABLE (100% width) ==================== -->
+                        <VBox fx:id="bottomRow" styleClass="table-card" spacing="0">
+                            <padding>
+                                <Insets top="20" right="20" bottom="20" left="20"/>
+                            </padding>
+                            
+                            <!-- Table Header -->
+                            <HBox alignment="CENTER_LEFT" styleClass="table-header">
+                                <padding>
+                                    <Insets top="0" right="0" bottom="16" left="0"/>
+                                </padding>
+                                <Label text="Adhérents Récents" styleClass="card-title"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                            </HBox>
+                            
+                            <!-- Table Column Headers (Fixed) -->
+                            <HBox spacing="24" alignment="CENTER_LEFT" styleClass="table-column-headers">
+                                <padding>
+                                    <Insets top="16" right="20" bottom="16" left="20"/>
+                                </padding>
+                                
+                                <!-- Adhérent Column Header -->
+                                <HBox spacing="12" alignment="CENTER_LEFT" 
+                                     styleClass="table-header-cell" HBox.hgrow="SOMETIMES" minWidth="200">
+                                    <Region prefWidth="48" minWidth="48" maxWidth="48"/>
+                                    <Label text="Adhérent" styleClass="table-header-label"/>
+                                </HBox>
+                                
+                                <!-- Pack Column Header -->
+                                <Label text="Pack" styleClass="table-header-label" 
+                                      HBox.hgrow="SOMETIMES" minWidth="120"/>
+                                
+                                <!-- Statut Column Header -->
+                                <Label text="Statut" styleClass="table-header-label" 
+                                      HBox.hgrow="SOMETIMES" minWidth="120"/>
+                                
+                                <!-- Expiration Column Header -->
+                                <Label text="Expiration" styleClass="table-header-label" 
+                                      HBox.hgrow="SOMETIMES" minWidth="120"/>
+                            </HBox>
+                            
+                            <!-- Table Body (Scrollable) -->
+                            <ScrollPane fx:id="tableScrollPane" fitToWidth="true" 
+                                       hbarPolicy="NEVER" vbarPolicy="AS_NEEDED"
+                                       styleClass="table-scroll" VBox.vgrow="ALWAYS">
+                                <VBox fx:id="tableBody" spacing="0" styleClass="table-body">
+                                    <padding>
+                                        <Insets top="0" right="0" bottom="8" left="0"/>
+                                    </padding>
+                                    <!-- Table rows will be added by controller -->
+                                </VBox>
+                            </ScrollPane>
+                        </VBox>
+                    </VBox>
                 </VBox>
             </ScrollPane>
         </VBox>
     </center>
     
-    <!-- Right Sidebar -->
+    <!-- ==================== RIGHT SIDEBAR ==================== -->
     <right>
-        <VBox fx:id="rightSidebar" spacing="20" styleClass="right-sidebar">
+        <VBox fx:id="rightSidebar" spacing="0" styleClass="right-sidebar" prefWidth="250">
             <padding>
-                <Insets top="20" right="20" bottom="20" left="20"/>
+                <Insets top="24" right="20" bottom="24" left="20"/>
             </padding>
-            <children>
-                <!-- Notifications Panel -->
-                <VBox fx:id="notificationPanel" spacing="10" styleClass="panel"/>
-                
-                <!-- Activity Panel -->
-                <VBox fx:id="activityPanel" spacing="10" styleClass="panel"/>
-            </children>
+            
+            <!-- Notifications Panel -->
+            <VBox fx:id="notificationPanel" spacing="12" styleClass="sidebar-panel">
+                <Label text="Notifications" styleClass="sidebar-panel-title"/>
+                <VBox fx:id="notificationsList" spacing="0" styleClass="notifications-list">
+                    <!-- Notification items will be added by controller -->
+                </VBox>
+            </VBox>
+            
+            <!-- Separator -->
+            <Region styleClass="sidebar-separator">
+                <VBox.margin>
+                    <Insets top="20" bottom="20"/>
+                </VBox.margin>
+            </Region>
+            
+            <!-- Activity Panel -->
+            <VBox fx:id="activityPanel" spacing="12" styleClass="sidebar-panel">
+                <Label text="Activities" styleClass="sidebar-panel-title"/>
+                <VBox fx:id="activitiesList" spacing="0" styleClass="activities-list">
+                    <!-- Activity items will be added by controller -->
+                </VBox>
+            </VBox>
         </VBox>
     </right>
 </BorderPane>
-
-

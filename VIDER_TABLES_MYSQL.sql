@@ -38,3 +38,6 @@ UNION ALL
 SELECT 'activities', COUNT(*) FROM activities;
 
 
+
+
+

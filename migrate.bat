@@ -14,3 +14,6 @@ call mvnw.cmd compile exec:java -Dexec.mainClass="com.example.demo.MigrationRunn
 pause
 
 
+
+
+

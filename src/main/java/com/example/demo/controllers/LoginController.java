@@ -166,7 +166,8 @@ public class LoginController {
             MainController mainController = new MainController();
             Scene mainScene = new Scene(mainController.getView(), 1280, 720);
             mainScene.getStylesheets().addAll(
-                getClass().getResource("/css/premium-dark.css").toExternalForm()
+                getClass().getResource("/css/premium-dark.css").toExternalForm(),
+                getClass().getResource("/css/dashboard.css").toExternalForm()
             );
 
             Stage currentStage = (Stage) usernameField.getScene().getWindow();

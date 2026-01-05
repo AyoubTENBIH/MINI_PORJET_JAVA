@@ -41,39 +41,11 @@ public class PaiementManagementController {
     private ObservableList<Adherent> redList = FXCollections.observableArrayList();
 
     @FXML
-    private HBox navigationContainer;
-    @FXML
-    private Button navListeRouge;
-    @FXML
-    private Button navTousPaiements;
-    @FXML
-    private Button navNouveauPaiement;
-    @FXML
-    private VBox contentContainer;
-    @FXML
     private TableView<Paiement> paiementsTable;
-    @FXML
-    private TableView<Adherent> redListTable;
-    @FXML
-    private HBox statsBox;
-    @FXML
-    private VBox redListContainer;
-    @FXML
-    private VBox paymentsContainer;
-    @FXML
-    private VBox newPaymentContainer;
-    @FXML
-    private Button payerButton;
-    @FXML
-    private Button refreshRedListButton;
     @FXML
     private TextField searchPaymentsField;
     @FXML
-    private Button refreshPaymentsButton;
-    @FXML
-    private Button newPaymentButton;
-    
-    private String currentView = "listeRouge";
+    private Button addPaymentButton;
 
     /**
      * Charge la vue de gestion des paiements depuis FXML
@@ -121,362 +93,76 @@ public class PaiementManagementController {
         // Initialiser les services
         initializeServices();
         
-        // Initialiser les statistiques
-        if (statsBox != null) {
-            statsBox.getChildren().clear();
-            HBox stats = createStatsBox();
-            statsBox.getChildren().addAll(stats.getChildren());
-        }
+        // Configurer la vue des paiements
+        setupPaymentsView();
         
-        // Configurer les vues de contenu (tables doivent être configurées AVANT le chargement des données)
-        setupContentViews();
-        
-        // Configurer les boutons de navigation
-        setupNavigationButtons();
-        
-        // Charger les données (après configuration des tables)
+        // Charger les données
         Platform.runLater(() -> {
-            loadRedList();
             loadPayments();
         });
-        
-        // Afficher la vue par défaut
-        switchView("listeRouge");
     }
     
     /**
-     * Configure les boutons de navigation avec styles personnalisés
+     * Configure la vue des paiements
      */
-    private void setupNavigationButtons() {
-        if (navListeRouge != null) {
-            navListeRouge.setOnAction(e -> switchView("listeRouge"));
-        }
-        if (navTousPaiements != null) {
-            navTousPaiements.setOnAction(e -> switchView("tousPaiements"));
-        }
-        if (navNouveauPaiement != null) {
-            navNouveauPaiement.setOnAction(e -> switchView("nouveauPaiement"));
-        }
-        
-        // Mettre à jour les styles des boutons
-        updateNavigationStyles();
-    }
-    
-    /**
-     * Met à jour les styles des boutons de navigation selon la vue active
-     */
-    private void updateNavigationStyles() {
-        String activeStyle = 
-            "-fx-background-color: linear-gradient(to bottom, #00E676, #00C96A); " +
-            "-fx-background-radius: 12px; " +
-            "-fx-text-fill: #FFFFFF; " +
-            "-fx-font-size: 15px; " +
-            "-fx-font-weight: 700; " +
-            "-fx-padding: 12px 24px; " +
-            "-fx-cursor: hand; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 230, 118, 0.6), 12, 0, 0, 4);";
-        
-        String inactiveStyle = 
-            "-fx-background-color: #1E2329; " +
-            "-fx-background-radius: 12px; " +
-            "-fx-text-fill: #B0B8C4; " +
-            "-fx-font-size: 15px; " +
-            "-fx-font-weight: 600; " +
-            "-fx-padding: 12px 24px; " +
-            "-fx-cursor: hand; " +
-            "-fx-border-width: 1.5px; " +
-            "-fx-border-color: rgba(158, 255, 0, 0.2); " +
-            "-fx-border-radius: 12px;";
-        
-        String inactiveHoverStyle = 
-            "-fx-background-color: #2A3140; " +
-            "-fx-background-radius: 12px; " +
-            "-fx-text-fill: #FFFFFF; " +
-            "-fx-font-size: 15px; " +
-            "-fx-font-weight: 600; " +
-            "-fx-padding: 12px 24px; " +
-            "-fx-cursor: hand; " +
-            "-fx-border-width: 1.5px; " +
-            "-fx-border-color: rgba(0, 230, 118, 0.4); " +
-            "-fx-border-radius: 12px; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 8, 0, 0, 2);";
-        
-        String activeHoverStyle = 
-            "-fx-background-color: linear-gradient(to bottom, #00F57C, #00E676); " +
-            "-fx-background-radius: 12px; " +
-            "-fx-text-fill: #FFFFFF; " +
-            "-fx-font-size: 15px; " +
-            "-fx-font-weight: 700; " +
-            "-fx-padding: 12px 24px; " +
-            "-fx-cursor: hand; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 230, 118, 0.8), 15, 0, 0, 5);";
-        
-        if (navListeRouge != null) {
-            if ("listeRouge".equals(currentView)) {
-                navListeRouge.setStyle(activeStyle);
-                navListeRouge.setOnMouseEntered(e -> navListeRouge.setStyle(activeHoverStyle));
-                navListeRouge.setOnMouseExited(e -> navListeRouge.setStyle(activeStyle));
-            } else {
-                navListeRouge.setStyle(inactiveStyle);
-                navListeRouge.setOnMouseEntered(e -> navListeRouge.setStyle(inactiveHoverStyle));
-                navListeRouge.setOnMouseExited(e -> navListeRouge.setStyle(inactiveStyle));
-            }
-        }
-        
-        if (navTousPaiements != null) {
-            if ("tousPaiements".equals(currentView)) {
-                navTousPaiements.setStyle(activeStyle);
-                navTousPaiements.setOnMouseEntered(e -> navTousPaiements.setStyle(activeHoverStyle));
-                navTousPaiements.setOnMouseExited(e -> navTousPaiements.setStyle(activeStyle));
-            } else {
-                navTousPaiements.setStyle(inactiveStyle);
-                navTousPaiements.setOnMouseEntered(e -> navTousPaiements.setStyle(inactiveHoverStyle));
-                navTousPaiements.setOnMouseExited(e -> navTousPaiements.setStyle(inactiveStyle));
-            }
-        }
-        
-        if (navNouveauPaiement != null) {
-            if ("nouveauPaiement".equals(currentView)) {
-                navNouveauPaiement.setStyle(activeStyle);
-                navNouveauPaiement.setOnMouseEntered(e -> navNouveauPaiement.setStyle(activeHoverStyle));
-                navNouveauPaiement.setOnMouseExited(e -> navNouveauPaiement.setStyle(activeStyle));
-            } else {
-                navNouveauPaiement.setStyle(inactiveStyle);
-                navNouveauPaiement.setOnMouseEntered(e -> navNouveauPaiement.setStyle(inactiveHoverStyle));
-                navNouveauPaiement.setOnMouseExited(e -> navNouveauPaiement.setStyle(inactiveStyle));
-            }
-        }
-    }
-    
-    /**
-     * Change de vue
-     */
-    private void switchView(String viewName) {
-        if (viewName.equals(currentView)) return;
-        
-        currentView = viewName;
-        
-        // Afficher/masquer les conteneurs appropriés
-        if (redListContainer != null) {
-            boolean showRedList = "listeRouge".equals(viewName);
-            redListContainer.setVisible(showRedList);
-            redListContainer.setManaged(showRedList);
-        }
-        
-        if (paymentsContainer != null) {
-            boolean showPayments = "tousPaiements".equals(viewName);
-            paymentsContainer.setVisible(showPayments);
-            paymentsContainer.setManaged(showPayments);
-        }
-        
-        if (newPaymentContainer != null) {
-            boolean showNewPayment = "nouveauPaiement".equals(viewName);
-            newPaymentContainer.setVisible(showNewPayment);
-            newPaymentContainer.setManaged(showNewPayment);
-        }
-        
-        // Mettre à jour les styles des boutons
-        updateNavigationStyles();
-    }
-    
-    /**
-     * Configure les vues de contenu (tables, boutons, etc.)
-     */
-    private void setupContentViews() {
-        // Configurer la vue Liste Rouge (même si le conteneur est caché, la table doit être configurée)
-        if (redListTable != null) {
-            setupRedListTable();
-        }
-        
-        // Configurer les boutons de la vue Liste Rouge
-        if (redListContainer != null) {
-            if (payerButton != null) {
-                payerButton.setStyle(
-                    "-fx-background-color: #00E676; " +
-                    "-fx-text-fill: white; " +
-                    "-fx-font-weight: 600; " +
-                    "-fx-background-radius: 10px; " +
-                    "-fx-padding: 10px 20px; " +
-                    "-fx-cursor: hand;"
-                );
-                payerButton.setOnMouseEntered(e -> payerButton.setStyle(
-                    "-fx-background-color: #16A34A; " +
-                    "-fx-text-fill: white; " +
-                    "-fx-font-weight: 600; " +
-                    "-fx-background-radius: 10px; " +
-                    "-fx-padding: 10px 20px; " +
-                    "-fx-cursor: hand;"
-                ));
-                payerButton.setOnMouseExited(e -> payerButton.setStyle(
-                    "-fx-background-color: #00E676; " +
-                    "-fx-text-fill: white; " +
-                    "-fx-font-weight: 600; " +
-                    "-fx-background-radius: 10px; " +
-                    "-fx-padding: 10px 20px; " +
-                    "-fx-cursor: hand;"
-                ));
-                payerButton.setOnAction(e -> {
-                    Adherent selected = redListTable.getSelectionModel().getSelectedItem();
-                    if (selected != null) {
-                        showNewPaymentDialog(selected);
-                    } else {
-                        showAlert(Alert.AlertType.WARNING, "Attention", "Veuillez sélectionner un adhérent");
-                    }
-                });
-            }
-            if (refreshRedListButton != null) {
-                refreshRedListButton.setStyle(
-                    "-fx-background-color: #1c1e2d; " +
-                    "-fx-text-fill: #E6EAF0; " +
-                    "-fx-font-weight: 600; " +
-                    "-fx-background-radius: 10px; " +
-                    "-fx-padding: 10px 20px; " +
-                    "-fx-border-width: 1px; " +
-                    "-fx-border-color: rgba(158, 255, 0, 0.2); " +
-                    "-fx-border-radius: 10px; " +
-                    "-fx-cursor: hand;"
-                );
-                refreshRedListButton.setOnMouseEntered(e -> refreshRedListButton.setStyle(
-                    "-fx-background-color: #2f3640; " +
-                    "-fx-text-fill: #E6EAF0; " +
-                    "-fx-font-weight: 600; " +
-                    "-fx-background-radius: 10px; " +
-                    "-fx-padding: 10px 20px; " +
-                    "-fx-border-width: 1px; " +
-                    "-fx-border-color: rgba(158, 255, 0, 0.2); " +
-                    "-fx-border-radius: 10px; " +
-                    "-fx-cursor: hand;"
-                ));
-                refreshRedListButton.setOnMouseExited(e -> refreshRedListButton.setStyle(
-                    "-fx-background-color: #1c1e2d; " +
-                    "-fx-text-fill: #E6EAF0; " +
-                    "-fx-font-weight: 600; " +
-                    "-fx-background-radius: 10px; " +
-                    "-fx-padding: 10px 20px; " +
-                    "-fx-border-width: 1px; " +
-                    "-fx-border-color: rgba(158, 255, 0, 0.2); " +
-                    "-fx-border-radius: 10px; " +
-                    "-fx-cursor: hand;"
-                ));
-                refreshRedListButton.setOnAction(e -> loadRedList());
-            }
-        }
-        
-        // Configurer la vue Tous les Paiements (même si le conteneur est caché)
+    private void setupPaymentsView() {
+        // Configurer la table des paiements
         if (paiementsTable != null) {
             setupPaymentsTable();
-            if (searchPaymentsField != null) {
-                searchPaymentsField.setStyle(
-                    "-fx-background-color: #0A0D12; " +
-                    "-fx-background-radius: 10px; " +
-                    "-fx-text-fill: #E6EAF0; " +
-                    "-fx-font-size: 14px; " +
-                    "-fx-padding: 12px 16px; " +
-                    "-fx-border-width: 1px; " +
-                    "-fx-border-color: rgba(158, 255, 0, 0.2); " +
-                    "-fx-border-radius: 10px; " +
-                    "-fx-prompt-text-fill: #9AA4B2;"
-                );
-                searchPaymentsField.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
-                    if (isFocused) {
-                        searchPaymentsField.setStyle(
-                            "-fx-background-color: #141A22; " +
-                            "-fx-background-radius: 10px; " +
-                            "-fx-text-fill: #E6EAF0; " +
-                            "-fx-font-size: 14px; " +
-                            "-fx-padding: 12px 16px; " +
-                            "-fx-border-width: 1px; " +
-                            "-fx-border-color: #00E676; " +
-                            "-fx-border-radius: 10px; " +
-                            "-fx-prompt-text-fill: #9AA4B2;"
-                        );
-                    } else {
-                        searchPaymentsField.setStyle(
-                            "-fx-background-color: #0A0D12; " +
-                            "-fx-background-radius: 10px; " +
-                            "-fx-text-fill: #E6EAF0; " +
-                            "-fx-font-size: 14px; " +
-                            "-fx-padding: 12px 16px; " +
-                            "-fx-border-width: 1px; " +
-                            "-fx-border-color: rgba(158, 255, 0, 0.2); " +
-                            "-fx-border-radius: 10px; " +
-                            "-fx-prompt-text-fill: #9AA4B2;"
-                        );
-                    }
-                });
-                searchPaymentsField.textProperty().addListener((obs, oldVal, newVal) -> {
-                    // TODO: Implémenter la recherche
-                    loadPayments();
-                });
-            }
-            if (refreshPaymentsButton != null) {
-                refreshPaymentsButton.setStyle(
-                    "-fx-background-color: #1c1e2d; " +
-                    "-fx-text-fill: #E6EAF0; " +
-                    "-fx-font-weight: 600; " +
-                    "-fx-background-radius: 10px; " +
-                    "-fx-padding: 10px 20px; " +
-                    "-fx-border-width: 1px; " +
-                    "-fx-border-color: rgba(158, 255, 0, 0.2); " +
-                    "-fx-border-radius: 10px; " +
-                    "-fx-cursor: hand;"
-                );
-                refreshPaymentsButton.setOnMouseEntered(e -> refreshPaymentsButton.setStyle(
-                    "-fx-background-color: #2f3640; " +
-                    "-fx-text-fill: #E6EAF0; " +
-                    "-fx-font-weight: 600; " +
-                    "-fx-background-radius: 10px; " +
-                    "-fx-padding: 10px 20px; " +
-                    "-fx-border-width: 1px; " +
-                    "-fx-border-color: rgba(158, 255, 0, 0.2); " +
-                    "-fx-border-radius: 10px; " +
-                    "-fx-cursor: hand;"
-                ));
-                refreshPaymentsButton.setOnMouseExited(e -> refreshPaymentsButton.setStyle(
-                    "-fx-background-color: #1c1e2d; " +
-                    "-fx-text-fill: #E6EAF0; " +
-                    "-fx-font-weight: 600; " +
-                    "-fx-background-radius: 10px; " +
-                    "-fx-padding: 10px 20px; " +
-                    "-fx-border-width: 1px; " +
-                    "-fx-border-color: rgba(158, 255, 0, 0.2); " +
-                    "-fx-border-radius: 10px; " +
-                    "-fx-cursor: hand;"
-                ));
-                refreshPaymentsButton.setOnAction(e -> loadPayments());
-            }
         }
         
-        // Configurer la vue Nouveau Paiement
-        if (newPaymentButton != null) {
-            newPaymentButton.setStyle(
-                "-fx-background-color: #00E676; " +
-                "-fx-text-fill: white; " +
-                "-fx-font-size: 16px; " +
-                "-fx-font-weight: 600; " +
-                "-fx-padding: 15px 30px; " +
-                "-fx-background-radius: 10px; " +
-                "-fx-cursor: hand;"
+        // Configurer le champ de recherche
+        if (searchPaymentsField != null) {
+            searchPaymentsField.setStyle(
+                "-fx-background-color: rgba(15, 23, 42, 0.6); " +
+                "-fx-background-radius: 12px; " +
+                "-fx-text-fill: #E6EAF0; " +
+                "-fx-font-size: 14px; " +
+                "-fx-padding: 12px 16px; " +
+                "-fx-border-width: 1px; " +
+                "-fx-border-color: rgba(255, 255, 255, 0.1); " +
+                "-fx-border-radius: 12px; " +
+                "-fx-prompt-text-fill: #9AA4B2;"
             );
-            newPaymentButton.setOnMouseEntered(e -> newPaymentButton.setStyle(
-                "-fx-background-color: #16A34A; " +
-                "-fx-text-fill: white; " +
-                "-fx-font-size: 16px; " +
-                "-fx-font-weight: 600; " +
-                "-fx-padding: 15px 30px; " +
-                "-fx-background-radius: 10px; " +
-                "-fx-cursor: hand;"
-            ));
-            newPaymentButton.setOnMouseExited(e -> newPaymentButton.setStyle(
-                "-fx-background-color: #00E676; " +
-                "-fx-text-fill: white; " +
-                "-fx-font-size: 16px; " +
-                "-fx-font-weight: 600; " +
-                "-fx-padding: 15px 30px; " +
-                "-fx-background-radius: 10px; " +
-                "-fx-cursor: hand;"
-            ));
-            newPaymentButton.setOnAction(e -> showNewPaymentDialog(null));
+            searchPaymentsField.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
+                if (isFocused) {
+                    searchPaymentsField.setStyle(
+                        "-fx-background-color: rgba(15, 23, 42, 0.8); " +
+                        "-fx-background-radius: 12px; " +
+                        "-fx-text-fill: #E6EAF0; " +
+                        "-fx-font-size: 14px; " +
+                        "-fx-padding: 12px 16px; " +
+                        "-fx-border-width: 1px; " +
+                        "-fx-border-color: rgba(16, 185, 129, 0.5); " +
+                        "-fx-border-radius: 12px; " +
+                        "-fx-prompt-text-fill: #9AA4B2;"
+                    );
+                } else {
+                    searchPaymentsField.setStyle(
+                        "-fx-background-color: rgba(15, 23, 42, 0.6); " +
+                        "-fx-background-radius: 12px; " +
+                        "-fx-text-fill: #E6EAF0; " +
+                        "-fx-font-size: 14px; " +
+                        "-fx-padding: 12px 16px; " +
+                        "-fx-border-width: 1px; " +
+                        "-fx-border-color: rgba(255, 255, 255, 0.1); " +
+                        "-fx-border-radius: 12px; " +
+                        "-fx-prompt-text-fill: #9AA4B2;"
+                    );
+                }
+            });
+            searchPaymentsField.textProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal == null || newVal.trim().isEmpty()) {
+                    loadPayments();
+                } else {
+                    searchPayments(newVal);
+                }
+            });
+        }
+        
+        // Configurer le bouton Ajouter Paiement
+        if (addPaymentButton != null) {
+            addPaymentButton.setOnAction(e -> showNewPaymentDialog(null));
         }
     }
 
@@ -486,413 +172,28 @@ public class PaiementManagementController {
     private Parent createBasicView() {
         VBox root = new VBox(15);
         root.setPadding(new Insets(20));
-        root.setStyle("-fx-background-color: #0d0f1a;"); // Background sombre cohérent avec Dashboard
+        root.setStyle("-fx-background-color: #0d0f1a;");
 
         Label title = new Label("Gestion des Paiements & Cotisations");
         title.setStyle("-fx-text-fill: #E6EAF0; -fx-font-size: 24px; -fx-font-weight: 700;");
 
-        HBox statsBox = createStatsBox();
-        
-        // Créer les boutons de navigation
-        HBox navContainer = new HBox(12);
-        navContainer.setPadding(new Insets(10, 0, 10, 0));
-        
-        Button navListeRouge = createNavButton("🔴 Liste Rouge", true);
-        Button navTousPaiements = createNavButton("💳 Tous les Paiements", false);
-        Button navNouveauPaiement = createNavButton("➕ Nouveau Paiement", false);
-        
-        navContainer.getChildren().addAll(navListeRouge, navTousPaiements, navNouveauPaiement);
-        
-        // Conteneur de contenu
-        VBox contentContainer = new VBox(15);
-        contentContainer.setPadding(new Insets(20));
-        contentContainer.setStyle("-fx-background-color: #0d0f1a;");
-        
-        Parent redListView = createRedListView();
-        Parent paymentsView = createPaymentsView();
-        Parent newPaymentView = createNewPaymentView();
-        
-        redListView.setVisible(true);
-        paymentsView.setVisible(false);
-        newPaymentView.setVisible(false);
-        
-        contentContainer.getChildren().addAll(redListView, paymentsView, newPaymentView);
-        
-        // Actions des boutons
-        navListeRouge.setOnAction(e -> {
-            redListView.setVisible(true);
-            paymentsView.setVisible(false);
-            newPaymentView.setVisible(false);
-            updateNavButtonStyles(navListeRouge, navTousPaiements, navNouveauPaiement, true, false, false);
-        });
-        
-        navTousPaiements.setOnAction(e -> {
-            redListView.setVisible(false);
-            paymentsView.setVisible(true);
-            newPaymentView.setVisible(false);
-            updateNavButtonStyles(navListeRouge, navTousPaiements, navNouveauPaiement, false, true, false);
-        });
-        
-        navNouveauPaiement.setOnAction(e -> {
-            redListView.setVisible(false);
-            paymentsView.setVisible(false);
-            newPaymentView.setVisible(true);
-            updateNavButtonStyles(navListeRouge, navTousPaiements, navNouveauPaiement, false, false, true);
-        });
-        
-        root.getChildren().addAll(title, statsBox, navContainer, contentContainer);
-        
-        loadRedList();
-        loadPayments();
-        
-        return root;
-    }
-    
-    /**
-     * Crée un bouton de navigation pour la vue de secours
-     */
-    private Button createNavButton(String text, boolean active) {
-        Button btn = new Button(text);
-        btn.setPrefWidth(220);
-        btn.setPrefHeight(56);
-        
-        if (active) {
-            btn.setStyle(
-                "-fx-background-color: #00E676; " +
-                "-fx-background-radius: 12px; " +
-                "-fx-text-fill: #FFFFFF; " +
-                "-fx-font-size: 15px; " +
-                "-fx-font-weight: 700; " +
-                "-fx-padding: 14px 24px; " +
-                "-fx-cursor: hand; " +
-                "-fx-effect: dropshadow(gaussian, rgba(0, 230, 118, 0.5), 10, 0, 0, 3);"
-            );
-        } else {
-            btn.setStyle(
-                "-fx-background-color: #2A2F3A; " +
-                "-fx-background-radius: 12px; " +
-                "-fx-text-fill: #E6EAF0; " +
-                "-fx-font-size: 15px; " +
-                "-fx-font-weight: 600; " +
-                "-fx-padding: 14px 24px; " +
-                "-fx-cursor: hand; " +
-                "-fx-border-width: 1px; " +
-                "-fx-border-color: rgba(158, 255, 0, 0.15); " +
-                "-fx-border-radius: 12px;"
-            );
-        }
-        
-        return btn;
-    }
-    
-    /**
-     * Met à jour les styles des boutons de navigation pour la vue de secours
-     */
-    private void updateNavButtonStyles(Button btn1, Button btn2, Button btn3, 
-                                      boolean active1, boolean active2, boolean active3) {
-        String activeStyle = 
-            "-fx-background-color: #00E676; " +
-            "-fx-background-radius: 12px; " +
-            "-fx-text-fill: #FFFFFF; " +
-            "-fx-font-size: 15px; " +
-            "-fx-font-weight: 700; " +
-            "-fx-padding: 14px 24px; " +
-            "-fx-cursor: hand; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 230, 118, 0.5), 10, 0, 0, 3);";
-        
-        String inactiveStyle = 
-            "-fx-background-color: #2A2F3A; " +
-            "-fx-background-radius: 12px; " +
-            "-fx-text-fill: #E6EAF0; " +
-            "-fx-font-size: 15px; " +
-            "-fx-font-weight: 600; " +
-            "-fx-padding: 14px 24px; " +
-            "-fx-cursor: hand; " +
-            "-fx-border-width: 1px; " +
-            "-fx-border-color: rgba(158, 255, 0, 0.15); " +
-            "-fx-border-radius: 12px;";
-        
-        btn1.setStyle(active1 ? activeStyle : inactiveStyle);
-        btn2.setStyle(active2 ? activeStyle : inactiveStyle);
-        btn3.setStyle(active3 ? activeStyle : inactiveStyle);
-    }
-
-    /**
-     * Crée la boîte de statistiques
-     */
-    private HBox createStatsBox() {
-        HBox statsBox = new HBox(16); // Espacement horizontal 16px comme Dashboard
-        statsBox.setPadding(new Insets(0));
-        statsBox.setAlignment(Pos.CENTER_LEFT);
-        statsBox.setStyle("-fx-background-color: transparent;");
-        HBox.setHgrow(statsBox, Priority.ALWAYS);
-        
-        VBox revenusWidget = createStatWidget("Revenus du Mois", "0 DH", "#00E676"); // Vert accent cohérent
-        VBox impayesWidget = createStatWidget("Impayés", "0", "#EF4444"); // Rouge danger cohérent
-        VBox expireBientotWidget = createStatWidget("Expire Bientôt", "0", "#F59E0B"); // Orange warning cohérent
-        
-        // Permettre aux cartes de grandir
-        HBox.setHgrow(revenusWidget, Priority.ALWAYS);
-        HBox.setHgrow(impayesWidget, Priority.ALWAYS);
-        HBox.setHgrow(expireBientotWidget, Priority.ALWAYS);
-        
-        statsBox.getChildren().addAll(revenusWidget, impayesWidget, expireBientotWidget);
-        
-        // Mettre à jour les stats
-        updateStats(revenusWidget, impayesWidget, expireBientotWidget);
-        
-        return statsBox;
-    }
-
-    private VBox createStatWidget(String title, String value, String color) {
-        VBox widget = new VBox(8); // Spacing vertical modéré comme Dashboard
-        widget.setPadding(new Insets(12, 20, 12, 20)); // Padding cohérent avec Dashboard
-        // Dimensions flexibles pour remplir l'espace disponible
-        widget.setMinWidth(220); // Largeur minimale comme Dashboard
-        widget.setPrefWidth(Region.USE_COMPUTED_SIZE); // Utiliser la largeur calculée
-        widget.setMaxWidth(Double.MAX_VALUE); // Permettre l'expansion maximale
-        widget.setMinHeight(140);
-        widget.setPrefHeight(140);
-        widget.setMaxHeight(140);
-        widget.setStyle(
-            "-fx-background-color: #1c1e2d; " +
-            "-fx-background-radius: 10px; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 8, 0, 0, 2);"
-        );
-        
-        Label titleLabel = new Label(title);
-        titleLabel.setStyle("-fx-text-fill: #9AA4B2; -fx-font-size: 12px; -fx-font-weight: 500;");
-        
-        Label valueLabel = new Label(value);
-        valueLabel.setStyle("-fx-text-fill: " + color + "; -fx-font-size: 32px; -fx-font-weight: 700;");
-        valueLabel.setId("stat-value-" + title.replaceAll("\\s", "-"));
-        
-        widget.getChildren().addAll(titleLabel, valueLabel);
-        return widget;
-    }
-
-    private void updateStats(VBox revenusWidget, VBox impayesWidget, VBox expireBientotWidget) {
-        try {
-            // Revenus du mois
-            Double revenus = paiementDAO.getRevenusMois(LocalDate.now());
-            Label revenusLabel = (Label) revenusWidget.getChildren().get(1);
-            revenusLabel.setText(String.format("%.2f DH", revenus));
-            
-            // Impayés (adhérents expirés)
-            List<Adherent> expired = adherentDAO.findExpired();
-            Label impayesLabel = (Label) impayesWidget.getChildren().get(1);
-            impayesLabel.setText(String.valueOf(expired.size()));
-            
-            // Expire bientôt
-            List<Adherent> expiringSoon = adherentDAO.findExpiringSoon();
-            Label expireLabel = (Label) expireBientotWidget.getChildren().get(1);
-            expireLabel.setText(String.valueOf(expiringSoon.size()));
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * Crée la vue de la liste rouge
-     */
-    private Parent createRedListView() {
-        VBox root = new VBox(15);
-        root.setPadding(new Insets(20));
-        root.setStyle("-fx-background-color: #0d0f1a;");
-        
-        Label subtitle = new Label("Adhérents avec abonnement expiré ou impayé");
-        subtitle.setStyle("-fx-font-size: 18px; -fx-font-weight: 700; -fx-text-fill: #EF4444;");
-        
-        // Table de la liste rouge
-        redListTable = new TableView<>();
-        redListTable.setPrefHeight(500);
-        
-        // Style pour les headers de colonnes
-        String headerStyle = 
-            "-fx-background-color: #0A0D12; " +
-            "-fx-text-fill: #9AA4B2; " +
-            "-fx-font-weight: 600; " +
-            "-fx-font-size: 13px; " +
-            "-fx-padding: 12px 16px; " +
-            "-fx-border-width: 0 0 1px 0; " +
-            "-fx-border-color: rgba(158, 255, 0, 0.1);";
-        
-        TableColumn<Adherent, String> cinColumn = new TableColumn<>("CIN");
-        cinColumn.setStyle(headerStyle);
-        cinColumn.setCellValueFactory(new PropertyValueFactory<>("cin"));
-        cinColumn.setPrefWidth(120);
-        
-        TableColumn<Adherent, String> nomColumn = new TableColumn<>("Nom Complet");
-        nomColumn.setStyle(headerStyle);
-        nomColumn.setCellValueFactory(cellData -> 
-            new javafx.beans.property.SimpleStringProperty(cellData.getValue().getNomComplet()));
-        nomColumn.setPrefWidth(200);
-        
-        TableColumn<Adherent, String> telephoneColumn = new TableColumn<>("Téléphone");
-        telephoneColumn.setStyle(headerStyle);
-        telephoneColumn.setCellValueFactory(new PropertyValueFactory<>("telephone"));
-        telephoneColumn.setPrefWidth(120);
-        
-        TableColumn<Adherent, String> dateFinColumn = new TableColumn<>("Date Expiration");
-        dateFinColumn.setStyle(headerStyle);
-        dateFinColumn.setCellValueFactory(cellData -> 
-            new javafx.beans.property.SimpleStringProperty(
-                cellData.getValue().getDateFin() != null ? 
-                    cellData.getValue().getDateFin().toString() : "N/A"));
-        dateFinColumn.setMinWidth(130);
-        dateFinColumn.setPrefWidth(180);
-        dateFinColumn.setMaxWidth(250);
-        dateFinColumn.setResizable(true);
-        
-        TableColumn<Adherent, Integer> joursRetardColumn = new TableColumn<>("Jours de Retard");
-        joursRetardColumn.setStyle(headerStyle);
-        joursRetardColumn.setCellValueFactory(cellData -> {
-            Adherent adherent = cellData.getValue();
-            if (adherent.getDateFin() != null && adherent.isAbonnementExpire()) {
-                long jours = java.time.temporal.ChronoUnit.DAYS.between(adherent.getDateFin(), LocalDate.now());
-                return new javafx.beans.property.ReadOnlyObjectWrapper<>((int) jours);
-            }
-            return new javafx.beans.property.ReadOnlyObjectWrapper<>(0);
-        });
-        joursRetardColumn.setPrefWidth(120);
-        joursRetardColumn.setCellFactory(column -> new TableCell<Adherent, Integer>() {
-            @Override
-            protected void updateItem(Integer jours, boolean empty) {
-                super.updateItem(jours, empty);
-                if (empty || jours == null) {
-                    setText("");
-                    setStyle("");
-                } else {
-                    setText(String.valueOf(jours));
-                    // Styles avec le thème sombre
-                    if (jours > 30) {
-                        setStyle("-fx-text-fill: #EF4444; -fx-font-weight: bold;");
-                    } else if (jours > 7) {
-                        setStyle("-fx-text-fill: #F59E0B; -fx-font-weight: bold;");
-                    } else {
-                        setStyle("-fx-text-fill: #FCD34D; -fx-font-weight: bold;");
-                    }
-                }
-            }
-        });
-        
-        redListTable.getColumns().addAll(cinColumn, nomColumn, telephoneColumn, dateFinColumn, joursRetardColumn);
-        redListTable.setItems(redList);
-        
-        // Bouton action rapide
-        Button payerButton = new Button("Enregistrer Paiement");
-        payerButton.setStyle(
-            "-fx-background-color: #00E676; " +
-            "-fx-text-fill: white; " +
-            "-fx-font-weight: 600; " +
-            "-fx-background-radius: 10px; " +
-            "-fx-padding: 10px 20px; " +
-            "-fx-cursor: hand;"
-        );
-        payerButton.setOnMouseEntered(e -> payerButton.setStyle(
-            "-fx-background-color: #16A34A; " +
-            "-fx-text-fill: white; " +
-            "-fx-font-weight: 600; " +
-            "-fx-background-radius: 10px; " +
-            "-fx-padding: 10px 20px; " +
-            "-fx-cursor: hand;"
-        ));
-        payerButton.setOnMouseExited(e -> payerButton.setStyle(
-            "-fx-background-color: #00E676; " +
-            "-fx-text-fill: white; " +
-            "-fx-font-weight: 600; " +
-            "-fx-background-radius: 10px; " +
-            "-fx-padding: 10px 20px; " +
-            "-fx-cursor: hand;"
-        ));
-        payerButton.setOnAction(e -> {
-            Adherent selected = redListTable.getSelectionModel().getSelectedItem();
-            if (selected != null) {
-                showNewPaymentDialog(selected);
-            } else {
-                showAlert(Alert.AlertType.WARNING, "Attention", "Veuillez sélectionner un adhérent");
-            }
-        });
-        
-        Button refreshButton = new Button("Actualiser");
-        refreshButton.setStyle(
-            "-fx-background-color: #1c1e2d; " +
-            "-fx-text-fill: #E6EAF0; " +
-            "-fx-font-weight: 600; " +
-            "-fx-background-radius: 10px; " +
-            "-fx-padding: 10px 20px; " +
-            "-fx-border-width: 1px; " +
-            "-fx-border-color: rgba(158, 255, 0, 0.2); " +
-            "-fx-border-radius: 10px; " +
-            "-fx-cursor: hand;"
-        );
-        refreshButton.setOnMouseEntered(e -> refreshButton.setStyle(
-            "-fx-background-color: #2f3640; " +
-            "-fx-text-fill: #E6EAF0; " +
-            "-fx-font-weight: 600; " +
-            "-fx-background-radius: 10px; " +
-            "-fx-padding: 10px 20px; " +
-            "-fx-border-width: 1px; " +
-            "-fx-border-color: rgba(158, 255, 0, 0.2); " +
-            "-fx-border-radius: 10px; " +
-            "-fx-cursor: hand;"
-        ));
-        refreshButton.setOnMouseExited(e -> refreshButton.setStyle(
-            "-fx-background-color: #1c1e2d; " +
-            "-fx-text-fill: #E6EAF0; " +
-            "-fx-font-weight: 600; " +
-            "-fx-background-radius: 10px; " +
-            "-fx-padding: 10px 20px; " +
-            "-fx-border-width: 1px; " +
-            "-fx-border-color: rgba(158, 255, 0, 0.2); " +
-            "-fx-border-radius: 10px; " +
-            "-fx-cursor: hand;"
-        ));
-        refreshButton.setOnAction(e -> loadRedList());
-        
-        HBox buttonBox = new HBox(10);
-        buttonBox.getChildren().addAll(payerButton, refreshButton);
-        
-        root.getChildren().addAll(subtitle, buttonBox, redListTable);
-        
-        return root;
-    }
-
-    /**
-     * Crée la vue de tous les paiements
-     */
-    private Parent createPaymentsView() {
-        VBox root = new VBox(20);
-        root.setPadding(new Insets(20));
-        root.setStyle("-fx-background-color: #0d0f1a;");
-        root.setMaxWidth(Double.MAX_VALUE);
-        root.setMaxHeight(Double.MAX_VALUE);
-        
-        // Top bar avec recherche et bouton actualiser
-        HBox topBar = new HBox(12);
-        topBar.setAlignment(Pos.CENTER_LEFT);
+        // Top Bar: Search and Actions
+        HBox topBar = new HBox(10);
         
         TextField searchField = new TextField();
         searchField.setPromptText("Rechercher par adhérent, montant...");
         searchField.setPrefWidth(400);
-        searchField.setStyle(getInputStyle());
-        searchField.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
-            if (isFocused) {
-                searchField.setStyle(
-                    "-fx-background-color: rgba(15, 23, 42, 0.8); " +
-                    "-fx-background-radius: 12px; " +
-                    "-fx-text-fill: #E6EAF0; " +
-                    "-fx-font-size: 14px; " +
-                    "-fx-padding: 12px 16px; " +
-                    "-fx-border-width: 1px; " +
-                    "-fx-border-color: rgba(16, 185, 129, 0.5); " +
-                    "-fx-border-radius: 12px; " +
-                    "-fx-prompt-text-fill: #9AA4B2;"
-                );
-            } else {
-                searchField.setStyle(getInputStyle());
-            }
-        });
+        searchField.setStyle(
+            "-fx-background-color: rgba(15, 23, 42, 0.6); " +
+            "-fx-background-radius: 12px; " +
+            "-fx-text-fill: #E6EAF0; " +
+            "-fx-font-size: 14px; " +
+            "-fx-padding: 12px 16px; " +
+            "-fx-border-width: 1px; " +
+            "-fx-border-color: rgba(255, 255, 255, 0.1); " +
+            "-fx-border-radius: 12px; " +
+            "-fx-prompt-text-fill: #9AA4B2;"
+        );
         searchField.textProperty().addListener((obs, oldVal, newVal) -> {
             if (newVal == null || newVal.trim().isEmpty()) {
                 loadPayments();
@@ -901,62 +202,42 @@ public class PaiementManagementController {
             }
         });
         
-        HBox.setHgrow(searchField, Priority.ALWAYS);
-        
-        Button refreshButton = new Button("Actualiser");
-        refreshButton.setStyle(
-            "-fx-background-color: #1c1e2d; " +
-            "-fx-text-fill: #E6EAF0; " +
+        Button addButton = new Button("+ Nouveau Paiement");
+        addButton.setStyle(
+            "-fx-background-color: #00E676; " +
+            "-fx-text-fill: white; " +
+            "-fx-font-size: 15px; " +
             "-fx-font-weight: 600; " +
-            "-fx-background-radius: 12px; " +
-            "-fx-padding: 12px 24px; " +
-            "-fx-border-width: 1px; " +
-            "-fx-border-color: rgba(158, 255, 0, 0.2); " +
-            "-fx-border-radius: 12px; " +
+            "-fx-background-radius: 10px; " +
+            "-fx-padding: 10px 20px; " +
             "-fx-cursor: hand;"
         );
-        refreshButton.setOnMouseEntered(e -> refreshButton.setStyle(
-            "-fx-background-color: #2f3640; " +
-            "-fx-text-fill: #E6EAF0; " +
-            "-fx-font-weight: 600; " +
-            "-fx-background-radius: 12px; " +
-            "-fx-padding: 12px 24px; " +
-            "-fx-border-width: 1px; " +
-            "-fx-border-color: rgba(158, 255, 0, 0.2); " +
-            "-fx-border-radius: 12px; " +
-            "-fx-cursor: hand;"
-        ));
-        refreshButton.setOnMouseExited(e -> refreshButton.setStyle(
-            "-fx-background-color: #1c1e2d; " +
-            "-fx-text-fill: #E6EAF0; " +
-            "-fx-font-weight: 600; " +
-            "-fx-background-radius: 12px; " +
-            "-fx-padding: 12px 24px; " +
-            "-fx-border-width: 1px; " +
-            "-fx-border-color: rgba(158, 255, 0, 0.2); " +
-            "-fx-border-radius: 12px; " +
-            "-fx-cursor: hand;"
-        ));
-        refreshButton.setOnAction(e -> loadPayments());
+        addButton.setOnAction(e -> showNewPaymentDialog(null));
         
-        topBar.getChildren().addAll(searchField, refreshButton);
+        topBar.getChildren().addAll(searchField, addButton);
         
-        // Container pour la table avec card style
-        VBox tableCard = new VBox(0);
-        tableCard.setPadding(new Insets(20));
-        tableCard.setStyle(
-            "-fx-background-color: #1A2332; " +
-            "-fx-background-radius: 16px; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 8, 0, 0, 2);"
-        );
-        tableCard.setMinHeight(400);
-        VBox.setVgrow(tableCard, Priority.ALWAYS);
+        // Conteneur de contenu - afficher uniquement la vue des paiements
+        Parent paymentsView = createPaymentsView();
         
+        root.getChildren().addAll(title, topBar, paymentsView);
+        
+        loadPayments();
+        
+        return root;
+    }
+    
+
+
+
+    /**
+     * Crée la vue de tous les paiements (utilisée dans createBasicView)
+     */
+    private Parent createPaymentsView() {
         // Table des paiements
         paiementsTable = new TableView<>();
-        paiementsTable.setPrefHeight(600);
+        paiementsTable.setPrefHeight(500);
         paiementsTable.setMinHeight(400);
-        paiementsTable.setMaxHeight(800);
+        paiementsTable.setMaxHeight(Double.MAX_VALUE);
         paiementsTable.setStyle(
             "-fx-background-color: transparent; " +
             "-fx-table-cell-border-color: transparent;"
@@ -965,263 +246,18 @@ public class PaiementManagementController {
         // Appeler setupPaymentsTable pour configurer la table avec tous les styles
         setupPaymentsTable();
         
-        tableCard.getChildren().add(paiementsTable);
+        VBox.setVgrow(paiementsTable, Priority.ALWAYS);
         
-        root.getChildren().addAll(topBar, tableCard);
-        VBox.setVgrow(tableCard, Priority.ALWAYS);
-        
-        // Charger les paiements
-        loadPayments();
-        
-        return root;
+        return paiementsTable;
     }
 
-    /**
-     * Crée la vue de nouveau paiement
-     */
-    private Parent createNewPaymentView() {
-        VBox root = new VBox(20);
-        root.setPadding(new Insets(30));
-        root.setPrefWidth(600);
-        root.setStyle("-fx-background-color: #0d0f1a;");
-        
-        Label subtitle = new Label("Enregistrer un nouveau paiement");
-        subtitle.setStyle("-fx-text-fill: #E6EAF0; -fx-font-size: 18px; -fx-font-weight: 700;");
-        
-        Button newPaymentButton = new Button("Nouveau Paiement");
-        newPaymentButton.setStyle(
-            "-fx-background-color: #00E676; " +
-            "-fx-text-fill: white; " +
-            "-fx-font-size: 16px; " +
-            "-fx-font-weight: 600; " +
-            "-fx-padding: 15px 30px; " +
-            "-fx-background-radius: 10px; " +
-            "-fx-cursor: hand;"
-        );
-        newPaymentButton.setOnMouseEntered(e -> newPaymentButton.setStyle(
-            "-fx-background-color: #16A34A; " +
-            "-fx-text-fill: white; " +
-            "-fx-font-size: 16px; " +
-            "-fx-font-weight: 600; " +
-            "-fx-padding: 15px 30px; " +
-            "-fx-background-radius: 10px; " +
-            "-fx-cursor: hand;"
-        ));
-        newPaymentButton.setOnMouseExited(e -> newPaymentButton.setStyle(
-            "-fx-background-color: #00E676; " +
-            "-fx-text-fill: white; " +
-            "-fx-font-size: 16px; " +
-            "-fx-font-weight: 600; " +
-            "-fx-padding: 15px 30px; " +
-            "-fx-background-radius: 10px; " +
-            "-fx-cursor: hand;"
-        ));
-        newPaymentButton.setOnAction(e -> showNewPaymentDialog(null));
-        
-        root.getChildren().addAll(subtitle, newPaymentButton);
-        root.setAlignment(javafx.geometry.Pos.CENTER);
-        
-        return root;
-    }
 
     /**
-     * Configure la table de la liste rouge
+     * Configure la table de la liste rouge (méthode non utilisée - conservée pour compatibilité)
      */
     private void setupRedListTable() {
-        if (redListTable == null) return;
-        
-        redListTable.getColumns().clear();
-        redListTable.setPrefHeight(600);
-        redListTable.setMinHeight(400);
-        redListTable.setMaxHeight(800);
-        // Appliquer le style sombre à la table
-        redListTable.setStyle(
-            "-fx-background-color: #1A2332; " +
-            "-fx-background-radius: 12px; " +
-            "-fx-border-width: 1px; " +
-            "-fx-border-color: rgba(158, 255, 0, 0.1); " +
-            "-fx-border-radius: 12px; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 15, 0, 0, 3); " +
-            "-fx-table-cell-border-color: transparent;"
-        );
-        
-        // Créer un style pour les headers de colonnes
-        String headerStyle = 
-            "-fx-background-color: #0A0D12; " +
-            "-fx-text-fill: #9AA4B2; " +
-            "-fx-font-weight: 600; " +
-            "-fx-font-size: 13px; " +
-            "-fx-padding: 12px 16px; " +
-            "-fx-border-width: 0 0 1px 0; " +
-            "-fx-border-color: rgba(158, 255, 0, 0.1);";
-        
-        TableColumn<Adherent, String> cinColumn = new TableColumn<>("CIN");
-        cinColumn.setStyle(headerStyle);
-        cinColumn.setCellValueFactory(new PropertyValueFactory<>("cin"));
-        cinColumn.setMinWidth(100);
-        cinColumn.setPrefWidth(120);
-        cinColumn.setMaxWidth(150);
-        cinColumn.setResizable(true);
-        
-        TableColumn<Adherent, String> nomColumn = new TableColumn<>("Nom Complet");
-        nomColumn.setCellValueFactory(cellData -> 
-            new javafx.beans.property.SimpleStringProperty(cellData.getValue().getNomComplet()));
-        nomColumn.setMinWidth(150);
-        nomColumn.setPrefWidth(250);
-        nomColumn.setMaxWidth(400);
-        nomColumn.setResizable(true);
-        
-        TableColumn<Adherent, String> telephoneColumn = new TableColumn<>("Téléphone");
-        telephoneColumn.setCellValueFactory(new PropertyValueFactory<>("telephone"));
-        telephoneColumn.setMinWidth(100);
-        telephoneColumn.setPrefWidth(130);
-        telephoneColumn.setMaxWidth(180);
-        telephoneColumn.setResizable(true);
-        
-        TableColumn<Adherent, String> dateFinColumn = new TableColumn<>("Date Expiration");
-        dateFinColumn.setCellValueFactory(cellData -> 
-            new javafx.beans.property.SimpleStringProperty(
-                cellData.getValue().getDateFin() != null ? 
-                    cellData.getValue().getDateFin().toString() : "N/A"));
-        dateFinColumn.setMinWidth(130);
-        dateFinColumn.setPrefWidth(160);
-        dateFinColumn.setMaxWidth(200);
-        dateFinColumn.setResizable(true);
-        
-        TableColumn<Adherent, Integer> joursRetardColumn = new TableColumn<>("Jours de Retard");
-        joursRetardColumn.setCellValueFactory(cellData -> {
-            Adherent adherent = cellData.getValue();
-            if (adherent.getDateFin() != null && adherent.isAbonnementExpire()) {
-                long jours = java.time.temporal.ChronoUnit.DAYS.between(adherent.getDateFin(), LocalDate.now());
-                return new javafx.beans.property.ReadOnlyObjectWrapper<>((int) jours);
-            }
-            return new javafx.beans.property.ReadOnlyObjectWrapper<>(0);
-        });
-        joursRetardColumn.setMinWidth(130);
-        joursRetardColumn.setPrefWidth(150);
-        joursRetardColumn.setMaxWidth(200);
-        joursRetardColumn.setResizable(true);
-        joursRetardColumn.setCellFactory(column -> new TableCell<Adherent, Integer>() {
-            @Override
-            protected void updateItem(Integer jours, boolean empty) {
-                super.updateItem(jours, empty);
-                if (empty || jours == null) {
-                    setText("");
-                    setStyle("");
-                } else {
-                    setText(String.valueOf(jours));
-                    // Styles avec le thème sombre - couleurs claires pour meilleure visibilité
-                    if (jours > 30) {
-                        setStyle("-fx-text-fill: #EF4444; -fx-font-weight: bold;"); // Rouge danger
-                    } else if (jours > 7) {
-                        setStyle("-fx-text-fill: #F59E0B; -fx-font-weight: bold;"); // Orange warning
-                    } else {
-                        setStyle("-fx-text-fill: #FCD34D; -fx-font-weight: bold;"); // Jaune clair pour visibilité
-                    }
-                }
-            }
-        });
-        
-        // Ajouter des cell factories pour les autres colonnes pour garantir la lisibilité
-        cinColumn.setCellFactory(column -> new TableCell<Adherent, String>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? "" : item);
-                setStyle("-fx-text-fill: #E6EAF0;");
-            }
-        });
-        
-        nomColumn.setCellFactory(column -> new TableCell<Adherent, String>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? "" : item);
-                setStyle("-fx-text-fill: #E6EAF0;");
-            }
-        });
-        
-        telephoneColumn.setCellFactory(column -> new TableCell<Adherent, String>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? "" : item);
-                setStyle("-fx-text-fill: #E6EAF0;");
-            }
-        });
-        
-        dateFinColumn.setCellFactory(column -> new TableCell<Adherent, String>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                setText(empty || item == null ? "" : item);
-                setStyle("-fx-text-fill: #E6EAF0;");
-            }
-        });
-        
-        redListTable.getColumns().addAll(cinColumn, nomColumn, telephoneColumn, dateFinColumn, joursRetardColumn);
-        
-        // Lier la table à la liste observable (doit être fait après les colonnes)
-        redListTable.setItems(redList);
-        
-        // Utiliser UNCONSTRAINED_RESIZE_POLICY pour que le tableau remplisse tout l'espace
-        redListTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
-        
-        // Faire en sorte que la colonne "Nom Complet" prenne l'espace restant
-        Platform.runLater(() -> {
-            double totalWidth = redListTable.getWidth();
-            if (totalWidth > 0) {
-                double usedWidth = cinColumn.getWidth() + telephoneColumn.getWidth() + 
-                                  dateFinColumn.getWidth() + joursRetardColumn.getWidth();
-                double remainingWidth = totalWidth - usedWidth;
-                if (remainingWidth > 150) {
-                    nomColumn.setPrefWidth(remainingWidth);
-                }
-            }
-        });
-        
-        // Écouter les changements de taille de la table pour ajuster dynamiquement
-        redListTable.widthProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal.doubleValue() > 0) {
-                double usedWidth = cinColumn.getWidth() + telephoneColumn.getWidth() + 
-                                  dateFinColumn.getWidth() + joursRetardColumn.getWidth();
-                double remainingWidth = newVal.doubleValue() - usedWidth;
-                if (remainingWidth > 150) {
-                    nomColumn.setPrefWidth(remainingWidth);
-                }
-            }
-        });
-        
-        // Appliquer les styles aux rows de la table via CSS inline
-        redListTable.setRowFactory(tv -> {
-            TableRow<Adherent> row = new TableRow<>();
-            row.setStyle(
-                "-fx-background-color: #1A2332; " +
-                "-fx-text-fill: #E6EAF0;"
-            );
-            row.hoverProperty().addListener((obs, wasHovered, isHovered) -> {
-                if (isHovered && !row.isEmpty()) {
-                    row.setStyle(
-                        "-fx-background-color: rgba(0, 230, 118, 0.15); " +
-                        "-fx-text-fill: #E6EAF0;"
-                    );
-                } else if (!row.isEmpty()) {
-                    row.setStyle(
-                        "-fx-background-color: #1A2332; " +
-                        "-fx-text-fill: #E6EAF0;"
-                    );
-                }
-            });
-            row.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
-                if (isSelected) {
-                    row.setStyle(
-                        "-fx-background-color: rgba(0, 230, 118, 0.2); " +
-                        "-fx-text-fill: #E6EAF0;"
-                    );
-                }
-            });
-            return row;
-        });
+        // Cette méthode n'est plus utilisée dans la vue simplifiée
+        // Tout le code a été supprimé car redListTable n'existe plus comme variable d'instance
     }
 
     /**
@@ -1231,29 +267,25 @@ public class PaiementManagementController {
         if (paiementsTable == null) return;
         
         paiementsTable.getColumns().clear();
-        paiementsTable.setPrefHeight(600);
+        // Ne pas définir de hauteur fixe - laisser le layout gérer
         paiementsTable.setMinHeight(400);
-        paiementsTable.setMaxHeight(800);
-        // Appliquer le style sombre à la table
+        paiementsTable.setMaxWidth(Double.MAX_VALUE);
+        HBox.setHgrow(paiementsTable, Priority.ALWAYS);
+        // Appliquer le style sombre à la table (identique à la page adhérents)
         paiementsTable.setStyle(
-            "-fx-background-color: #1A2332; " +
-            "-fx-background-radius: 12px; " +
-            "-fx-border-width: 1px; " +
-            "-fx-border-color: rgba(158, 255, 0, 0.1); " +
-            "-fx-border-radius: 12px; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.3), 15, 0, 0, 3); " +
+            "-fx-background-color: transparent; " +
             "-fx-table-cell-border-color: transparent;"
         );
         
-        // Créer un style pour les headers de colonnes
+        // Créer un style pour les headers de colonnes (identique à la page adhérents)
         String headerStylePayments = 
-            "-fx-background-color: #0A0D12; " +
-            "-fx-text-fill: #9AA4B2; " +
+            "-fx-background-color: rgba(42, 52, 65, 0.5); " +
+            "-fx-text-fill: #E6EAF0; " +
             "-fx-font-weight: 600; " +
             "-fx-font-size: 13px; " +
-            "-fx-padding: 12px 16px; " +
+            "-fx-padding: 16px 20px; " +
             "-fx-border-width: 0 0 1px 0; " +
-            "-fx-border-color: rgba(158, 255, 0, 0.1);";
+            "-fx-border-color: #2A3441;";
         
         TableColumn<Paiement, String> adherentColumn = new TableColumn<>("Adhérent");
         adherentColumn.setStyle(headerStylePayments);
@@ -1390,40 +422,82 @@ public class PaiementManagementController {
             }
         });
         
-        // Appliquer les styles aux rows de la table via CSS inline
+        // Appliquer les styles aux rows de la table (identique à la page adhérents)
         paiementsTable.setRowFactory(tv -> {
             TableRow<Paiement> row = new TableRow<>();
             row.setStyle(
-                "-fx-background-color: #1A2332; " +
-                "-fx-text-fill: #E6EAF0;"
+                "-fx-background-color: rgba(42, 52, 65, 0.3); " +
+                "-fx-border-width: 0 0 1 0; " +
+                "-fx-border-color: rgba(255, 255, 255, 0.05);"
             );
-            row.hoverProperty().addListener((obs, wasHovered, isHovered) -> {
-                if (isHovered && !row.isEmpty()) {
+            row.setOnMouseEntered(e -> {
+                if (!row.isEmpty()) {
                     row.setStyle(
                         "-fx-background-color: rgba(0, 230, 118, 0.15); " +
-                        "-fx-text-fill: #E6EAF0;"
+                        "-fx-border-width: 0 0 1 0; " +
+                        "-fx-border-color: rgba(255, 255, 255, 0.05);"
                     );
-                } else if (!row.isEmpty()) {
+                }
+            });
+            row.setOnMouseExited(e -> {
+                if (!row.isEmpty() && !row.isSelected()) {
                     row.setStyle(
-                        "-fx-background-color: #1A2332; " +
-                        "-fx-text-fill: #E6EAF0;"
+                        "-fx-background-color: rgba(42, 52, 65, 0.3); " +
+                        "-fx-border-width: 0 0 1 0; " +
+                        "-fx-border-color: rgba(255, 255, 255, 0.05);"
                     );
                 }
             });
             row.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
-                if (isSelected) {
+                if (isSelected && !row.isEmpty()) {
                     row.setStyle(
                         "-fx-background-color: rgba(0, 230, 118, 0.2); " +
-                        "-fx-text-fill: #E6EAF0;"
+                        "-fx-border-width: 0 0 1 0; " +
+                        "-fx-border-color: rgba(255, 255, 255, 0.05);"
+                    );
+                } else if (!row.isEmpty()) {
+                    row.setStyle(
+                        "-fx-background-color: rgba(42, 52, 65, 0.3); " +
+                        "-fx-border-width: 0 0 1 0; " +
+                        "-fx-border-color: rgba(255, 255, 255, 0.05);"
                     );
                 }
             });
             return row;
         });
+        
+        // Appliquer les styles aux headers après chaque mise à jour (identique à la page adhérents)
+        paiementsTable.itemsProperty().addListener((obs, oldItems, newItems) -> {
+            Platform.runLater(() -> {
+                try {
+                    // Style des headers
+                    javafx.scene.Node header = paiementsTable.lookup(".column-header-background");
+                    if (header != null) {
+                        header.setStyle("-fx-background-color: rgba(42, 52, 65, 0.5);");
+                    }
+                    
+                    // Style des column headers
+                    java.util.Set<javafx.scene.Node> columnHeaders = paiementsTable.lookupAll(".column-header");
+                    for (javafx.scene.Node headerNode : columnHeaders) {
+                        headerNode.setStyle(
+                            "-fx-background-color: rgba(42, 52, 65, 0.5); " +
+                            "-fx-text-fill: #E6EAF0; " +
+                            "-fx-font-size: 13px; " +
+                            "-fx-font-weight: 600; " +
+                            "-fx-padding: 16px 20px; " +
+                            "-fx-border-width: 0 0 1px 0; " +
+                            "-fx-border-color: #2A3441;"
+                        );
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        });
     }
 
     /**
-     * Charge la liste rouge
+     * Charge la liste rouge (méthode conservée pour compatibilité avec les méthodes de fallback)
      */
     private void loadRedList() {
         try {
@@ -1431,10 +505,7 @@ public class PaiementManagementController {
             Platform.runLater(() -> {
                 redList.clear();
                 redList.addAll(expired);
-                // Forcer le rafraîchissement de la table
-                if (redListTable != null) {
-                    redListTable.refresh();
-                }
+                // Note: redListTable n'est plus utilisé dans la vue simplifiée
             });
         } catch (SQLException e) {
             e.printStackTrace();

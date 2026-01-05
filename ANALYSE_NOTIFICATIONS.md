@@ -168,3 +168,6 @@ notificationItems.add(createNotificationItem(iconName, displayText, timestamp));
 **Priorité :** CRITIQUE (sécurité et confidentialité)
 
 
+
+
+

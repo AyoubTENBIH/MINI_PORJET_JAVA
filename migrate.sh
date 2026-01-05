@@ -13,3 +13,6 @@ read -p "Appuyez sur Entrée pour continuer..."
 ./mvnw compile exec:java -Dexec.mainClass="com.example.demo.MigrationRunner"
 
 
+
+
+

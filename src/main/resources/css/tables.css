@@ -1,0 +1,133 @@
+/* ============================================
+   TABLES CSS - Styles pour TableView
+   ============================================ */
+
+/* Table principale */
+.table-dark {
+    -fx-background-color: transparent;
+    -fx-table-cell-border-color: transparent;
+}
+
+.table-dark .column-header-background {
+    -fx-background-color: rgba(42, 52, 65, 0.5);
+}
+
+/* Headers de colonnes */
+.table-header-column {
+    -fx-background-color: rgba(42, 52, 65, 0.5);
+    -fx-text-fill: #E6EAF0;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-padding: 16px 20px;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: #2A3441;
+}
+
+.table-dark .column-header {
+    -fx-background-color: rgba(42, 52, 65, 0.5);
+    -fx-text-fill: #E6EAF0;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-padding: 16px 20px;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: #2A3441;
+}
+
+/* Rows */
+.table-row-default {
+    -fx-background-color: rgba(42, 52, 65, 0.3);
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: rgba(255, 255, 255, 0.05);
+}
+
+.table-row-default:hover {
+    -fx-background-color: rgba(0, 230, 118, 0.15);
+}
+
+.table-row-default:selected {
+    -fx-background-color: rgba(0, 230, 118, 0.2);
+}
+
+.table-dark .table-row-cell {
+    -fx-background-color: rgba(42, 52, 65, 0.3);
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: rgba(255, 255, 255, 0.05);
+}
+
+.table-dark .table-row-cell:hover {
+    -fx-background-color: rgba(0, 230, 118, 0.15);
+}
+
+.table-dark .table-row-cell:selected {
+    -fx-background-color: rgba(0, 230, 118, 0.2);
+}
+
+/* Cells */
+.table-cell-default {
+    -fx-text-fill: #E6EAF0;
+    -fx-font-size: 14px;
+    -fx-padding: 12px 16px;
+    -fx-border-width: 0;
+    -fx-background-color: transparent;
+}
+
+.table-cell-text {
+    -fx-text-fill: #E6EAF0;
+    -fx-font-size: 14px;
+}
+
+.table-cell-amount {
+    -fx-text-fill: #00E676;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+}
+
+.table-cell-date {
+    -fx-text-fill: #B0B0B0;
+    -fx-font-size: 14px;
+}
+
+.table-cell-status-active {
+    -fx-text-fill: #10b981;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+}
+
+.table-cell-status-expired {
+    -fx-text-fill: #EF4444;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+}
+
+.table-cell-status-warning {
+    -fx-text-fill: #F59E0B;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+}
+
+.table-cell-retard-critical {
+    -fx-text-fill: #EF4444;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+}
+
+.table-cell-retard-warning {
+    -fx-text-fill: #F59E0B;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+}
+
+.table-cell-retard-minor {
+    -fx-text-fill: #FCD34D;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+}
+
+.table-dark .table-cell {
+    -fx-text-fill: #E6EAF0;
+    -fx-font-size: 14px;
+    -fx-padding: 12px 16px;
+    -fx-border-width: 0;
+    -fx-background-color: transparent;
+}
+

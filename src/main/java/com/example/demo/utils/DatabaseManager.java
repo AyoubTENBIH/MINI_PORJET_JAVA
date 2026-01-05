@@ -253,7 +253,7 @@ public class DatabaseManager {
                     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     CONSTRAINT fk_notifications_user FOREIGN KEY (user_id) REFERENCES utilisateurs(id) ON DELETE CASCADE,
                     INDEX idx_user_id (user_id),
-                    INDEX idx_read (read),
+                    INDEX idx_read (`read`),
                     INDEX idx_created_at (created_at)
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
             """);

@@ -58,8 +58,26 @@ public class PackManagementController {
      * Charge la vue de gestion des packs - Utilise toujours createBasicView() pour le nouveau design
      */
     public Parent getView() {
-        // Toujours utiliser createBasicView() pour le nouveau design dark
-        return createBasicView();
+        // Créer la vue programmatiquement
+        Parent root = createBasicView();
+        
+        // Charger le CSS du module pack
+        if (root.getScene() != null) {
+            root.getScene().getStylesheets().add(
+                getClass().getResource("/css/packs.css").toExternalForm()
+            );
+        } else {
+            // Si la scène n'existe pas encore, l'ajouter lors de l'ajout à la scène
+            root.sceneProperty().addListener((obs, oldScene, newScene) -> {
+                if (newScene != null) {
+                    newScene.getStylesheets().add(
+                        getClass().getResource("/css/packs.css").toExternalForm()
+                    );
+                }
+            });
+        }
+        
+        return root;
     }
 
     /**
@@ -115,10 +133,7 @@ public class PackManagementController {
         packsTable.getColumns().clear();
         packsTable.setPrefHeight(500);
         packsTable.setMaxWidth(Double.MAX_VALUE);
-        packsTable.setStyle(
-            "-fx-background-color: transparent; " +
-            "-fx-table-cell-border-color: transparent;"
-        );
+        packsTable.getStyleClass().add("packs-table");
 
         nomColumn = new TableColumn<>("Nom");
         nomColumn.setCellValueFactory(new PropertyValueFactory<>("nom"));
@@ -126,7 +141,7 @@ public class PackManagementController {
         nomColumn.setPrefWidth(180);
         nomColumn.setMaxWidth(250);
         nomColumn.setResizable(true);
-        nomColumn.setStyle("-fx-alignment: center-left;");
+        nomColumn.getStyleClass().add("packs-table-column");
 
         prixColumn = new TableColumn<>("Prix (DH)");
         prixColumn.setCellValueFactory(new PropertyValueFactory<>("prix"));
@@ -134,17 +149,17 @@ public class PackManagementController {
         prixColumn.setPrefWidth(120);
         prixColumn.setMaxWidth(150);
         prixColumn.setResizable(true);
-        prixColumn.setStyle("-fx-alignment: center-left;");
+        prixColumn.getStyleClass().add("packs-table-column");
         prixColumn.setCellFactory(column -> new TableCell<Pack, Double>() {
             @Override
             protected void updateItem(Double prix, boolean empty) {
                 super.updateItem(prix, empty);
                 if (empty || prix == null) {
                     setText("");
-                    setStyle("");
+                    getStyleClass().clear();
                 } else {
                     setText(String.format("%.2f DH", prix));
-                    setStyle("-fx-text-fill: #E6EAF0; -fx-font-size: 14px;");
+                    getStyleClass().setAll("packs-table-cell-price");
                 }
             }
         });
@@ -155,7 +170,7 @@ public class PackManagementController {
         activitesColumn.setPrefWidth(300);
         // Pas de maxWidth pour permettre à cette colonne de prendre l'espace restant
         activitesColumn.setResizable(true);
-        activitesColumn.setStyle("-fx-alignment: center-left;");
+        activitesColumn.getStyleClass().add("packs-table-column");
 
         TableColumn<Pack, String> dureeColumn = new TableColumn<>("Durée");
         dureeColumn.setCellValueFactory(cellData -> {
@@ -168,7 +183,7 @@ public class PackManagementController {
         dureeColumn.setPrefWidth(100);
         dureeColumn.setMaxWidth(150);
         dureeColumn.setResizable(true);
-        dureeColumn.setStyle("-fx-alignment: center-left;");
+        dureeColumn.getStyleClass().add("packs-table-column");
 
         actifColumn = new TableColumn<>("Statut");
         actifColumn.setCellValueFactory(new PropertyValueFactory<>("actif"));
@@ -329,7 +344,7 @@ public class PackManagementController {
      */
     private Parent createBasicView() {
         BorderPane root = new BorderPane();
-        root.getStyleClass().add("root");
+        root.getStyleClass().add("packs-root");
         
         BorderPane centerArea = new BorderPane();
         HBox header = createHeader();
@@ -340,12 +355,12 @@ public class PackManagementController {
         ScrollPane contentScroll = new ScrollPane();
         contentScroll.setFitToWidth(true);
         contentScroll.setFitToHeight(true);
-        contentScroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
+        contentScroll.getStyleClass().add("packs-content-scroll");
         contentScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         
         VBox contentWrapper = new VBox(20);
         contentWrapper.setPadding(new Insets(20, 24, 20, 24));
-        contentWrapper.setStyle("-fx-background-color: #0d0f1a;");
+        contentWrapper.getStyleClass().add("packs-content-wrapper");
         contentWrapper.setMaxWidth(Double.MAX_VALUE);
         
         // Card container pour la recherche et les boutons

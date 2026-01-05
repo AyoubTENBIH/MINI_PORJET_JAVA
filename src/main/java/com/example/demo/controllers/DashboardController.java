@@ -120,16 +120,26 @@ public class DashboardController {
     private VBox activityPanel;
     
     public Parent getView() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dashboard.fxml"));
-            loader.setController(this);
-            Parent root = loader.load();
-            initialize();
-            return root;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return createBasicView();
+        // Créer la vue programmatiquement (sans FXML)
+        Parent root = createBasicView();
+        
+        // Charger le CSS du dashboard
+        if (root.getScene() != null) {
+            root.getScene().getStylesheets().add(
+                getClass().getResource("/css/dashboard.css").toExternalForm()
+            );
+        } else {
+            // Si la scène n'existe pas encore, l'ajouter lors de l'ajout à la scène
+            root.sceneProperty().addListener((obs, oldScene, newScene) -> {
+                if (newScene != null) {
+                    newScene.getStylesheets().add(
+                        getClass().getResource("/css/dashboard.css").toExternalForm()
+                    );
+                }
+            });
         }
+        
+        return root;
     }
 
     /**
@@ -482,21 +492,20 @@ public class DashboardController {
         
         HBox titleFilterSection = createTitleFilterSection();
         
-        ScrollPane contentScroll = new ScrollPane();
+        this.contentScroll = new ScrollPane();
         contentScroll.setFitToWidth(true);
         contentScroll.setFitToHeight(true);
-        contentScroll.setStyle("-fx-background-color: transparent; -fx-background: transparent;");
-        contentScroll.getStyleClass().add("content-area");
+        contentScroll.getStyleClass().add("content-scroll");
         contentScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         
-        VBox contentWrapper = new VBox();
+        this.contentWrapper = new VBox();
         contentWrapper.setPadding(new Insets(20, 24, 20, 24));
-        contentWrapper.setStyle("-fx-background-color: #0d0f1a;");
+        contentWrapper.getStyleClass().add("content-wrapper");
         contentWrapper.setMaxWidth(Double.MAX_VALUE);
         
         content = new VBox(20);
         content.setPadding(new Insets(0));
-        content.setStyle("-fx-background-color: transparent;");
+        content.getStyleClass().add("main-content");
         content.setMaxWidth(Double.MAX_VALUE);
         
         kpiGrid = createKPIGrid();
@@ -516,6 +525,7 @@ public class DashboardController {
         contentScroll.setContent(contentWrapper);
         
         VBox centerContent = new VBox(0);
+        centerContent.getStyleClass().add("center-container");
         centerContent.getChildren().addAll(titleFilterSection, contentScroll);
         VBox.setVgrow(contentScroll, Priority.ALWAYS);
         
@@ -527,6 +537,9 @@ public class DashboardController {
         rightSidebar.setMaxHeight(Double.MAX_VALUE);
         VBox.setVgrow(rightSidebar, Priority.ALWAYS);
         root.setRight(rightSidebar);
+        
+        // Configurer la sidebar droite
+        setupRightSidebar();
         
         loadSidebarState(root);
         
@@ -542,14 +555,13 @@ public class DashboardController {
         header.setAlignment(Pos.CENTER_LEFT);
         header.getStyleClass().add("header");
         header.setPrefHeight(70);
-        header.setStyle("-fx-background-color: #0A0D12; -fx-border-width: 0 0 1 0; -fx-border-color: rgba(154, 164, 178, 0.1);");
         
-        // Côté gauche : Menu icon
-        Button menuBtn = createHeaderIconButton("icon-menu", 20);
+        // Stocker les références pour les utiliser dans setupHeader()
+        this.menuBtn = createHeaderIconButton("icon-menu", 20);
         menuBtn.setOnAction(e -> toggleLeftSidebar(menuBtn));
         
         // Star icon (Favoris)
-        Button starBtn = createHeaderIconButton("icon-star", 20);
+        this.starBtn = createHeaderIconButton("icon-star", 20);
         starBtn.setOnAction(e -> {
             try {
                 com.example.demo.dao.FavorisDAO favorisDAO = new com.example.demo.dao.FavorisDAO();
@@ -666,11 +678,11 @@ public class DashboardController {
         section.setPadding(new Insets(24, 32, 24, 32));
         section.setAlignment(Pos.CENTER_LEFT);
         section.setPrefHeight(60);
-        section.setStyle("-fx-background-color: #0B0F14;");
+        section.getStyleClass().add("title-filter-section");
         
         // Titre "Overview" à gauche
-        Label titleLabel = new Label("Overview");
-        titleLabel.setStyle("-fx-text-fill: #E6EAF0; -fx-font-size: 24px; -fx-font-weight: 700;");
+        this.titleLabel = new Label("Overview");
+        titleLabel.getStyleClass().add("page-title");
         
         // Spacer pour pousser le filtre à droite
         Region spacer = new Region();
@@ -680,48 +692,27 @@ public class DashboardController {
         HBox filterContainer = new HBox(8);
         filterContainer.setAlignment(Pos.CENTER_RIGHT);
         
-        Label filterLabel = new Label("Today");
-        filterLabel.setStyle("-fx-text-fill: #9AA4B2; -fx-font-size: 13px; -fx-font-weight: 500;");
+        this.filterLabel = new Label("Today");
+        filterLabel.getStyleClass().add("filter-label");
         
         // Icône chevron down
-        Node chevronIcon = loadSVGIcon("icon-chevron-down", 16, "#9AA4B2");
+        this.chevronIcon = loadSVGIcon("icon-chevron-down", 16, "#9AA4B2");
+        if (chevronIcon instanceof StackPane) {
+            ((StackPane) chevronIcon).getStyleClass().add("icon-container-small");
+            Node svgNode = ((StackPane) chevronIcon).getChildren().get(0);
+            if (svgNode instanceof SVGPath) {
+                ((SVGPath) svgNode).getStyleClass().add("icon-svg-small");
+            }
+        }
         
         // Bouton pour le filtre (cliquable pour ouvrir le dropdown)
-        Button filterBtn = new Button();
-        filterBtn.setStyle(
-            "-fx-background-color: transparent; " +
-            "-fx-background-radius: 6px; " +
-            "-fx-padding: 8 12; " +
-            "-fx-cursor: hand;"
-        );
+        this.filterBtn = new Button();
+        filterBtn.getStyleClass().add("filter-button");
         
         HBox filterContent = new HBox(8);
         filterContent.setAlignment(Pos.CENTER);
         filterContent.getChildren().addAll(filterLabel, chevronIcon);
         filterBtn.setGraphic(filterContent);
-        
-        // Hover effect
-        filterBtn.setOnMouseEntered(e -> {
-            filterBtn.setStyle(
-                "-fx-background-color: rgba(27, 34, 44, 0.8); " +
-                "-fx-background-radius: 6px; " +
-                "-fx-padding: 8 12; " +
-                "-fx-cursor: hand;"
-            );
-            filterLabel.setStyle("-fx-text-fill: #E6EAF0; -fx-font-size: 13px; -fx-font-weight: 500;");
-            setIconColor(chevronIcon, "#E6EAF0");
-        });
-        
-        filterBtn.setOnMouseExited(e -> {
-            filterBtn.setStyle(
-                "-fx-background-color: transparent; " +
-                "-fx-background-radius: 6px; " +
-                "-fx-padding: 8 12; " +
-                "-fx-cursor: hand;"
-            );
-            filterLabel.setStyle("-fx-text-fill: #9AA4B2; -fx-font-size: 13px; -fx-font-weight: 500;");
-            setIconColor(chevronIcon, "#9AA4B2");
-        });
         
         // Créer le menu contextuel avec les options de filtre
         ContextMenu filterMenu = new ContextMenu();
@@ -753,6 +744,12 @@ public class DashboardController {
             javafx.geometry.Bounds bounds = filterBtn.localToScreen(filterBtn.getBoundsInLocal());
             filterMenu.show(filterBtn, bounds.getMinX(), bounds.getMaxY());
         });
+        
+        // Stocker la référence pour setupTitleFilterSection()
+        this.titleFilterSection = section;
+        
+        // Configurer la section titre/filtre
+        setupTitleFilterSection();
         
         section.getChildren().addAll(titleLabel, spacer, filterBtn);
         
@@ -898,7 +895,7 @@ public class DashboardController {
         HBox container = new HBox(16); // Espacement horizontal entre cartes KPI : 16px (uniforme et maîtrisé)
         container.setPadding(new Insets(0)); // Pas de padding interne, géré par le conteneur parent
         container.setAlignment(Pos.CENTER_LEFT);
-        container.setStyle("-fx-background-color: #0d0f1a;");
+        container.getStyleClass().add("kpi-grid");
         
         // Faire en sorte que le container remplisse toute la largeur disponible
         HBox.setHgrow(container, Priority.ALWAYS);
@@ -994,20 +991,11 @@ public class DashboardController {
         card.setMinHeight(140);
         card.setPrefHeight(140);
         card.setMaxHeight(140);
-        card.setStyle(
-            "-fx-background-color: #1c1e2d; " +
-            "-fx-background-radius: 10px; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 6, 0, 0, 1);"
-        );
+        card.getStyleClass().add("kpi-card");
         
         // Label titre (plus grand et bold)
         Label labelLabel = new Label(label);
-        labelLabel.setStyle(
-            "-fx-text-fill: #B0B0B0; " +
-            "-fx-font-size: 15px; " +
-            "-fx-font-weight: 700; " +
-            "-fx-font-family: 'Segoe UI', sans-serif;"
-        );
+        labelLabel.getStyleClass().add("kpi-label");
         labelLabel.setWrapText(true); // Permet le wrap pour éviter la troncature
         labelLabel.setMaxWidth(Double.MAX_VALUE); // Permet d'utiliser toute la largeur disponible
         VBox.setVgrow(labelLabel, Priority.NEVER); // Empêche le titre de prendre trop de place verticale
@@ -1015,22 +1003,26 @@ public class DashboardController {
         
         // Valeur principale (30-36px, white bold)
         Label valueLabel = new Label(value);
-        valueLabel.setStyle(
-            "-fx-text-fill: #FFFFFF; " +
-            "-fx-font-size: 32px; " +
-            "-fx-font-weight: 700; " +
-            "-fx-font-family: 'Segoe UI Semibold', sans-serif; " +
-            "-fx-padding: 4 0 4 0;"
-        );
+        valueLabel.getStyleClass().add("kpi-value");
         
         // Indicateur de changement (12-13px, vert pour positif, BOLD)
         HBox changeContainer = new HBox(6); // Spacing de 6px avec l'icône
         changeContainer.setAlignment(Pos.CENTER_LEFT);
+        changeContainer.getStyleClass().add("kpi-change");
         
         // Utiliser les icônes SVG trending-up/trending-down
         String iconName = positive ? "icon-trending-up" : "icon-trending-down";
         String iconColor = positive ? "#82E0AA" : "#ef4444"; // Vert plus clair pour positif
         Node trendIcon = loadSVGIcon(iconName, 14, iconColor);
+        
+        // Ajouter les classes CSS à l'icône
+        if (trendIcon instanceof StackPane) {
+            ((StackPane) trendIcon).getStyleClass().add("icon-container-tiny");
+            Node svgNode = ((StackPane) trendIcon).getChildren().get(0);
+            if (svgNode instanceof SVGPath) {
+                ((SVGPath) svgNode).getStyleClass().add("icon-svg-tiny");
+            }
+        }
         
         // Vérifier que l'icône est bien créée
         if (trendIcon == null) {
@@ -1040,12 +1032,8 @@ public class DashboardController {
         }
         
         Label changeLabel = new Label(change);
-        changeLabel.setStyle(
-            "-fx-text-fill: " + iconColor + "; " +
-            "-fx-font-size: 12px; " +
-            "-fx-font-weight: 700; " +
-            "-fx-font-family: 'Segoe UI', sans-serif;"
-        );
+        changeLabel.getStyleClass().add("kpi-change-label");
+        changeLabel.setStyle("-fx-text-fill: " + iconColor + ";");
         
         changeContainer.getChildren().addAll(trendIcon, changeLabel);
         card.getChildren().addAll(labelLabel, valueLabel, changeContainer);
@@ -1072,49 +1060,25 @@ public class DashboardController {
         cardContainer.setPrefHeight(140);
         cardContainer.setMaxHeight(140);
         
-        Region cardBackground = new Region();
-        cardBackground.setStyle(
-            "-fx-background-color: #1c1e2d; " +
-            "-fx-background-radius: 10px; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 6, 0, 0, 1);"
-        );
-        // Le background doit s'adapter à la taille du container
-        cardBackground.prefWidthProperty().bind(cardContainer.widthProperty());
-        cardBackground.prefHeightProperty().bind(cardContainer.heightProperty());
-        cardContainer.getChildren().add(cardBackground);
+        cardContainer.getStyleClass().add("kpi-card-with-gauge");
         
         // VBox principal avec seulement le texte (gauge temporairement supprimé pour tester)
         VBox mainContent = new VBox(8);
         mainContent.setPadding(new Insets(12, 20, 12, 20)); // Padding augmenté: 12px top/bottom (+2px), 20px left/right (+2px)
         mainContent.setAlignment(Pos.TOP_LEFT);
+        mainContent.getStyleClass().add("kpi-card-content");
         
         Label titleLabel = new Label(label);
-        titleLabel.setStyle(
-            "-fx-text-fill: #B0B0B0; " +
-            "-fx-font-size: 15px; " +
-            "-fx-font-weight: 700; " +
-            "-fx-font-family: 'Segoe UI', sans-serif;"
-        );
+        titleLabel.getStyleClass().add("kpi-label");
         titleLabel.setWrapText(true); // Permet le wrap pour éviter la troncature
         titleLabel.setMaxWidth(Double.MAX_VALUE); // Permet d'utiliser toute la largeur disponible
         VBox.setVgrow(titleLabel, Priority.NEVER); // Empêche le titre de prendre trop de place verticale
         
         Label valueLabel = new Label(value);
-        valueLabel.setStyle(
-            "-fx-text-fill: #FFFFFF; " +
-            "-fx-font-size: 32px; " +
-            "-fx-font-weight: 700; " +
-            "-fx-font-family: 'Segoe UI Semibold', sans-serif; " +
-            "-fx-padding: 4 0 4 0;"
-        );
+        valueLabel.getStyleClass().add("kpi-value");
         
         Label goalLabel = new Label(goal);
-        goalLabel.setStyle(
-            "-fx-text-fill: #B0B0B0; " +
-            "-fx-font-size: 12px; " +
-            "-fx-font-weight: 700; " +
-            "-fx-font-family: 'Segoe UI', sans-serif;"
-        );
+        goalLabel.getStyleClass().add("kpi-goal-label");
         
         mainContent.getChildren().addAll(titleLabel, valueLabel, goalLabel);
         cardContainer.getChildren().add(mainContent);
@@ -1299,11 +1263,6 @@ public class DashboardController {
         card.setMaxWidth(Double.MAX_VALUE); // Permettre d'étendre jusqu'à la largeur maximale
         VBox.setVgrow(card, Priority.ALWAYS); // Permettre à la carte de grandir verticalement
         card.getStyleClass().add("mini-card");
-        card.setStyle(
-            "-fx-background-color: #1A2332; " +
-            "-fx-background-radius: 12px; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 6, 0, 0, 2);"
-        );
         
         HBox header = new HBox(10); // Espacement entre icône et titre
         header.setAlignment(Pos.TOP_LEFT); // Alignement en haut pour gérer les retours à la ligne
@@ -1313,23 +1272,21 @@ public class DashboardController {
         iconContainer.setPrefSize(32, 32);
         iconContainer.setMinSize(32, 32);
         iconContainer.setMaxSize(32, 32);
-        iconContainer.setStyle(
-            "-fx-background-color: rgba(0, 230, 118, 0.15); " +
-            "-fx-background-radius: 8px;"
-        );
+        iconContainer.getStyleClass().add("mini-card-icon-container");
         
         // Charger l'icône SVG au lieu d'un emoji
         Node iconNode = loadSVGIcon(iconName, 18, "#00E676"); // Vert clair pour les icônes
+        if (iconNode instanceof StackPane) {
+            Node svgNode = ((StackPane) iconNode).getChildren().get(0);
+            if (svgNode instanceof SVGPath) {
+                ((SVGPath) svgNode).getStyleClass().add("mini-card-icon");
+            }
+        }
         iconContainer.getChildren().add(iconNode);
         
         // Titre de la carte - plus grand et bold avec retour à la ligne automatique
         Label labelLabel = new Label(label);
-        labelLabel.setStyle(
-            "-fx-text-fill: #FFFFFF; " +
-            "-fx-font-size: 15px; " +
-            "-fx-font-weight: 700; " +
-            "-fx-line-spacing: 2px;" // Espacement entre les lignes
-        );
+        labelLabel.getStyleClass().add("mini-card-title");
         labelLabel.setWrapText(true); // Permettre le retour à la ligne automatique
         labelLabel.setMaxWidth(Double.MAX_VALUE); // Permettre l'expansion
         HBox.setHgrow(labelLabel, Priority.ALWAYS); // Prendre l'espace disponible
@@ -1338,19 +1295,15 @@ public class DashboardController {
         
         // Valeur principale - très grande et bold
         Label valueLabel = new Label(value);
-        valueLabel.setStyle(
-            "-fx-text-fill: #FFFFFF; " +
-            "-fx-font-size: 28px; " +
-            "-fx-font-weight: 700;"
-        );
+        valueLabel.getStyleClass().add("mini-card-value");
         
         // Badge/Sous-titre - taille moyenne, weight selon le contexte
         Label badgeLabel = new Label(badge);
-        badgeLabel.setStyle(
-            "-fx-text-fill: " + (positive ? "#00E676" : "#EF4444") + "; " +
-            "-fx-font-size: 12px; " +
-            "-fx-font-weight: " + (positive ? "600" : "700") + ";" // Plus bold pour les alertes
-        );
+        if (positive) {
+            badgeLabel.getStyleClass().add("mini-card-badge-positive");
+        } else {
+            badgeLabel.getStyleClass().add("mini-card-badge-warning");
+        }
         
         // Ajouter un spacer pour permettre l'étirement vertical et une meilleure distribution
         Region spacer = new Region();
@@ -1368,10 +1321,7 @@ public class DashboardController {
         // Container principal avec fond sombre (style Sales Overview original) - padding réduit
         VBox container = new VBox(0);
         container.setPadding(new Insets(12)); // Padding réduit de 20px à 12px
-        container.setStyle(
-            "-fx-background-color: #2f3640; " +
-            "-fx-background-radius: 12px;"
-        );
+        container.getStyleClass().add("sales-overview-card");
         container.setPrefWidth(Region.USE_COMPUTED_SIZE);
         container.setMaxWidth(Double.MAX_VALUE);
         HBox.setHgrow(container, Priority.ALWAYS); // Prendre toute la largeur disponible
@@ -1382,24 +1332,14 @@ public class DashboardController {
         header.setPadding(new Insets(0, 0, 10, 0)); // Padding réduit
         
         Label titleLabel = new Label("Sales Overview");
-        titleLabel.setStyle(
-            "-fx-text-fill: #FFFFFF; " +
-            "-fx-font-size: 18px; " +
-            "-fx-font-weight: 600;"
-        );
+        titleLabel.getStyleClass().add("card-title");
         
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         
         // Bouton menu (3 points verticaux)
         Button menuBtn = new Button("⋮");
-        menuBtn.setStyle(
-            "-fx-background-color: transparent; " +
-            "-fx-text-fill: #8B92A8; " +
-            "-fx-font-size: 20px; " +
-            "-fx-padding: 4px; " +
-            "-fx-cursor: hand;"
-        );
+        menuBtn.getStyleClass().add("menu-button");
         
         header.getChildren().addAll(titleLabel, spacer, menuBtn);
         
@@ -1410,6 +1350,7 @@ public class DashboardController {
         
         // ===== PARTIE GAUCHE : GRAPHE DONUT (style Sales Overview) =====
         StackPane chartContainer = new StackPane();
+        chartContainer.getStyleClass().add("donut-container");
         chartContainer.setPrefSize(250, 250); // Taille réduite mais raisonnable
         chartContainer.setAlignment(Pos.CENTER);
         
@@ -1422,27 +1363,18 @@ public class DashboardController {
         
         // Cercle central blanc avec texte sombre (style Sales Overview de l'image)
         Circle centerCircle = new Circle(60); // Rayon ajusté
-        centerCircle.setFill(Color.WHITE); // Blanc pur comme dans l'image
-        centerCircle.setStroke(null); // Pas de bordure
-        centerCircle.setEffect(null); // Pas d'ombre pour un look plus propre
+        centerCircle.getStyleClass().add("donut-center-circle");
         
         // Texte central (style Sales Overview - texte sombre sur fond blanc)
         VBox centerText = new VBox(4);
         centerText.setAlignment(Pos.CENTER);
+        centerText.getStyleClass().add("donut-center-text");
         
         Label centerTitle = new Label("ABONNEMENTS");
-        centerTitle.setStyle(
-            "-fx-text-fill: #64748B; " + // Gris foncé pour le label
-            "-fx-font-size: 11px; " +
-            "-fx-font-weight: 500;"
-        );
+        centerTitle.getStyleClass().add("donut-center-label");
         
         Label centerValue = new Label("TOTAL: 357");
-        centerValue.setStyle(
-            "-fx-text-fill: #1E293B; " + // Gris très foncé pour la valeur
-            "-fx-font-size: 20px; " +
-            "-fx-font-weight: 700;"
-        );
+        centerValue.getStyleClass().add("donut-center-value");
         
         centerText.getChildren().addAll(centerTitle, centerValue);
         
@@ -1450,6 +1382,7 @@ public class DashboardController {
         
         // ===== PARTIE DROITE : LÉGENDE MINIMALISTE (texte clair sur fond sombre) =====
         VBox legendSection = new VBox(10); // Espacement réduit
+        legendSection.getStyleClass().add("donut-legend");
         legendSection.setPrefWidth(150); // Largeur réduite
         legendSection.setAlignment(Pos.CENTER_LEFT);
         legendSection.setPadding(new Insets(0, 0, 0, 10)); // Padding réduit
@@ -2369,11 +2302,7 @@ public class DashboardController {
     private VBox createTableCard(String title) {
         VBox container = new VBox(0); // Pas d'espacement entre les éléments pour un contrôle précis
         container.setPadding(new Insets(20));
-        container.setStyle(
-            "-fx-background-color: #1A2332; " +
-            "-fx-background-radius: 16px; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 8, 0, 0, 2);"
-        );
+        container.getStyleClass().add("table-card");
         container.setPrefHeight(500);
         container.setMaxHeight(500);
         container.setMinHeight(500);
@@ -2381,11 +2310,12 @@ public class DashboardController {
         // Titre avec menu (inspiré du design moderne)
         HBox titleRow = new HBox();
         titleRow.setAlignment(Pos.CENTER_LEFT);
+        titleRow.getStyleClass().add("table-header");
         HBox.setHgrow(titleRow, Priority.ALWAYS);
         titleRow.setPadding(new Insets(0, 0, 16, 0)); // Espacement en bas seulement
         
         Label titleLabel = new Label(title);
-        titleLabel.setStyle("-fx-text-fill: #FFFFFF; -fx-font-size: 18px; -fx-font-weight: 600;");
+        titleLabel.getStyleClass().add("card-title");
         
         Region titleSpacer = new Region();
         HBox.setHgrow(titleSpacer, Priority.ALWAYS);
@@ -2397,15 +2327,12 @@ public class DashboardController {
         HBox headerRow = new HBox(24);
         headerRow.setPadding(new Insets(16, 20, 16, 20));
         headerRow.setAlignment(Pos.CENTER_LEFT);
-        headerRow.setStyle(
-            "-fx-background-color: rgba(42, 52, 65, 0.5); " +
-            "-fx-border-color: transparent transparent #2A3441 transparent; " +
-            "-fx-border-width: 0 0 1 0;"
-        );
+        headerRow.getStyleClass().add("table-column-headers");
         
         // Colonne Adhérent - Structure identique à la cellule adherentCell des lignes
         HBox headerAdherentCell = new HBox(12); // Même spacing que dans les lignes
         headerAdherentCell.setAlignment(Pos.CENTER_LEFT);
+        headerAdherentCell.getStyleClass().add("table-header-cell");
         // Espaceur pour correspondre exactement à l'avatar (Circle radius 24 = diamètre 48px)
         Region avatarSpacer = new Region();
         avatarSpacer.setPrefWidth(48);
@@ -2413,7 +2340,7 @@ public class DashboardController {
         avatarSpacer.setMaxWidth(48);
         // Label pour correspondre au VBox nameInfo des lignes
         Label headerAdherent = new Label("Adhérent");
-        headerAdherent.setStyle("-fx-text-fill: #8B92A8; -fx-font-size: 12px; -fx-font-weight: 600;");
+        headerAdherent.getStyleClass().add("table-header-label");
         headerAdherentCell.getChildren().addAll(avatarSpacer, headerAdherent);
         headerAdherentCell.setPrefWidth(Region.USE_COMPUTED_SIZE);
         HBox.setHgrow(headerAdherentCell, Priority.SOMETIMES);
@@ -2421,21 +2348,21 @@ public class DashboardController {
         
         // Colonne Pack - Structure identique aux lignes
         Label headerPack = new Label("Pack");
-        headerPack.setStyle("-fx-text-fill: #8B92A8; -fx-font-size: 12px; -fx-font-weight: 600;");
+        headerPack.getStyleClass().add("table-header-label");
         headerPack.setPrefWidth(Region.USE_COMPUTED_SIZE);
         HBox.setHgrow(headerPack, Priority.SOMETIMES);
         headerPack.setMinWidth(120);
         
         // Colonne Statut - Structure identique aux lignes
         Label headerStatut = new Label("Statut");
-        headerStatut.setStyle("-fx-text-fill: #8B92A8; -fx-font-size: 12px; -fx-font-weight: 600;");
+        headerStatut.getStyleClass().add("table-header-label");
         headerStatut.setPrefWidth(Region.USE_COMPUTED_SIZE);
         HBox.setHgrow(headerStatut, Priority.SOMETIMES);
         headerStatut.setMinWidth(120);
         
         // Colonne Expiration - Structure identique aux lignes
         Label headerExpiration = new Label("Expiration");
-        headerExpiration.setStyle("-fx-text-fill: #8B92A8; -fx-font-size: 12px; -fx-font-weight: 600;");
+        headerExpiration.getStyleClass().add("table-header-label");
         headerExpiration.setPrefWidth(Region.USE_COMPUTED_SIZE);
         HBox.setHgrow(headerExpiration, Priority.SOMETIMES);
         headerExpiration.setMinWidth(120);
@@ -2446,11 +2373,7 @@ public class DashboardController {
         ScrollPane scrollPane = new ScrollPane();
         scrollPane.setFitToWidth(true);
         scrollPane.setFitToHeight(false); // Important : ne pas ajuster à la hauteur du contenu
-        scrollPane.setStyle(
-            "-fx-background-color: transparent; " +
-            "-fx-border-color: transparent; " +
-            "-fx-padding: 0;"
-        );
+        scrollPane.getStyleClass().add("table-scroll");
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setVvalue(0); // Commencer en haut
@@ -2459,7 +2382,7 @@ public class DashboardController {
         // VBox pour le body scrollable (sans le header) - padding en bas pour voir le dernier élément
         VBox tableBody = new VBox(0);
         tableBody.setPadding(new Insets(0, 0, 8, 0)); // Petit padding en bas pour voir le dernier élément
-        tableBody.setStyle("-fx-padding: 0 0 8 0;");
+        tableBody.getStyleClass().add("table-body");
         
         try {
             List<Adherent> recentAdherents = adherentDAO.findAll().stream()
@@ -2609,7 +2532,7 @@ public class DashboardController {
         VBox sidebar = new VBox(0); // Pas d'espacement entre sections, utilisation de lignes de séparation
         sidebar.setPadding(new Insets(24, 20, 24, 20));
         sidebar.setPrefWidth(250); // Largeur fixe : 250px selon spécifications
-        sidebar.setStyle("-fx-background-color: #0d0f1a;"); // Même couleur que le container général du dashboard
+        sidebar.getStyleClass().add("right-sidebar");
         sidebar.setPrefHeight(Double.MAX_VALUE); // Prendre 100% de la hauteur
         
         // Notifications
@@ -2619,7 +2542,7 @@ public class DashboardController {
         // Ligne de séparation moderne entre Notifications et Activities
         Region separator = new Region();
         separator.setPrefHeight(1);
-        separator.setStyle("-fx-background-color: rgba(255, 255, 255, 0.05);"); // Ligne subtile et moderne
+        separator.getStyleClass().add("sidebar-separator");
         VBox.setMargin(separator, new Insets(20, 0, 20, 0)); // Espacement avant et après la ligne
         sidebar.getChildren().add(separator);
         
@@ -2636,19 +2559,15 @@ public class DashboardController {
     private VBox createNotificationPanel(String title) {
         VBox container = new VBox(12); // Espacement entre titre et liste : 12px
         container.setPadding(new Insets(0)); // Pas de padding, géré par le parent
-        container.setStyle("-fx-background-color: transparent;"); // Fond transparent, même couleur que sidebar
+        container.getStyleClass().add("sidebar-panel");
         container.setPrefWidth(Region.USE_COMPUTED_SIZE); // Prendre la largeur disponible
         
         // Section Header
         Label titleLabel = new Label(title);
-        titleLabel.setStyle(
-            "-fx-text-fill: #e5e7eb; " + // Couleur exacte selon spécifications
-            "-fx-font-size: 14px; " +
-            "-fx-font-weight: 600; " + // Semi-bold selon spécifications
-            "-fx-padding: 0 0 12 0;" // Margin-bottom : 12px
-        );
+        titleLabel.getStyleClass().add("sidebar-panel-title");
         
         VBox notifications = new VBox(0); // Pas d'espacement vertical, utilisation de lignes de séparation
+        notifications.getStyleClass().add("notifications-list");
         
         // ✅ CORRIGÉ : Initialiser le userId avant de charger les notifications
         initializeNotificationService();
@@ -2798,17 +2717,14 @@ public class DashboardController {
         HBox item = new HBox(10); // Spacing entre icône et texte : 10px selon spécifications
         item.setAlignment(Pos.TOP_LEFT); // Alignement en haut selon spécifications
         item.setPadding(new Insets(8)); // Padding fixe pour éviter les mouvements au hover
-        item.setStyle("-fx-background-color: transparent;"); // Style initial transparent
+        item.getStyleClass().add("notification-item");
         
         // Icône circulaire verte (badge) - 32px diameter selon spécifications
         StackPane iconContainer = new StackPane();
         iconContainer.setPrefSize(32, 32);
         iconContainer.setMinSize(32, 32);
         iconContainer.setMaxSize(32, 32);
-        iconContainer.setStyle(
-            "-fx-background-color: #10b981; " + // Vert exact selon spécifications
-            "-fx-background-radius: 16px;" // 32px diameter = 16px radius
-        );
+        iconContainer.getStyleClass().add("notification-icon-container");
         
         // Charger l'icône SVG (blanc, 16px)
         Node iconNode = loadSVGIcon(iconName, 16, "#FFFFFF");
@@ -2817,46 +2733,22 @@ public class DashboardController {
         // Contenu texte (VBox)
         VBox textContent = new VBox(3); // Spacing entre message et timestamp : 3px selon spécifications
         textContent.setAlignment(Pos.TOP_LEFT);
+        textContent.getStyleClass().add("notification-text");
         HBox.setHgrow(textContent, Priority.ALWAYS); // Prendre l'espace disponible
         
         // Message principal
         Label messageLabel = new Label(message);
-        messageLabel.setStyle(
-            "-fx-text-fill: #e5e7eb; " + // Couleur exacte selon spécifications
-            "-fx-font-size: 13px; " +
-            "-fx-font-weight: 500; " + // Medium selon spécifications
-            "-fx-line-height: 1.3;"
-        );
+        messageLabel.getStyleClass().add("notification-message");
         messageLabel.setWrapText(true);
         messageLabel.setMaxWidth(180); // Max-width : 180px selon spécifications
         
         // Timestamp
         Label timestampLabel = new Label(timestamp);
-        timestampLabel.setStyle(
-            "-fx-text-fill: #6b7280; " + // Couleur exacte selon spécifications
-            "-fx-font-size: 11px; " +
-            "-fx-font-weight: 400; " + // Regular selon spécifications
-            "-fx-opacity: 0.8;"
-        );
+        timestampLabel.getStyleClass().add("notification-timestamp");
         
         textContent.getChildren().addAll(messageLabel, timestampLabel);
         
         item.getChildren().addAll(iconContainer, textContent);
-        
-        // Hover effect - UNIQUEMENT changement de couleur de background, AUCUNE transformation (pas de scale, translate, etc.)
-        item.setOnMouseEntered(e -> {
-            item.setStyle(
-                "-fx-background-color: rgba(42, 52, 65, 0.4); " + // Seulement changement de couleur
-                "-fx-background-radius: 6px;" // Border radius pour le fond coloré
-            );
-        });
-        item.setOnMouseExited(e -> {
-            item.setStyle(
-                "-fx-background-color: transparent; " + // Retour à transparent
-                "-fx-background-radius: 0;" // Pas de border radius quand transparent
-            );
-        });
-        item.setCursor(Cursor.HAND);
         
         return item;
     }
@@ -2867,19 +2759,15 @@ public class DashboardController {
     private VBox createActivityPanel(String title) {
         VBox container = new VBox(12); // Espacement entre titre et liste : 12px
         container.setPadding(new Insets(0)); // Pas de padding, géré par le parent
-        container.setStyle("-fx-background-color: transparent;"); // Fond transparent, même couleur que sidebar
+        container.getStyleClass().add("sidebar-panel");
         container.setPrefWidth(Region.USE_COMPUTED_SIZE); // Prendre la largeur disponible
         
         // Section Header
         Label titleLabel = new Label(title);
-        titleLabel.setStyle(
-            "-fx-text-fill: #e5e7eb; " + // Couleur exacte selon spécifications
-            "-fx-font-size: 14px; " +
-            "-fx-font-weight: 600; " + // Semi-bold selon spécifications
-            "-fx-padding: 0 0 12 0;" // Margin-bottom : 12px
-        );
+        titleLabel.getStyleClass().add("sidebar-panel-title");
         
         VBox activities = new VBox(0); // Pas d'espacement vertical, utilisation de lignes de séparation
+        activities.getStyleClass().add("activities-list");
         
         // Charger les activités depuis la base de données
         try {
@@ -2935,7 +2823,7 @@ public class DashboardController {
         HBox item = new HBox(10); // Spacing entre icône et texte : 10px selon spécifications
         item.setAlignment(Pos.TOP_LEFT); // Alignement en haut selon spécifications
         item.setPadding(new Insets(8)); // Padding fixe pour éviter les mouvements au hover
-        item.setStyle("-fx-background-color: transparent;"); // Style initial transparent
+        item.getStyleClass().add("activity-item");
         
         // Avatar circulaire coloré - 32px diameter selon spécifications
         // Utiliser un gradient coloré pour les activities avec LinearGradient JavaFX
@@ -2943,6 +2831,7 @@ public class DashboardController {
         iconContainer.setPrefSize(32, 32);
         iconContainer.setMinSize(32, 32);
         iconContainer.setMaxSize(32, 32);
+        iconContainer.getStyleClass().add("activity-avatar");
         
         // Créer un cercle avec gradient coloré selon le type d'icône
         Circle avatarCircle = new Circle(16); // 32px diameter = 16px radius
@@ -2956,46 +2845,22 @@ public class DashboardController {
         // Contenu texte (VBox) - identique aux notifications
         VBox textContent = new VBox(3); // Spacing entre message et timestamp : 3px selon spécifications
         textContent.setAlignment(Pos.TOP_LEFT);
+        textContent.getStyleClass().add("activity-text");
         HBox.setHgrow(textContent, Priority.ALWAYS); // Prendre l'espace disponible
         
         // Message principal
         Label messageLabel = new Label(message);
-        messageLabel.setStyle(
-            "-fx-text-fill: #e5e7eb; " + // Couleur exacte selon spécifications
-            "-fx-font-size: 13px; " +
-            "-fx-font-weight: 500; " + // Medium selon spécifications
-            "-fx-line-height: 1.3;"
-        );
+        messageLabel.getStyleClass().add("activity-message");
         messageLabel.setWrapText(true);
         messageLabel.setMaxWidth(180); // Max-width : 180px selon spécifications
         
         // Timestamp
         Label timestampLabel = new Label(timestamp);
-        timestampLabel.setStyle(
-            "-fx-text-fill: #6b7280; " + // Couleur exacte selon spécifications
-            "-fx-font-size: 11px; " +
-            "-fx-font-weight: 400; " + // Regular selon spécifications
-            "-fx-opacity: 0.8;"
-        );
+        timestampLabel.getStyleClass().add("activity-timestamp");
         
         textContent.getChildren().addAll(messageLabel, timestampLabel);
         
         item.getChildren().addAll(iconContainer, textContent);
-        
-        // Hover effect - UNIQUEMENT changement de couleur de background, AUCUNE transformation (pas de scale, translate, etc.)
-        item.setOnMouseEntered(e -> {
-            item.setStyle(
-                "-fx-background-color: rgba(42, 52, 65, 0.4); " + // Seulement changement de couleur
-                "-fx-background-radius: 6px;" // Border radius pour le fond coloré
-            );
-        });
-        item.setOnMouseExited(e -> {
-            item.setStyle(
-                "-fx-background-color: transparent; " + // Retour à transparent
-                "-fx-background-radius: 0;" // Pas de border radius quand transparent
-            );
-        });
-        item.setCursor(Cursor.HAND);
         
         return item;
     }
@@ -3584,15 +3449,11 @@ public class DashboardController {
     private VBox createRevenueAreaChartCard() {
         VBox container = new VBox(12);
         container.setPadding(new Insets(20));
-        container.setStyle(
-            "-fx-background-color: #1A2332; " +
-            "-fx-background-radius: 16px; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 8, 0, 0, 2);"
-        );
+        container.getStyleClass().add("area-chart-card");
         container.setPrefHeight(300);
         
         Label titleLabel = new Label("Évolution des Revenus");
-        titleLabel.setStyle("-fx-text-fill: #FFFFFF; -fx-font-size: 18px; -fx-font-weight: 600;");
+        titleLabel.getStyleClass().add("card-title");
         
         CategoryAxis xAxis = new CategoryAxis();
         NumberAxis yAxis = new NumberAxis();
@@ -3605,11 +3466,11 @@ public class DashboardController {
         areaChart.setPrefHeight(220);
         areaChart.getStyleClass().add("chart");
         
-        // Style personnalisé pour correspondre au design de l'image
-        areaChart.setStyle(
-            "-fx-background-color: #2f3640; " + // Fond sombre comme dans l'image
-            "-fx-background-radius: 12px;"
-        );
+        // Container pour le graphique avec style CSS
+        StackPane chartContainer = new StackPane();
+        chartContainer.setPrefHeight(220);
+        chartContainer.getStyleClass().add("chart-container");
+        chartContainer.getChildren().add(areaChart);
         
         // Style pour les axes
         xAxis.setStyle(
@@ -3667,7 +3528,8 @@ public class DashboardController {
         }
         
         areaChart.getData().add(series);
-        container.getChildren().addAll(titleLabel, areaChart);
+        // areaChart est déjà ajouté au chartContainer à la ligne 3473
+        container.getChildren().addAll(titleLabel, chartContainer);
         
         return container;
     }

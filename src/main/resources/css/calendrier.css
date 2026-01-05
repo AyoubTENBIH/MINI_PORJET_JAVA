@@ -1,0 +1,324 @@
+/* ==========================================
+   CALENDRIER.CSS
+   Tous les styles pour le calendrier dynamique
+   Architecture MVC JavaFX - Styles extraits du Controller
+   ========================================== */
+
+/* ==========================================
+   ROOT COLORS - Variables CSS réutilisables
+   ========================================== */
+   .root {
+    -fx-primary-bg: #0d0f1a;
+    -fx-card-bg: #1A2332;
+    -fx-card-hover-bg: #2A3342;
+    -fx-text-primary: #FFFFFF;
+    -fx-text-secondary: #E6EAF0;
+    -fx-text-muted: #8B92A8;
+    -fx-accent-green: #00E676;
+    -fx-accent-orange: #FF6B35;
+    -fx-accent-red: #EF4444;
+    -fx-border-subtle: rgba(255, 255, 255, 0.1);
+    -fx-border-subtle-hover: rgba(255, 255, 255, 0.15);
+    -fx-border-subtle-empty: rgba(255, 255, 255, 0.05);
+}
+
+/* ==========================================
+   CONTAINER PRINCIPAL
+   ========================================== */
+.calendar-root {
+    -fx-background-color: -fx-primary-bg;
+    -fx-padding: 24px;
+}
+
+.page-container {
+    -fx-background-color: -fx-primary-bg;
+}
+
+/* ==========================================
+   TITRE DE PAGE
+   ========================================== */
+.page-title-large {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+    -fx-font-family: 'Segoe UI', sans-serif;
+}
+
+/* ==========================================
+   BOUTONS DE NAVIGATION
+   ========================================== */
+.nav-button {
+    -fx-background-color: #1A2332;
+    -fx-text-fill: #E6EAF0;
+    -fx-background-radius: 8px;
+    -fx-padding: 10px 20px;
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 6, 0, 0, 2);
+}
+
+.nav-button:hover {
+    -fx-background-color: #2A3342;
+    -fx-translate-y: -1px;
+}
+
+.nav-button:pressed {
+    -fx-background-color: #1A2332;
+    -fx-translate-y: 0px;
+}
+
+/* ==========================================
+   LABEL DU MOIS
+   ========================================== */
+.month-label {
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 20px;
+    -fx-font-weight: 600;
+    -fx-padding: 0 20px;
+}
+
+/* ==========================================
+   BOÎTE DE LÉGENDE
+   ========================================== */
+.legend-box {
+    -fx-background-color: #1A2332;
+    -fx-background-radius: 12px;
+    -fx-padding: 16px 24px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 6, 0, 0, 2);
+    -fx-border-width: 1px;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-radius: 12px;
+}
+
+.legend-title {
+    -fx-text-fill: #8B92A8;
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+}
+
+/* ==========================================
+   ITEMS DE LÉGENDE
+   ========================================== */
+.legend-item-box {
+    -fx-alignment: CENTER_LEFT;
+}
+
+.legend-circle-green {
+    -fx-fill: #00E676;
+}
+
+.legend-circle-orange {
+    -fx-fill: #FF6B35;
+}
+
+.legend-circle-red {
+    -fx-fill: #EF4444;
+}
+
+.legend-item-text {
+    -fx-text-fill: #E6EAF0;
+    -fx-font-size: 13px;
+    -fx-font-weight: 400;
+}
+
+/* Texte "Expiré" en blanc */
+.legend-item-text-expired {
+    -fx-text-fill: #FFFFFF !important;
+    -fx-font-size: 13px;
+    -fx-font-weight: 400;
+}
+
+/* ==========================================
+   GRILLE CALENDRIER
+   ========================================== */
+.calendar-grid {
+    /* Background TRANSPARENT pour laisser voir le fond #0d0f1a */
+    /* Cela créera un contraste maximal avec les cellules #2A3342 */
+    -fx-background-color: transparent;
+    -fx-background-radius: 16px;
+    -fx-effect: none;
+}
+
+/* ==========================================
+   EN-TÊTES DES JOURS DE LA SEMAINE
+   ========================================== */
+.calendar-header {
+    /* En-têtes avec background distinct des cellules */
+    -fx-background-color: #1E2838;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-padding: 12px;
+    -fx-background-radius: 8px;
+    -fx-alignment: center;
+    -fx-border-color: rgba(255, 255, 255, 0.15);
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+}
+
+/* ==========================================
+   CELLULES DU CALENDRIER - BASE
+   Background distinct du calendrier pour visibilité
+   ========================================== */
+.day-cell {
+    /* Background distinct du calendrier (#0d0f1a) pour contraste */
+    -fx-background-color: #1A2332; /* -fx-card-bg - gris bleuté foncé */
+    /* Bordures subtiles mais visibles */
+    -fx-border-color: rgba(255, 255, 255, 0.15);
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    /* Shadow pour profondeur */
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 8, 0, 0, 2);
+    -fx-pref-width: 130px;
+    -fx-min-height: 80px;
+    -fx-pref-height: 80px;
+    -fx-padding: 7px 3px 7px 3px;
+    -fx-spacing: 3px;
+}
+
+/* Hover pour cellules normales */
+.day-cell:hover {
+    -fx-background-color: #2A3342; /* -fx-card-hover-bg - plus clair au survol */
+    -fx-border-color: rgba(255, 255, 255, 0.25);
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 10, 0, 0, 3);
+    -fx-translate-y: -2px;
+}
+
+/* ==========================================
+   CELLULES AVEC STATUT - Couleurs distinctes et visibles
+   ========================================== */
+
+/* Cellule avec expirations - ROUGE avec contraste */
+.day-cell.day-cell-expired {
+    -fx-background-color: #3A1F1F; /* Rouge foncé avec contraste */
+    -fx-border-color: rgba(239, 68, 68, 0.4); /* Bordure rouge subtile */
+}
+
+.day-cell.day-cell-expired:hover {
+    -fx-background-color: #4A2F2F;
+    -fx-border-color: rgba(239, 68, 68, 0.6);
+    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.4), 10, 0, 0, 3);
+    -fx-translate-y: -2px;
+}
+
+/* Cellule avec expirations proches - ORANGE avec contraste */
+.day-cell.day-cell-expiring {
+    -fx-background-color: #3A2A1F; /* Orange foncé avec contraste */
+    -fx-border-color: rgba(255, 107, 53, 0.4); /* Bordure orange subtile */
+}
+
+.day-cell.day-cell-expiring:hover {
+    -fx-background-color: #4A3A2F;
+    -fx-border-color: rgba(255, 107, 53, 0.6);
+    -fx-effect: dropshadow(gaussian, rgba(255, 107, 53, 0.4), 10, 0, 0, 3);
+    -fx-translate-y: -2px;
+}
+
+/* Cellule aujourd'hui - VERT avec contraste */
+.day-cell.day-cell-today {
+    -fx-background-color: #1F3A2F; /* Vert foncé avec contraste */
+    -fx-border-color: #00E676; /* Bordure verte visible */
+    -fx-border-width: 2px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 230, 118, 0.5), 10, 0, 0, 3);
+}
+
+.day-cell.day-cell-today:hover {
+    -fx-background-color: #2F4A3F;
+    -fx-border-color: #00E676;
+    -fx-border-width: 2px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 230, 118, 0.7), 12, 0, 0, 4);
+    -fx-translate-y: -2px;
+}
+
+/* Cellule vide - style discret mais visible */
+.day-cell-empty {
+    -fx-background-color: rgba(26, 35, 50, 0.5); /* Légèrement plus transparent que les cellules normales */
+    -fx-border-color: rgba(255, 255, 255, 0.08);
+    -fx-border-width: 1px;
+    -fx-border-radius: 8px;
+    -fx-background-radius: 8px;
+    -fx-pref-width: 130px;
+    -fx-min-height: 80px;
+    -fx-pref-height: 80px;
+}
+
+/* ==========================================
+   NUMÉRO DU JOUR
+   ========================================== */
+.day-number {
+    -fx-text-fill: #E6EAF0;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+}
+
+.day-number-today {
+    -fx-text-fill: #00E676;
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+}
+
+/* ==========================================
+   BADGES DE STATUT
+   ========================================== */
+.status-badge {
+    -fx-alignment: CENTER_LEFT;
+    -fx-padding: 3px 6px 3px 6px;
+    -fx-background-radius: 6px;
+}
+
+/* Badge expiré - ROUGE */
+HBox.status-badge-expired {
+    -fx-background-color: rgba(239, 68, 68, 0.15) !important;
+}
+
+/* Badge expirant bientôt - ORANGE */
+HBox.status-badge-expiring {
+    -fx-background-color: rgba(255, 107, 53, 0.15) !important;
+}
+
+.status-circle-expired {
+    -fx-fill: #EF4444 !important; /* ROUGE - Abonnements expirés (comme la légende) */
+}
+
+.status-circle-expiring {
+    -fx-fill: #FF6B35 !important; /* ORANGE - Abonnements expirant bientôt */
+}
+
+.status-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-wrap-text: true;
+}
+
+.status-label-expired {
+    -fx-text-fill: #EF4444;
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-wrap-text: true;
+}
+
+.status-label-expiring {
+    -fx-text-fill: #FF6B35;
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-wrap-text: true;
+}
+
+/* ==========================================
+   TOOLTIPS
+   ========================================== */
+.tooltip {
+    -fx-background-color: #a2afc7;
+    -fx-text-fill: #E6EAF0;
+    -fx-background-radius: 8px;
+    -fx-padding: 12px;
+    -fx-font-size: 13px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 10, 0, 0, 3);
+    -fx-border-width: 1px;
+    -fx-border-color: rgba(0, 230, 118, 0.3);
+    -fx-border-radius: 8px;
+}

@@ -1,0 +1,340 @@
+/* ============================================
+   PACKS CSS - Styles pour le module Pack
+   ============================================ */
+
+/* ============================================
+   ROOT & LAYOUT
+   ============================================ */
+.packs-root {
+    -fx-background-color: #0d0f1a;
+}
+
+.packs-content-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+}
+
+.packs-content-wrapper {
+    -fx-background-color: #0d0f1a;
+}
+
+/* ============================================
+   HEADER
+   ============================================ */
+.packs-header {
+    -fx-background-color: #0A0D12;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: rgba(154, 164, 178, 0.1);
+}
+
+.packs-header-icon-btn {
+    -fx-background-color: transparent;
+    -fx-background-radius: 6px;
+    -fx-padding: 4px;
+    -fx-cursor: hand;
+}
+
+.packs-header-icon-btn:hover {
+    -fx-background-color: rgba(27, 34, 44, 0.8);
+}
+
+.packs-breadcrumb-label {
+    -fx-text-fill: #9AA4B2;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+}
+
+/* ============================================
+   TITLE & FILTER SECTION
+   ============================================ */
+.packs-title-filter-section {
+    -fx-background-color: #0B0F14;
+}
+
+.packs-page-title {
+    -fx-text-fill: #E6EAF0;
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+}
+
+/* ============================================
+   CARDS
+   ============================================ */
+.packs-search-card {
+    -fx-background-color: #1A2332;
+    -fx-background-radius: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 8, 0, 0, 2);
+}
+
+.packs-table-card {
+    -fx-background-color: #1A2332;
+    -fx-background-radius: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 8, 0, 0, 2);
+    -fx-min-height: 400px;
+}
+
+/* ============================================
+   SEARCH FIELD
+   ============================================ */
+.packs-search-field {
+    -fx-background-color: rgba(15, 23, 42, 0.6);
+    -fx-background-radius: 12px;
+    -fx-text-fill: #E6EAF0;
+    -fx-font-size: 14px;
+    -fx-padding: 12px 16px;
+    -fx-border-width: 1px;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-border-radius: 12px;
+    -fx-prompt-text-fill: rgba(230, 234, 240, 0.5);
+}
+
+.packs-search-field:focused {
+    -fx-background-color: rgba(15, 23, 42, 0.8);
+    -fx-border-color: rgba(16, 185, 129, 0.5);
+}
+
+/* ============================================
+   BUTTONS
+   ============================================ */
+.packs-btn-success {
+    -fx-background-color: linear-gradient(to right, #10b981, #059669);
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-padding: 12px 24px;
+    -fx-background-radius: 12px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.4), 10, 0, 0, 4);
+}
+
+.packs-btn-success:hover {
+    -fx-background-color: linear-gradient(to right, #059669, #047857);
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.6), 15, 0, 0, 6);
+}
+
+.packs-btn-primary {
+    -fx-background-color: linear-gradient(to right, #3b82f6, #2563eb);
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-padding: 12px 24px;
+    -fx-background-radius: 12px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.4), 10, 0, 0, 4);
+}
+
+.packs-btn-primary:hover {
+    -fx-background-color: linear-gradient(to right, #2563eb, #1d4ed8);
+    -fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.6), 15, 0, 0, 6);
+}
+
+.packs-btn-danger {
+    -fx-background-color: linear-gradient(to right, #ef4444, #dc2626);
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-padding: 12px 24px;
+    -fx-background-radius: 12px;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.4), 10, 0, 0, 4);
+}
+
+.packs-btn-danger:hover {
+    -fx-background-color: linear-gradient(to right, #dc2626, #b91c1c);
+    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.6), 15, 0, 0, 6);
+}
+
+/* ============================================
+   TABLE
+   ============================================ */
+.packs-table {
+    -fx-background-color: transparent;
+    -fx-table-cell-border-color: transparent;
+}
+
+.packs-table .column-header-background {
+    -fx-background-color: rgba(42, 52, 65, 0.5);
+}
+
+.packs-table .column-header {
+    -fx-background-color: rgba(42, 52, 65, 0.5);
+    -fx-text-fill: #E6EAF0;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-padding: 16px 20px;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: #2A3441;
+}
+
+.packs-table .table-row-cell {
+    -fx-background-color: rgba(42, 52, 65, 0.3);
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: rgba(255, 255, 255, 0.05);
+}
+
+.packs-table .table-row-cell:hover {
+    -fx-background-color: rgba(0, 230, 118, 0.15);
+}
+
+.packs-table .table-row-cell:selected {
+    -fx-background-color: rgba(0, 230, 118, 0.2);
+}
+
+.packs-table .table-cell {
+    -fx-text-fill: #E6EAF0;
+    -fx-font-size: 14px;
+    -fx-padding: 12px 16px;
+    -fx-border-width: 0;
+    -fx-background-color: transparent;
+    -fx-alignment: center-left;
+}
+
+.packs-table-column {
+    -fx-alignment: center-left;
+}
+
+.packs-table-cell-price {
+    -fx-text-fill: #E6EAF0;
+    -fx-font-size: 14px;
+}
+
+.packs-table-cell-active {
+    -fx-text-fill: #10b981;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+}
+
+.packs-table-cell-inactive {
+    -fx-text-fill: #ef4444;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+}
+
+/* ============================================
+   DIALOG / MODAL
+   ============================================ */
+.packs-dialog {
+    -fx-background-color: #1A2332;
+}
+
+.packs-dialog-header {
+    -fx-background-color: #475569;
+    -fx-background: #475569;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: rgba(255, 255, 255, 0.1);
+    -fx-padding: 20px 32px;
+}
+
+.packs-dialog-header-label {
+    -fx-text-fill: #ffffff;
+    -fx-font-size: 18px;
+    -fx-font-weight: 600;
+}
+
+.packs-dialog-content-label {
+    -fx-text-fill: rgba(255, 255, 255, 0.9);
+    -fx-font-size: 14px;
+}
+
+.packs-dialog-grid {
+    -fx-background-color: #1A2332;
+}
+
+/* ============================================
+   FORM ELEMENTS
+   ============================================ */
+.packs-form-label {
+    -fx-text-fill: #f3f4f6;
+    -fx-font-size: 15px;
+    -fx-font-weight: 500;
+}
+
+.packs-form-input {
+    -fx-background-color: #374151;
+    -fx-background-radius: 12px;
+    -fx-text-fill: #f3f4f6;
+    -fx-font-size: 14px;
+    -fx-padding: 12px 16px;
+    -fx-border-width: 1.5px;
+    -fx-border-color: #4b5563;
+    -fx-border-radius: 12px;
+    -fx-prompt-text-fill: #9ca3af;
+}
+
+.packs-form-input:focused {
+    -fx-border-color: #6366f1;
+    -fx-border-width: 2px;
+}
+
+.packs-form-combo {
+    -fx-background-color: #374151;
+    -fx-background-radius: 12px;
+    -fx-text-fill: #f3f4f6;
+    -fx-font-size: 14px;
+    -fx-padding: 12px 16px;
+    -fx-border-width: 1.5px;
+    -fx-border-color: #4b5563;
+    -fx-border-radius: 12px;
+}
+
+.packs-form-combo:focused {
+    -fx-border-color: #6366f1;
+    -fx-border-width: 2px;
+}
+
+.packs-form-combo .list-cell {
+    -fx-background-color: #374151;
+    -fx-text-fill: #f3f4f6;
+    -fx-font-size: 14px;
+    -fx-padding: 8px 12px;
+}
+
+.packs-form-combo .list-cell:selected {
+    -fx-background-color: #4b5563;
+}
+
+.packs-form-checkbox {
+    -fx-text-fill: #f3f4f6;
+    -fx-font-size: 14px;
+}
+
+/* ============================================
+   DIALOG BUTTONS
+   ============================================ */
+.packs-dialog-btn-save {
+    -fx-background-color: #10b981;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-size: 15px;
+    -fx-font-weight: 600;
+    -fx-padding: 12px 32px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-min-width: 140px;
+    -fx-min-height: 44px;
+}
+
+.packs-dialog-btn-save:hover {
+    -fx-background-color: #059669;
+}
+
+.packs-dialog-btn-cancel {
+    -fx-background-color: #4b5563;
+    -fx-text-fill: #f3f4f6;
+    -fx-font-size: 15px;
+    -fx-font-weight: 500;
+    -fx-padding: 12px 32px;
+    -fx-background-radius: 8px;
+    -fx-cursor: hand;
+    -fx-min-width: 140px;
+    -fx-min-height: 44px;
+}
+
+.packs-dialog-btn-cancel:hover {
+    -fx-background-color: #6b7280;
+}
+
+.packs-dialog-button-bar {
+    -fx-spacing: 16px;
+    -fx-padding: 20px 32px;
+}
+
