@@ -3,37 +3,169 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.SVGPath?>
 
-<VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.example.demo.controllers.PackManagementController"
-      spacing="15" styleClass="page-container">
-    <padding>
-        <Insets top="20" right="20" bottom="20" left="20"/>
-    </padding>
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            styleClass="packs-root">
     
-    <!-- Title -->
-    <Label text="Gestion des Packs/Abonnements" styleClass="page-title-large"/>
-    
-    <!-- Top Bar: Search and Actions -->
-    <HBox fx:id="topBar" spacing="10">
-        <TextField fx:id="searchField" promptText="Rechercher un pack..." 
-                   prefWidth="400"/>
-        <Button fx:id="addButton" text="+ Nouveau Pack" styleClass="btn-success"/>
-        <Button fx:id="editButton" text="Modifier" styleClass="btn-primary"/>
-        <Button fx:id="deleteButton" text="Supprimer" styleClass="btn-danger"/>
-    </HBox>
-    
-    <!-- Packs Table -->
-    <TableView fx:id="packsTable" prefHeight="500" VBox.vgrow="ALWAYS">
-        <columns>
-            <TableColumn fx:id="nomColumn" text="Nom" prefWidth="200"/>
-            <TableColumn fx:id="prixColumn" text="Prix (DH)" prefWidth="120"/>
-            <TableColumn fx:id="activitesColumn" text="Activités" prefWidth="300"/>
-            <TableColumn fx:id="dureeColumn" text="Durée" prefWidth="100"/>
-            <TableColumn fx:id="actifColumn" text="Actif" prefWidth="80"/>
-        </columns>
-    </TableView>
-</VBox>
-
-
+    <!-- ==================== CENTER AREA ==================== -->
+    <center>
+        <BorderPane>
+            <!-- Header -->
+            <top>
+                <HBox fx:id="header" spacing="16" alignment="CENTER_LEFT" 
+                      styleClass="packs-header" prefHeight="70">
+                    <padding>
+                        <Insets top="16" right="32" bottom="16" left="32"/>
+                    </padding>
+                    
+                    <!-- Menu icon (caché) -->
+                    <Button fx:id="menuBtn" styleClass="packs-header-icon-btn" visible="false">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <SVGPath styleClass="icon-svg"/>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                    
+                    <!-- Star icon (Favoris) -->
+                    <Button fx:id="starBtn" styleClass="packs-header-icon-btn">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <SVGPath styleClass="icon-svg"/>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                    
+                    <!-- Breadcrumb -->
+                    <Label fx:id="breadcrumbLabel" text="Gestion des Packs" 
+                           styleClass="packs-breadcrumb-label"/>
+                    
+                    <!-- Spacer -->
+                    <Region HBox.hgrow="ALWAYS"/>
+                    
+                    <!-- Moon icon (Dark mode) -->
+                    <Button fx:id="moonBtn" styleClass="packs-header-icon-btn">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <SVGPath styleClass="icon-svg"/>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                    
+                    <!-- Refresh icon -->
+                    <Button fx:id="refreshBtn" styleClass="packs-header-icon-btn">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <SVGPath styleClass="icon-svg"/>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                    
+                    <!-- Bell icon (Notifications) -->
+                    <Button fx:id="bellBtn" styleClass="packs-header-icon-btn">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <SVGPath styleClass="icon-svg"/>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                    
+                    <!-- Globe icon -->
+                    <Button fx:id="globeBtn" styleClass="packs-header-icon-btn">
+                        <graphic>
+                            <StackPane styleClass="icon-container">
+                                <SVGPath styleClass="icon-svg"/>
+                            </StackPane>
+                        </graphic>
+                    </Button>
+                </HBox>
+            </top>
+            
+            <!-- Center Content -->
+            <center>
+                <VBox>
+                    <!-- Title Filter Section -->
+                    <HBox fx:id="titleFilterSection" alignment="CENTER_LEFT" 
+                          styleClass="packs-title-filter-section" prefHeight="60">
+                        <padding>
+                            <Insets top="24" right="32" bottom="24" left="32"/>
+                        </padding>
+                        
+                        <Label fx:id="titleLabel" text="Gestion des Packs/Abonnements" 
+                               styleClass="packs-page-title"/>
+                        
+                        <!-- Spacer -->
+                        <Region HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                    
+                    <!-- Content Scroll -->
+                    <ScrollPane fx:id="contentScroll" fitToWidth="true" fitToHeight="true"
+                                styleClass="packs-content-scroll" 
+                                hbarPolicy="NEVER">
+                        <VBox fx:id="contentWrapper" spacing="20" 
+                              styleClass="packs-content-wrapper">
+                            <padding>
+                                <Insets top="20" right="24" bottom="20" left="24"/>
+                            </padding>
+                            
+                            <!-- Search Card -->
+                            <VBox fx:id="searchCard" spacing="16" styleClass="packs-search-card">
+                                <padding>
+                                    <Insets top="20" right="20" bottom="20" left="20"/>
+                                </padding>
+                                
+                                <HBox spacing="12" alignment="CENTER_LEFT">
+                                    <TextField fx:id="searchField" 
+                                               promptText="Rechercher un pack..." 
+                                               prefWidth="400"
+                                               styleClass="packs-search-field"
+                                               HBox.hgrow="ALWAYS"/>
+                                    
+                                    <Button fx:id="addButton" text="+ Nouveau Pack" 
+                                            styleClass="packs-btn-success"/>
+                                    
+                                    <Button fx:id="editButton" text="Modifier" 
+                                            styleClass="packs-btn-primary"/>
+                                    
+                                    <Button fx:id="deleteButton" text="Supprimer" 
+                                            styleClass="packs-btn-danger"/>
+                                </HBox>
+                            </VBox>
+                            
+                            <!-- Table Card -->
+                            <VBox fx:id="tableCard" spacing="0" styleClass="packs-table-card" 
+                                  minHeight="400">
+                                <padding>
+                                    <Insets top="20" right="20" bottom="20" left="20"/>
+                                </padding>
+                                
+                                <TableView fx:id="packsTable" prefHeight="500" 
+                                           styleClass="packs-table" VBox.vgrow="ALWAYS">
+                                    <columns>
+                                        <TableColumn fx:id="nomColumn" text="Nom" 
+                                                     minWidth="150" prefWidth="180" maxWidth="250"
+                                                     styleClass="packs-table-column"/>
+                                        <TableColumn fx:id="prixColumn" text="Prix (DH)" 
+                                                     minWidth="100" prefWidth="120" maxWidth="150"
+                                                     styleClass="packs-table-column"/>
+                                        <TableColumn fx:id="activitesColumn" text="Activités" 
+                                                     minWidth="200" prefWidth="300"
+                                                     styleClass="packs-table-column"/>
+                                        <TableColumn fx:id="dureeColumn" text="Durée" 
+                                                     minWidth="80" prefWidth="100" maxWidth="150"
+                                                     styleClass="packs-table-column"/>
+                                        <TableColumn fx:id="actifColumn" text="Statut" 
+                                                     minWidth="80" prefWidth="100" maxWidth="120"
+                                                     styleClass="packs-table-column"/>
+                                    </columns>
+                                </TableView>
+                            </VBox>
+                        </VBox>
+                    </ScrollPane>
+                </VBox>
+            </center>
+        </BorderPane>
+    </center>
+</BorderPane>

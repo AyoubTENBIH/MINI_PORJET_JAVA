@@ -3,6 +3,34 @@
    ============================================ */
 
 /* ============================================
+   ICONS
+   ============================================ */
+.icon-container {
+    -fx-pref-width: 20px;
+    -fx-pref-height: 20px;
+    -fx-min-width: 20px;
+    -fx-min-height: 20px;
+    -fx-max-width: 20px;
+    -fx-max-height: 20px;
+    -fx-alignment: center;
+    -fx-background-color: transparent;
+}
+
+.icon-svg {
+    -fx-fill: null;
+    -fx-stroke: #9AA4B2;
+    -fx-stroke-width: 2.0;
+    -fx-stroke-line-cap: round;
+    -fx-stroke-line-join: round;
+    -fx-scale-x: 0.83;
+    -fx-scale-y: 0.83;
+}
+
+.packs-header-icon-btn:hover .icon-svg {
+    -fx-stroke: #9EFF00;
+}
+
+/* ============================================
    ROOT & LAYOUT
    ============================================ */
 .packs-root {

@@ -12,7 +12,6 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
@@ -35,6 +34,43 @@ public class PackManagementController {
     private ActivityService activityService = ActivityService.getInstance();
     private ObservableList<Pack> packsList = FXCollections.observableArrayList();
 
+    // Références aux composants UI (chargés depuis FXML)
+    @FXML
+    private HBox header;
+    @FXML
+    private Button menuBtn;
+    @FXML
+    private Button starBtn;
+    @FXML
+    private Label breadcrumbLabel;
+    @FXML
+    private Button moonBtn;
+    @FXML
+    private Button refreshBtn;
+    @FXML
+    private Button bellBtn;
+    @FXML
+    private Button globeBtn;
+    @FXML
+    private HBox titleFilterSection;
+    @FXML
+    private Label titleLabel;
+    @FXML
+    private ScrollPane contentScroll;
+    @FXML
+    private VBox contentWrapper;
+    @FXML
+    private VBox searchCard;
+    @FXML
+    private VBox tableCard;
+    @FXML
+    private TextField searchField;
+    @FXML
+    private Button addButton;
+    @FXML
+    private Button editButton;
+    @FXML
+    private Button deleteButton;
     @FXML
     private TableView<Pack> packsTable;
     @FXML
@@ -44,40 +80,41 @@ public class PackManagementController {
     @FXML
     private TableColumn<Pack, String> activitesColumn;
     @FXML
+    private TableColumn<Pack, String> dureeColumn;
+    @FXML
     private TableColumn<Pack, Boolean> actifColumn;
-    @FXML
-    private TextField searchField;
-    @FXML
-    private Button addButton;
-    @FXML
-    private Button editButton;
-    @FXML
-    private Button deleteButton;
 
     /**
-     * Charge la vue de gestion des packs - Utilise toujours createBasicView() pour le nouveau design
+     * Charge la vue de gestion des packs depuis le FXML
      */
     public Parent getView() {
-        // Créer la vue programmatiquement
-        Parent root = createBasicView();
-        
-        // Charger le CSS du module pack
-        if (root.getScene() != null) {
-            root.getScene().getStylesheets().add(
-                getClass().getResource("/css/packs.css").toExternalForm()
-            );
-        } else {
-            // Si la scène n'existe pas encore, l'ajouter lors de l'ajout à la scène
-            root.sceneProperty().addListener((obs, oldScene, newScene) -> {
-                if (newScene != null) {
-                    newScene.getStylesheets().add(
-                        getClass().getResource("/css/packs.css").toExternalForm()
-                    );
-                }
-            });
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/packs.fxml"));
+            loader.setController(this);
+            Parent root = loader.load();
+            
+            // Charger le CSS du module pack
+            if (root.getScene() != null) {
+                root.getScene().getStylesheets().add(
+                    getClass().getResource("/css/packs.css").toExternalForm()
+                );
+            } else {
+                // Si la scène n'existe pas encore, l'ajouter lors de l'ajout à la scène
+                root.sceneProperty().addListener((obs, oldScene, newScene) -> {
+                    if (newScene != null) {
+                        newScene.getStylesheets().add(
+                            getClass().getResource("/css/packs.css").toExternalForm()
+                        );
+                    }
+                });
+            }
+            
+            return root;
+        } catch (Exception e) {
+            e.printStackTrace();
+            // En cas d'erreur, créer une vue basique
+            return createBasicView();
         }
-        
-        return root;
     }
 
     /**
@@ -109,9 +146,29 @@ public class PackManagementController {
         // Initialiser les services
         initializeServices();
         
+        // Configurer les icônes SVG du header
+        setupHeaderIcons();
+        
+        // Configurer les listeners et actions
+        setupEventHandlers();
+        
+        // Configurer les colonnes de la table
+        setupTableColumns();
+        
+        // Charger les packs
+        loadPacks();
+    }
+    
+    /**
+     * Configure les event handlers pour les composants UI
+     */
+    private void setupEventHandlers() {
+        // Champ de recherche
         if (searchField != null) {
             searchField.textProperty().addListener((obs, oldVal, newVal) -> searchPacks(newVal));
         }
+        
+        // Boutons d'action
         if (addButton != null) {
             addButton.setOnAction(e -> showPackDialog(null));
         }
@@ -121,178 +178,165 @@ public class PackManagementController {
         if (deleteButton != null) {
             deleteButton.setOnAction(e -> deleteSelectedPack());
         }
-        setupTableColumns();
-        loadPacks();
+        
+        // Table - double-clic pour modifier
+        if (packsTable != null) {
+            packsTable.setOnMouseClicked(e -> {
+                if (e.getClickCount() == 2) {
+                    editSelectedPack();
+                }
+            });
+        }
+        
+        // Header buttons
+        if (starBtn != null) {
+            starBtn.setOnAction(e -> handleStarClick());
+        }
+        if (moonBtn != null) {
+            moonBtn.setOnAction(e -> handleMoonClick());
+        }
+        if (refreshBtn != null) {
+            refreshBtn.setOnAction(e -> loadPacks());
+        }
+        
+        // Cacher le menu button
+        if (menuBtn != null) {
+            menuBtn.setVisible(false);
+        }
+    }
+    
+    /**
+     * Gère le clic sur le bouton star (favoris)
+     */
+    private void handleStarClick() {
+        try {
+            com.example.demo.dao.FavorisDAO favorisDAO = new com.example.demo.dao.FavorisDAO();
+            String pageName = "PACKS";
+            boolean isFavorite = favorisDAO.toggleFavorite(1, pageName);
+            if (starBtn != null) {
+                starBtn.setOpacity(isFavorite ? 1.0 : 0.5);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+    
+    /**
+     * Gère le clic sur le bouton moon (thème)
+     */
+    private void handleMoonClick() {
+        try {
+            com.example.demo.services.ThemeService themeService = 
+                com.example.demo.services.ThemeService.getInstance();
+            if (moonBtn != null && moonBtn.getScene() != null) {
+                themeService.toggleTheme(moonBtn.getScene());
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
     }
 
     /**
-     * Configure les colonnes de la table avec styles dark theme
+     * Configure les colonnes de la table avec les cell factories et data bindings
      */
     private void setupTableColumns() {
         if (packsTable == null) return;
-        packsTable.getColumns().clear();
-        packsTable.setPrefHeight(500);
-        packsTable.setMaxWidth(Double.MAX_VALUE);
-        packsTable.getStyleClass().add("packs-table");
-
-        nomColumn = new TableColumn<>("Nom");
-        nomColumn.setCellValueFactory(new PropertyValueFactory<>("nom"));
-        nomColumn.setMinWidth(150);
-        nomColumn.setPrefWidth(180);
-        nomColumn.setMaxWidth(250);
-        nomColumn.setResizable(true);
-        nomColumn.getStyleClass().add("packs-table-column");
-
-        prixColumn = new TableColumn<>("Prix (DH)");
-        prixColumn.setCellValueFactory(new PropertyValueFactory<>("prix"));
-        prixColumn.setMinWidth(100);
-        prixColumn.setPrefWidth(120);
-        prixColumn.setMaxWidth(150);
-        prixColumn.setResizable(true);
-        prixColumn.getStyleClass().add("packs-table-column");
-        prixColumn.setCellFactory(column -> new TableCell<Pack, Double>() {
-            @Override
-            protected void updateItem(Double prix, boolean empty) {
-                super.updateItem(prix, empty);
-                if (empty || prix == null) {
-                    setText("");
-                    getStyleClass().clear();
-                } else {
-                    setText(String.format("%.2f DH", prix));
-                    getStyleClass().setAll("packs-table-cell-price");
+        
+        // Configurer les cell value factories
+        if (nomColumn != null) {
+            nomColumn.setCellValueFactory(new PropertyValueFactory<>("nom"));
+        }
+        
+        if (prixColumn != null) {
+            prixColumn.setCellValueFactory(new PropertyValueFactory<>("prix"));
+            prixColumn.setCellFactory(column -> new TableCell<Pack, Double>() {
+                @Override
+                protected void updateItem(Double prix, boolean empty) {
+                    super.updateItem(prix, empty);
+                    if (empty || prix == null) {
+                        setText("");
+                        getStyleClass().clear();
+                    } else {
+                        setText(String.format("%.2f DH", prix));
+                        getStyleClass().setAll("packs-table-cell-price");
+                    }
                 }
-            }
-        });
-
-        activitesColumn = new TableColumn<>("Activités");
-        activitesColumn.setCellValueFactory(new PropertyValueFactory<>("activitesAsString"));
-        activitesColumn.setMinWidth(200);
-        activitesColumn.setPrefWidth(300);
-        // Pas de maxWidth pour permettre à cette colonne de prendre l'espace restant
-        activitesColumn.setResizable(true);
-        activitesColumn.getStyleClass().add("packs-table-column");
-
-        TableColumn<Pack, String> dureeColumn = new TableColumn<>("Durée");
-        dureeColumn.setCellValueFactory(cellData -> {
-            Pack pack = cellData.getValue();
-            return new javafx.beans.property.SimpleStringProperty(
-                pack.getDuree() + " " + pack.getUniteDuree().toLowerCase()
-            );
-        });
-        dureeColumn.setMinWidth(80);
-        dureeColumn.setPrefWidth(100);
-        dureeColumn.setMaxWidth(150);
-        dureeColumn.setResizable(true);
-        dureeColumn.getStyleClass().add("packs-table-column");
-
-        actifColumn = new TableColumn<>("Statut");
-        actifColumn.setCellValueFactory(new PropertyValueFactory<>("actif"));
-        actifColumn.setMinWidth(80);
-        actifColumn.setPrefWidth(100);
-        actifColumn.setMaxWidth(120);
-        actifColumn.setResizable(true);
-        actifColumn.setStyle("-fx-alignment: center-left;");
-        actifColumn.setCellFactory(column -> new TableCell<Pack, Boolean>() {
-            @Override
-            protected void updateItem(Boolean actif, boolean empty) {
-                super.updateItem(actif, empty);
-                if (empty || actif == null) {
-                    setText("");
-                    setStyle("");
-                } else {
-                    setText(actif ? "Actif" : "Inactif");
-                    setStyle(
-                        actif ? 
-                        "-fx-text-fill: #10b981; -fx-font-size: 14px; -fx-font-weight: 600;" :
-                        "-fx-text-fill: #ef4444; -fx-font-size: 14px; -fx-font-weight: 600;"
-                    );
+            });
+        }
+        
+        if (activitesColumn != null) {
+            activitesColumn.setCellValueFactory(new PropertyValueFactory<>("activitesAsString"));
+        }
+        
+        if (dureeColumn != null) {
+            dureeColumn.setCellValueFactory(cellData -> {
+                Pack pack = cellData.getValue();
+                return new javafx.beans.property.SimpleStringProperty(
+                    pack.getDuree() + " " + pack.getUniteDuree().toLowerCase()
+                );
+            });
+        }
+        
+        if (actifColumn != null) {
+            actifColumn.setCellValueFactory(new PropertyValueFactory<>("actif"));
+            actifColumn.setCellFactory(column -> new TableCell<Pack, Boolean>() {
+                @Override
+                protected void updateItem(Boolean actif, boolean empty) {
+                    super.updateItem(actif, empty);
+                    if (empty || actif == null) {
+                        setText("");
+                        getStyleClass().clear();
+                    } else {
+                        setText(actif ? "Actif" : "Inactif");
+                        getStyleClass().setAll(actif ? "packs-table-cell-active" : "packs-table-cell-inactive");
+                    }
                 }
-            }
-        });
-
-        packsTable.getColumns().addAll(nomColumn, prixColumn, activitesColumn, dureeColumn, actifColumn);
+            });
+        }
+        
+        // Lier les données à la table
         packsTable.setItems(packsList);
         
         // Faire en sorte que le tableau remplisse tout l'espace sans zone blanche
         packsTable.setColumnResizePolicy(TableView.UNCONSTRAINED_RESIZE_POLICY);
         
         // Ajuster dynamiquement la colonne Activités pour qu'elle prenne l'espace restant
-        // et éliminer la zone blanche
-        Platform.runLater(() -> {
+        javafx.application.Platform.runLater(() -> {
             // Attendre que le tableau soit rendu avant de calculer
-            packsTable.layoutBoundsProperty().addListener((obs, oldVal, newVal) -> {
-                if (newVal.getWidth() > 0) {
-                    updateActivitesColumnWidth();
-                }
-            });
-            
-            // Calculer initialement après un court délai
-            javafx.application.Platform.runLater(() -> {
-                if (packsTable.getWidth() > 0) {
-                    updateActivitesColumnWidth();
-                }
-            });
-            
-            // Écouter les changements de largeur du tableau
-            packsTable.widthProperty().addListener((obs, oldVal, newVal) -> {
-                if (newVal.doubleValue() > 0) {
-                    updateActivitesColumnWidth();
-                }
-            });
-            
-            // Écouter aussi les changements de largeur des autres colonnes
-            nomColumn.widthProperty().addListener((obs, oldVal, newVal) -> updateActivitesColumnWidth());
-            prixColumn.widthProperty().addListener((obs, oldVal, newVal) -> updateActivitesColumnWidth());
-            dureeColumn.widthProperty().addListener((obs, oldVal, newVal) -> updateActivitesColumnWidth());
-            actifColumn.widthProperty().addListener((obs, oldVal, newVal) -> updateActivitesColumnWidth());
-        });
-        
-        // Appliquer les styles aux colonnes via CSS
-        Platform.runLater(() -> {
-            try {
-                // Style des headers
-                Node header = packsTable.lookup(".column-header-background");
-                if (header != null) {
-                    header.setStyle("-fx-background-color: rgba(42, 52, 65, 0.5);");
-                }
+            if (packsTable != null) {
+                packsTable.layoutBoundsProperty().addListener((obs, oldVal, newVal) -> {
+                    if (newVal.getWidth() > 0) {
+                        updateActivitesColumnWidth();
+                    }
+                });
                 
-                // Style des column headers
-                java.util.Set<Node> columnHeaders = packsTable.lookupAll(".column-header");
-                for (Node headerNode : columnHeaders) {
-                    headerNode.setStyle(
-                        "-fx-background-color: rgba(42, 52, 65, 0.5); " +
-                        "-fx-text-fill: #E6EAF0; " +
-                        "-fx-font-size: 13px; " +
-                        "-fx-font-weight: 600; " +
-                        "-fx-padding: 16px 20px; " +
-                        "-fx-border-width: 0 0 1 0; " +
-                        "-fx-border-color: #2A3441;"
-                    );
-                }
+                // Calculer initialement après un court délai
+                javafx.application.Platform.runLater(() -> {
+                    if (packsTable.getWidth() > 0) {
+                        updateActivitesColumnWidth();
+                    }
+                });
                 
-                // Style des rows
-                java.util.Set<Node> rows = packsTable.lookupAll(".table-row-cell");
-                for (Node row : rows) {
-                    row.setStyle(
-                        "-fx-background-color: rgba(42, 52, 65, 0.3); " +
-                        "-fx-border-width: 0 0 1 0; " +
-                        "-fx-border-color: rgba(255, 255, 255, 0.05);"
-                    );
-                }
+                // Écouter les changements de largeur du tableau
+                packsTable.widthProperty().addListener((obs, oldVal, newVal) -> {
+                    if (newVal.doubleValue() > 0) {
+                        updateActivitesColumnWidth();
+                    }
+                });
                 
-                // Style des cells
-                java.util.Set<Node> cells = packsTable.lookupAll(".table-cell");
-                for (Node cell : cells) {
-                    cell.setStyle(
-                        "-fx-text-fill: #E6EAF0; " +
-                        "-fx-font-size: 14px; " +
-                        "-fx-padding: 12px 16px; " +
-                        "-fx-border-width: 0; " +
-                        "-fx-background-color: transparent;"
-                    );
+                // Écouter aussi les changements de largeur des autres colonnes
+                if (nomColumn != null) {
+                    nomColumn.widthProperty().addListener((obs, oldVal, newVal) -> updateActivitesColumnWidth());
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
+                if (prixColumn != null) {
+                    prixColumn.widthProperty().addListener((obs, oldVal, newVal) -> updateActivitesColumnWidth());
+                }
+                if (dureeColumn != null) {
+                    dureeColumn.widthProperty().addListener((obs, oldVal, newVal) -> updateActivitesColumnWidth());
+                }
+                if (actifColumn != null) {
+                    actifColumn.widthProperty().addListener((obs, oldVal, newVal) -> updateActivitesColumnWidth());
+                }
             }
         });
     }
@@ -312,18 +356,7 @@ public class PackManagementController {
         if (nomColumn != null) totalFixedWidth += nomColumn.getWidth();
         if (prixColumn != null) totalFixedWidth += prixColumn.getWidth();
         if (actifColumn != null) totalFixedWidth += actifColumn.getWidth();
-        
-        // Trouver la colonne Durée
-        TableColumn<Pack, String> dureeColumn = null;
-        for (TableColumn<Pack, ?> col : packsTable.getColumns()) {
-            if ("Durée".equals(col.getText())) {
-                dureeColumn = (TableColumn<Pack, String>) col;
-                break;
-            }
-        }
-        if (dureeColumn != null) {
-            totalFixedWidth += dureeColumn.getWidth();
-        }
+        if (dureeColumn != null) totalFixedWidth += dureeColumn.getWidth();
         
         // Largeur approximative de la scrollbar verticale
         double scrollbarWidth = 18;
@@ -340,257 +373,18 @@ public class PackManagementController {
     }
 
     /**
-     * Vue de secours si le FXML ne charge pas - Structure complète selon design dashboard
+     * Vue de secours si le FXML ne charge pas
      */
     private Parent createBasicView() {
-        BorderPane root = new BorderPane();
+        // Créer une vue minimale en cas d'erreur de chargement FXML
+        VBox root = new VBox(20);
+        root.setPadding(new Insets(20));
         root.getStyleClass().add("packs-root");
         
-        BorderPane centerArea = new BorderPane();
-        HBox header = createHeader();
-        centerArea.setTop(header);
-        
-        HBox titleFilterSection = createTitleFilterSection();
-        
-        ScrollPane contentScroll = new ScrollPane();
-        contentScroll.setFitToWidth(true);
-        contentScroll.setFitToHeight(true);
-        contentScroll.getStyleClass().add("packs-content-scroll");
-        contentScroll.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        
-        VBox contentWrapper = new VBox(20);
-        contentWrapper.setPadding(new Insets(20, 24, 20, 24));
-        contentWrapper.getStyleClass().add("packs-content-wrapper");
-        contentWrapper.setMaxWidth(Double.MAX_VALUE);
-        
-        // Card container pour la recherche et les boutons
-        VBox searchCard = createSearchCard();
-        contentWrapper.getChildren().add(searchCard);
-        
-        // Card container pour la table
-        VBox tableCard = createTableCard();
-        contentWrapper.getChildren().add(tableCard);
-        
-        contentScroll.setContent(contentWrapper);
-        
-        VBox centerContent = new VBox(0);
-        centerContent.getChildren().addAll(titleFilterSection, contentScroll);
-        VBox.setVgrow(contentScroll, Priority.ALWAYS);
-        
-        centerArea.setCenter(centerContent);
-        root.setCenter(centerArea);
-        
-        // Charger les packs
-        loadPacks();
+        Label errorLabel = new Label("Erreur lors du chargement de l'interface. Veuillez vérifier le fichier FXML.");
+        root.getChildren().add(errorLabel);
         
         return root;
-    }
-    
-    /**
-     * Crée la card pour la recherche et les boutons d'action
-     */
-    private VBox createSearchCard() {
-        VBox container = new VBox(16);
-        container.setPadding(new Insets(20));
-        container.setStyle(
-            "-fx-background-color: #1A2332; " +
-            "-fx-background-radius: 16px; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 8, 0, 0, 2);"
-        );
-        
-        HBox searchBar = new HBox(12);
-        searchBar.setAlignment(Pos.CENTER_LEFT);
-        
-        // Champ de recherche
-        searchField = new TextField();
-        searchField.setPromptText("Rechercher un pack...");
-        searchField.setPrefWidth(400);
-        searchField.textProperty().addListener((obs, oldVal, newVal) -> searchPacks(newVal));
-        searchField.setStyle(
-            "-fx-background-color: rgba(15, 23, 42, 0.6); " +
-            "-fx-background-radius: 12px; " +
-            "-fx-text-fill: #E6EAF0; " +
-            "-fx-font-size: 14px; " +
-            "-fx-padding: 12px 16px; " +
-            "-fx-border-width: 1px; " +
-            "-fx-border-color: rgba(255, 255, 255, 0.1); " +
-            "-fx-border-radius: 12px;"
-        );
-        
-        // Styliser le prompt text et le focus
-        String baseTextFieldStyle = searchField.getStyle();
-        searchField.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
-            if (isNowFocused) {
-                searchField.setStyle(
-                    "-fx-background-color: rgba(15, 23, 42, 0.8); " +
-                    "-fx-background-radius: 12px; " +
-                    "-fx-text-fill: #E6EAF0; " +
-                    "-fx-font-size: 14px; " +
-                    "-fx-padding: 12px 16px; " +
-                    "-fx-border-width: 1px; " +
-                    "-fx-border-color: rgba(16, 185, 129, 0.5); " +
-                    "-fx-border-radius: 12px;"
-                );
-            } else {
-                searchField.setStyle(baseTextFieldStyle);
-            }
-        });
-        
-        HBox.setHgrow(searchField, Priority.ALWAYS);
-        
-        // Bouton "+ Nouveau Pack" (Success)
-        addButton = new Button("+ Nouveau Pack");
-        addButton.setStyle(
-            "-fx-background-color: linear-gradient(to right, #10b981, #059669); " +
-            "-fx-text-fill: #FFFFFF; " +
-            "-fx-font-size: 14px; " +
-            "-fx-font-weight: 600; " +
-            "-fx-padding: 12px 24px; " +
-            "-fx-background-radius: 12px; " +
-            "-fx-cursor: hand; " +
-            "-fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.4), 10, 0, 0, 4);"
-        );
-        addButton.setOnAction(e -> showPackDialog(null));
-        addButton.setOnMouseEntered(e -> {
-            addButton.setStyle(
-                "-fx-background-color: linear-gradient(to right, #059669, #047857); " +
-                "-fx-text-fill: #FFFFFF; " +
-                "-fx-font-size: 14px; " +
-                "-fx-font-weight: 600; " +
-                "-fx-padding: 12px 24px; " +
-                "-fx-background-radius: 12px; " +
-                "-fx-cursor: hand; " +
-                "-fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.6), 15, 0, 0, 6);"
-            );
-        });
-        addButton.setOnMouseExited(e -> {
-            addButton.setStyle(
-                "-fx-background-color: linear-gradient(to right, #10b981, #059669); " +
-                "-fx-text-fill: #FFFFFF; " +
-                "-fx-font-size: 14px; " +
-                "-fx-font-weight: 600; " +
-                "-fx-padding: 12px 24px; " +
-                "-fx-background-radius: 12px; " +
-                "-fx-cursor: hand; " +
-                "-fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.4), 10, 0, 0, 4);"
-            );
-        });
-        
-        // Bouton "Modifier" (Primary)
-        editButton = new Button("Modifier");
-        editButton.setStyle(
-            "-fx-background-color: linear-gradient(to right, #3b82f6, #2563eb); " +
-            "-fx-text-fill: #FFFFFF; " +
-            "-fx-font-size: 14px; " +
-            "-fx-font-weight: 600; " +
-            "-fx-padding: 12px 24px; " +
-            "-fx-background-radius: 12px; " +
-            "-fx-cursor: hand; " +
-            "-fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.4), 10, 0, 0, 4);"
-        );
-        editButton.setOnAction(e -> editSelectedPack());
-        editButton.setOnMouseEntered(e -> {
-            editButton.setStyle(
-                "-fx-background-color: linear-gradient(to right, #2563eb, #1d4ed8); " +
-                "-fx-text-fill: #FFFFFF; " +
-                "-fx-font-size: 14px; " +
-                "-fx-font-weight: 600; " +
-                "-fx-padding: 12px 24px; " +
-                "-fx-background-radius: 12px; " +
-                "-fx-cursor: hand; " +
-                "-fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.6), 15, 0, 0, 6);"
-            );
-        });
-        editButton.setOnMouseExited(e -> {
-            editButton.setStyle(
-                "-fx-background-color: linear-gradient(to right, #3b82f6, #2563eb); " +
-                "-fx-text-fill: #FFFFFF; " +
-                "-fx-font-size: 14px; " +
-                "-fx-font-weight: 600; " +
-                "-fx-padding: 12px 24px; " +
-                "-fx-background-radius: 12px; " +
-                "-fx-cursor: hand; " +
-                "-fx-effect: dropshadow(gaussian, rgba(59, 130, 246, 0.4), 10, 0, 0, 4);"
-            );
-        });
-        
-        // Bouton "Supprimer" (Danger)
-        deleteButton = new Button("Supprimer");
-        deleteButton.setStyle(
-            "-fx-background-color: linear-gradient(to right, #ef4444, #dc2626); " +
-            "-fx-text-fill: #FFFFFF; " +
-            "-fx-font-size: 14px; " +
-            "-fx-font-weight: 600; " +
-            "-fx-padding: 12px 24px; " +
-            "-fx-background-radius: 12px; " +
-            "-fx-cursor: hand; " +
-            "-fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.4), 10, 0, 0, 4);"
-        );
-        deleteButton.setOnAction(e -> deleteSelectedPack());
-        deleteButton.setOnMouseEntered(e -> {
-            deleteButton.setStyle(
-                "-fx-background-color: linear-gradient(to right, #dc2626, #b91c1c); " +
-                "-fx-text-fill: #FFFFFF; " +
-                "-fx-font-size: 14px; " +
-                "-fx-font-weight: 600; " +
-                "-fx-padding: 12px 24px; " +
-                "-fx-background-radius: 12px; " +
-                "-fx-cursor: hand; " +
-                "-fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.6), 15, 0, 0, 6);"
-            );
-        });
-        deleteButton.setOnMouseExited(e -> {
-            deleteButton.setStyle(
-                "-fx-background-color: linear-gradient(to right, #ef4444, #dc2626); " +
-                "-fx-text-fill: #FFFFFF; " +
-                "-fx-font-size: 14px; " +
-                "-fx-font-weight: 600; " +
-                "-fx-padding: 12px 24px; " +
-                "-fx-background-radius: 12px; " +
-                "-fx-cursor: hand; " +
-                "-fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.4), 10, 0, 0, 4);"
-            );
-        });
-        
-        searchBar.getChildren().addAll(searchField, addButton, editButton, deleteButton);
-        container.getChildren().add(searchBar);
-        
-        return container;
-    }
-    
-    /**
-     * Crée la card pour la table des packs
-     */
-    private VBox createTableCard() {
-        VBox container = new VBox(0);
-        container.setPadding(new Insets(20));
-        container.setStyle(
-            "-fx-background-color: #1A2332; " +
-            "-fx-background-radius: 16px; " +
-            "-fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 8, 0, 0, 2);"
-        );
-        container.setMinHeight(400);
-        
-        // Table des packs
-        packsTable = new TableView<>();
-        packsTable.setPrefHeight(500);
-        packsTable.setStyle(
-            "-fx-background-color: transparent; " +
-            "-fx-table-cell-border-color: transparent;"
-        );
-        
-        setupTableColumns();
-        
-        // Double-clic pour modifier
-        packsTable.setOnMouseClicked(e -> {
-            if (e.getClickCount() == 2) {
-                editSelectedPack();
-            }
-        });
-        
-        container.getChildren().add(packsTable);
-        
-        return container;
     }
 
     /**
@@ -671,7 +465,7 @@ public class PackManagementController {
         gridPane.setPadding(new Insets(24, 32, 24, 32)); // 24px haut/bas, 32px côtés
         gridPane.setHgap(12); // Gap entre label et input
         gridPane.setVgap(24); // Espacement vertical de 24px entre les champs
-        gridPane.setStyle("-fx-background-color: #1A2332;");
+        gridPane.getStyleClass().add("packs-dialog-grid");
         
         // Définir les contraintes de colonnes
         ColumnConstraints labelColumn = new ColumnConstraints();
@@ -686,144 +480,37 @@ public class PackManagementController {
         
         gridPane.getColumnConstraints().addAll(labelColumn, fieldColumn);
         
-        // Style amélioré pour les labels - blanc cassé, plus grande
-        String labelStyle = "-fx-text-fill: #f3f4f6; -fx-font-size: 15px; -fx-font-weight: 500;";
+        // Appliquer les classes CSS
+        nomField.getStyleClass().add("packs-form-input");
+        prixField.getStyleClass().add("packs-form-input");
+        activitesField.getStyleClass().add("packs-form-input");
+        dureeField.getStyleClass().add("packs-form-input");
+        seancesField.getStyleClass().add("packs-form-input");
+        uniteDureeCombo.getStyleClass().add("packs-form-combo");
         
-        // Style amélioré pour les TextFields - meilleur contraste et focus
-        String textFieldStyle = 
-            "-fx-background-color: #374151; " +
-            "-fx-background-radius: 12px; " +
-            "-fx-text-fill: #f3f4f6; " +
-            "-fx-font-size: 14px; " +
-            "-fx-padding: 12px 16px; " +
-            "-fx-border-width: 1.5px; " +
-            "-fx-border-color: #4b5563; " +
-            "-fx-border-radius: 12px; " +
-            "-fx-prompt-text-fill: #9ca3af;";
-        
-        // Style pour ComboBox amélioré
-        String comboBoxStyle =
-            "-fx-background-color: #374151; " +
-            "-fx-background-radius: 12px; " +
-            "-fx-text-fill: #f3f4f6; " +
-            "-fx-font-size: 14px; " +
-            "-fx-padding: 12px 16px; " +
-            "-fx-border-width: 1.5px; " +
-            "-fx-border-color: #4b5563; " +
-            "-fx-border-radius: 12px;";
-        
-        // Appliquer les styles avec gestion du focus pour meilleur contraste
-        nomField.setStyle(textFieldStyle);
-        prixField.setStyle(textFieldStyle);
-        activitesField.setStyle(textFieldStyle);
-        dureeField.setStyle(textFieldStyle);
-        seancesField.setStyle(textFieldStyle);
-        uniteDureeCombo.setStyle(comboBoxStyle);
-        
-        // Ajouter les styles de focus pour tous les TextFields
-        String focusStyle = "-fx-border-color: #6366f1; -fx-border-width: 2px;";
-        nomField.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
-            if (isFocused) {
-                nomField.setStyle(textFieldStyle + focusStyle);
-            } else {
-                nomField.setStyle(textFieldStyle);
-            }
-        });
-        prixField.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
-            if (isFocused) {
-                prixField.setStyle(textFieldStyle + focusStyle);
-            } else {
-                prixField.setStyle(textFieldStyle);
-            }
-        });
-        activitesField.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
-            if (isFocused) {
-                activitesField.setStyle(textFieldStyle + focusStyle);
-            } else {
-                activitesField.setStyle(textFieldStyle);
-            }
-        });
-        dureeField.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
-            if (isFocused) {
-                dureeField.setStyle(textFieldStyle + focusStyle);
-            } else {
-                dureeField.setStyle(textFieldStyle);
-            }
-        });
-        seancesField.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
-            if (isFocused) {
-                seancesField.setStyle(textFieldStyle + focusStyle);
-            } else {
-                seancesField.setStyle(textFieldStyle);
-            }
-        });
-        
-        // Styliser le label interne du ComboBox pour que la valeur sélectionnée soit visible
-        uniteDureeCombo.setCellFactory(listView -> new ListCell<String>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                    setStyle("");
-                } else {
-                    setText(item);
-                    setStyle(
-                        "-fx-background-color: #374151; " +
-                        "-fx-text-fill: #f3f4f6; " +
-                        "-fx-font-size: 14px; " +
-                        "-fx-padding: 8px 12px;"
-                    );
-                }
-            }
-        });
-        
-        // Styliser le buttonCell (label qui affiche la valeur sélectionnée)
-        uniteDureeCombo.setButtonCell(new ListCell<String>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                    setStyle("");
-                } else {
-                    setText(item);
-                    setStyle("-fx-text-fill: #f3f4f6; -fx-font-size: 14px;");
-                }
-            }
-        });
-        
-        // Ajouter le style de focus pour le ComboBox
-        uniteDureeCombo.focusedProperty().addListener((obs, wasFocused, isFocused) -> {
-            if (isFocused) {
-                uniteDureeCombo.setStyle(comboBoxStyle + " -fx-border-color: #6366f1; -fx-border-width: 2px;");
-            } else {
-                uniteDureeCombo.setStyle(comboBoxStyle);
-            }
-        });
-        accesCoachCheck.setStyle("-fx-text-fill: #f3f4f6; -fx-font-size: 14px;");
+        accesCoachCheck.getStyleClass().add("packs-form-checkbox");
         
         // Ajouter les champs au GridPane
         int row = 0;
         
         Label nomLabel = new Label("Nom:");
-        nomLabel.setStyle(labelStyle);
+        nomLabel.getStyleClass().add("packs-form-label");
         gridPane.add(nomLabel, 0, row);
         gridPane.add(nomField, 1, row++);
         
         Label prixLabel = new Label("Prix (DH):");
-        prixLabel.setStyle(labelStyle);
+        prixLabel.getStyleClass().add("packs-form-label");
         gridPane.add(prixLabel, 0, row);
         gridPane.add(prixField, 1, row++);
         
         Label activitesLabel = new Label("Activités:");
-        activitesLabel.setStyle(labelStyle);
+        activitesLabel.getStyleClass().add("packs-form-label");
         gridPane.add(activitesLabel, 0, row);
         gridPane.add(activitesField, 1, row++);
         
         // Durée et Unité sur la même ligne
         Label dureeLabel = new Label("Durée:");
-        dureeLabel.setStyle(labelStyle);
+        dureeLabel.getStyleClass().add("packs-form-label");
         gridPane.add(dureeLabel, 0, row);
         
         HBox dureeBox = new HBox(8);
@@ -833,7 +520,7 @@ public class PackManagementController {
         gridPane.add(dureeBox, 1, row++);
         
         Label seancesLabel = new Label("Séances/semaine:");
-        seancesLabel.setStyle(labelStyle);
+        seancesLabel.getStyleClass().add("packs-form-label");
         gridPane.add(seancesLabel, 0, row);
         gridPane.add(seancesField, 1, row++);
         
@@ -841,46 +528,32 @@ public class PackManagementController {
         gridPane.add(accesCoachCheck, 0, row, 2, 1);
 
         dialog.getDialogPane().setContent(gridPane);
-        dialog.getDialogPane().setStyle("-fx-background-color: #1A2332;");
+        dialog.getDialogPane().getStyleClass().add("packs-dialog");
         dialog.getDialogPane().setPrefWidth(620);
         dialog.getDialogPane().setPrefHeight(600);
         
-        // Styliser l'en-tête du modal avec gris ardoise élégant
+        // Charger le CSS pour le dialog
+        dialog.getDialogPane().getStylesheets().add(
+            getClass().getResource("/css/packs.css").toExternalForm()
+        );
+        
+        // Appliquer les styles CSS aux éléments du dialog
         Platform.runLater(() -> {
             try {
-                // Styliser le header du DialogPane
                 javafx.scene.Node header = dialog.getDialogPane().lookup(".header-panel");
                 if (header != null) {
-                    header.setStyle(
-                        "-fx-background-color: #475569; " +
-                        "-fx-background: #475569; " +
-                        "-fx-border-width: 0 0 1 0; " +
-                        "-fx-border-color: rgba(255, 255, 255, 0.1); " +
-                        "-fx-padding: 20px 32px;"
-                    );
+                    header.getStyleClass().add("packs-dialog-header");
                 }
                 
-                // Styliser tous les labels dans le header
                 java.util.Set<javafx.scene.Node> headerLabels = dialog.getDialogPane().lookupAll(".header-panel .label");
                 for (javafx.scene.Node label : headerLabels) {
-                    label.setStyle(
-                        "-fx-text-fill: #ffffff; " +
-                        "-fx-font-size: 18px; " +
-                        "-fx-font-weight: 600;"
-                    );
+                    label.getStyleClass().add("packs-dialog-header-label");
                 }
                 
-                // Styliser le content label (sous-titre)
                 java.util.Set<javafx.scene.Node> contentLabels = dialog.getDialogPane().lookupAll(".content-label");
                 for (javafx.scene.Node label : contentLabels) {
-                    label.setStyle(
-                        "-fx-text-fill: rgba(255, 255, 255, 0.9); " +
-                        "-fx-font-size: 14px;"
-                    );
+                    label.getStyleClass().add("packs-dialog-content-label");
                 }
-                
-                // Styliser aussi via le style du DialogPane directement
-                dialog.getDialogPane().getStylesheets().clear();
             } catch (Exception e) {
                 // Ignorer les erreurs de lookup
             }
@@ -889,101 +562,23 @@ public class PackManagementController {
         ButtonType saveButtonType = new ButtonType("Enregistrer", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(saveButtonType, ButtonType.CANCEL);
         
-        // Styliser les boutons du dialog
+        // Appliquer les classes CSS aux boutons du dialog
         Platform.runLater(() -> {
             try {
                 Button saveButton = (Button) dialog.getDialogPane().lookupButton(saveButtonType);
                 if (saveButton != null) {
-                    saveButton.setStyle(
-                        "-fx-background-color: #10b981; " +
-                        "-fx-text-fill: #FFFFFF; " +
-                        "-fx-font-size: 15px; " +
-                        "-fx-font-weight: 600; " +
-                        "-fx-padding: 12px 32px; " +
-                        "-fx-background-radius: 8px; " +
-                        "-fx-cursor: hand; " +
-                        "-fx-min-width: 140px; " +
-                        "-fx-min-height: 44px;"
-                    );
-                    
-                    // Effet hover pour le bouton Enregistrer
-                    saveButton.setOnMouseEntered(e -> {
-                        saveButton.setStyle(
-                            "-fx-background-color: #059669; " +
-                            "-fx-text-fill: #FFFFFF; " +
-                            "-fx-font-size: 15px; " +
-                            "-fx-font-weight: 600; " +
-                            "-fx-padding: 12px 32px; " +
-                            "-fx-background-radius: 8px; " +
-                            "-fx-cursor: hand; " +
-                            "-fx-min-width: 140px; " +
-                            "-fx-min-height: 44px;"
-                        );
-                    });
-                    saveButton.setOnMouseExited(e -> {
-                        saveButton.setStyle(
-                            "-fx-background-color: #10b981; " +
-                            "-fx-text-fill: #FFFFFF; " +
-                            "-fx-font-size: 15px; " +
-                            "-fx-font-weight: 600; " +
-                            "-fx-padding: 12px 32px; " +
-                            "-fx-background-radius: 8px; " +
-                            "-fx-cursor: hand; " +
-                            "-fx-min-width: 140px; " +
-                            "-fx-min-height: 44px;"
-                        );
-                    });
+                    saveButton.getStyleClass().add("packs-dialog-btn-save");
                 }
                 
                 Button cancelButton = (Button) dialog.getDialogPane().lookupButton(ButtonType.CANCEL);
                 if (cancelButton != null) {
-                    cancelButton.setStyle(
-                        "-fx-background-color: #4b5563; " +
-                        "-fx-text-fill: #f3f4f6; " +
-                        "-fx-font-size: 15px; " +
-                        "-fx-font-weight: 500; " +
-                        "-fx-padding: 12px 32px; " +
-                        "-fx-background-radius: 8px; " +
-                        "-fx-cursor: hand; " +
-                        "-fx-min-width: 140px; " +
-                        "-fx-min-height: 44px;"
-                    );
-                    
-                    // Effet hover pour le bouton Annuler
-                    cancelButton.setOnMouseEntered(e -> {
-                        cancelButton.setStyle(
-                            "-fx-background-color: #6b7280; " +
-                            "-fx-text-fill: #f3f4f6; " +
-                            "-fx-font-size: 15px; " +
-                            "-fx-font-weight: 500; " +
-                            "-fx-padding: 12px 32px; " +
-                            "-fx-background-radius: 8px; " +
-                            "-fx-cursor: hand; " +
-                            "-fx-min-width: 140px; " +
-                            "-fx-min-height: 44px;"
-                        );
-                    });
-                    cancelButton.setOnMouseExited(e -> {
-                        cancelButton.setStyle(
-                            "-fx-background-color: #4b5563; " +
-                            "-fx-text-fill: #f3f4f6; " +
-                            "-fx-font-size: 15px; " +
-                            "-fx-font-weight: 500; " +
-                            "-fx-padding: 12px 32px; " +
-                            "-fx-background-radius: 8px; " +
-                            "-fx-cursor: hand; " +
-                            "-fx-min-width: 140px; " +
-                            "-fx-min-height: 44px;"
-                        );
-                    });
+                    cancelButton.getStyleClass().add("packs-dialog-btn-cancel");
                 }
                 
-                // Espacement de 16px entre les boutons
                 javafx.scene.Node buttonBar = dialog.getDialogPane().lookup(".button-bar");
                 if (buttonBar != null) {
-                    buttonBar.setStyle("-fx-spacing: 16px; -fx-padding: 20px 32px;");
+                    buttonBar.getStyleClass().add("packs-dialog-button-bar");
                 }
-                
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -1094,6 +689,9 @@ public class PackManagementController {
         });
     }
 
+    /**
+     * Affiche une alerte
+     */
     private void showAlert(Alert.AlertType type, String title, String message) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
@@ -1103,151 +701,40 @@ public class PackManagementController {
     }
     
     /**
-     * Crée le header avec menu, star, breadcrumb et icônes utilitaires (identique au dashboard)
+     * Configure les icônes SVG pour les boutons du header
      */
-    private HBox createHeader() {
-        HBox header = new HBox(16);
-        header.setPadding(new Insets(16, 32, 16, 32));
-        header.setAlignment(Pos.CENTER_LEFT);
-        header.setPrefHeight(70);
-        header.setStyle("-fx-background-color: #0A0D12; -fx-border-width: 0 0 1 0; -fx-border-color: rgba(154, 164, 178, 0.1);");
-        
-        // Menu icon (pas de fonction pour packs, peut être caché)
-        Button menuBtn = createHeaderIconButton("icon-menu", 20);
-        menuBtn.setVisible(false); // Caché pour packs
-        
-        // Star icon (Favoris)
-        Button starBtn = createHeaderIconButton("icon-star", 20);
-        starBtn.setOnAction(e -> {
-            try {
-                com.example.demo.dao.FavorisDAO favorisDAO = new com.example.demo.dao.FavorisDAO();
-                String pageName = "PACKS";
-                boolean isFavorite = favorisDAO.toggleFavorite(1, pageName);
-                if (isFavorite) {
-                    starBtn.setStyle(starBtn.getStyle() + "; -fx-opacity: 1.0;");
-                } else {
-                    starBtn.setStyle(starBtn.getStyle() + "; -fx-opacity: 0.5;");
-                }
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
-        });
-        
-        // Breadcrumb
-        Label breadcrumbLabel = new Label("Gestion des Packs");
-        breadcrumbLabel.setStyle("-fx-text-fill: #9AA4B2; -fx-font-size: 13px; -fx-font-weight: 500;");
-        
-        // Spacer
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        
-        // Moon icon (Dark mode)
-        Button moonBtn = createHeaderIconButton("icon-moon", 20);
-        moonBtn.setOnAction(e -> {
-            try {
-                com.example.demo.services.ThemeService themeService = com.example.demo.services.ThemeService.getInstance();
-                javafx.scene.Scene scene = moonBtn.getScene();
-                if (scene != null) {
-                    themeService.toggleTheme(scene);
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-        });
-        
-        // Refresh icon
-        Button refreshBtn = createHeaderIconButton("icon-refresh", 20);
-        refreshBtn.setOnAction(e -> loadPacks());
-        
-        // Bell icon (Notifications) - simplifié pour packs
-        Button bellBtn = createHeaderIconButton("icon-bell", 20);
-        
-        // Globe icon
-        Button globeBtn = createHeaderIconButton("icon-globe", 20);
-        
-        header.getChildren().addAll(menuBtn, starBtn, breadcrumbLabel, spacer, moonBtn, refreshBtn, bellBtn, globeBtn);
-        
-        return header;
-    }
-    
-    /**
-     * Crée la section titre + filtre sous le header (identique au dashboard)
-     */
-    private HBox createTitleFilterSection() {
-        HBox section = new HBox();
-        section.setPadding(new Insets(24, 32, 24, 32));
-        section.setAlignment(Pos.CENTER_LEFT);
-        section.setPrefHeight(60);
-        section.setStyle("-fx-background-color: #0B0F14;");
-        
-        // Titre "Gestion des Packs/Abonnements" à gauche
-        Label titleLabel = new Label("Gestion des Packs/Abonnements");
-        titleLabel.setStyle("-fx-text-fill: #E6EAF0; -fx-font-size: 24px; -fx-font-weight: 700;");
-        
-        // Spacer
-        Region spacer = new Region();
-        HBox.setHgrow(spacer, Priority.ALWAYS);
-        
-        section.getChildren().addAll(titleLabel, spacer);
-        
-        return section;
-    }
-    
-    /**
-     * Crée un bouton d'icône pour le header
-     */
-    private Button createHeaderIconButton(String iconName, double size) {
-        Button button = new Button();
-        button.setPrefSize(size + 8, size + 8);
-        button.setMinSize(size + 8, size + 8);
-        button.setMaxSize(size + 8, size + 8);
-        button.setStyle(
-            "-fx-background-color: transparent; " +
-            "-fx-background-radius: 6px; " +
-            "-fx-padding: 4px; " +
-            "-fx-cursor: hand;"
-        );
-        
-        Node icon = loadSVGIcon(iconName, size, "#9AA4B2");
-        if (icon != null) {
-            button.setGraphic(icon);
-            
-            button.setOnMouseEntered(e -> {
-                button.setStyle(
-                    "-fx-background-color: rgba(27, 34, 44, 0.8); " +
-                    "-fx-background-radius: 6px; " +
-                    "-fx-padding: 4px; " +
-                    "-fx-cursor: hand;"
-                );
-                setIconColor(icon, "#9EFF00");
-            });
-            
-            button.setOnMouseExited(e -> {
-                button.setStyle(
-                    "-fx-background-color: transparent; " +
-                    "-fx-background-radius: 6px; " +
-                    "-fx-padding: 4px; " +
-                    "-fx-cursor: hand;"
-                );
-                setIconColor(icon, "#9AA4B2");
-            });
+    private void setupHeaderIcons() {
+        if (menuBtn != null) {
+            menuBtn.setGraphic(createSVGIcon("icon-menu", 20));
         }
-        
-        return button;
+        if (starBtn != null) {
+            starBtn.setGraphic(createSVGIcon("icon-star", 20));
+        }
+        if (moonBtn != null) {
+            moonBtn.setGraphic(createSVGIcon("icon-moon", 20));
+        }
+        if (refreshBtn != null) {
+            refreshBtn.setGraphic(createSVGIcon("icon-refresh", 20));
+        }
+        if (bellBtn != null) {
+            bellBtn.setGraphic(createSVGIcon("icon-bell", 20));
+        }
+        if (globeBtn != null) {
+            globeBtn.setGraphic(createSVGIcon("icon-globe", 20));
+        }
     }
     
     /**
-     * Charge une icône SVG
+     * Crée une icône SVG pour les boutons
      */
-    private Node loadSVGIcon(String iconName, double size, String color) {
+    private Node createSVGIcon(String iconName, double size) {
         try {
             String svgPath = getSvgPathForIcon(iconName);
-            
             if (svgPath != null && !svgPath.isEmpty()) {
                 SVGPath svgPathNode = new SVGPath();
                 svgPathNode.setContent(svgPath);
                 svgPathNode.setFill(null);
-                svgPathNode.setStroke(Color.web(color));
+                svgPathNode.setStroke(Color.web("#9AA4B2"));
                 svgPathNode.setStrokeWidth(2.0);
                 svgPathNode.setStrokeLineCap(StrokeLineCap.ROUND);
                 svgPathNode.setStrokeLineJoin(StrokeLineJoin.ROUND);
@@ -1262,7 +749,7 @@ public class PackManagementController {
                 container.setMinSize(size, size);
                 container.setAlignment(Pos.CENTER);
                 container.getChildren().add(svgPathNode);
-                container.setStyle("-fx-background-color: transparent;");
+                container.setBackground(Background.EMPTY);
                 
                 return container;
             }
@@ -1285,19 +772,6 @@ public class PackManagementController {
             case "icon-globe" -> SvgIcons.GLOBE;
             default -> null;
         };
-    }
-    
-    /**
-     * Change la couleur d'une icône SVGPath
-     */
-    private void setIconColor(Node iconContainer, String color) {
-        if (iconContainer instanceof StackPane) {
-            StackPane container = (StackPane) iconContainer;
-            if (container.getChildren().size() > 0 && container.getChildren().get(0) instanceof SVGPath) {
-                SVGPath svgPath = (SVGPath) container.getChildren().get(0);
-                svgPath.setStroke(Color.web(color));
-            }
-        }
     }
 }
 

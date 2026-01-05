@@ -116,6 +116,12 @@
     -fx-fill: #EF4444;
 }
 
+.legend-item {
+    -fx-text-fill: #E6EAF0;
+    -fx-font-size: 13px;
+    -fx-font-weight: 400;
+}
+
 .legend-item-text {
     -fx-text-fill: #E6EAF0;
     -fx-font-size: 13px;
@@ -155,6 +161,10 @@
     -fx-border-color: rgba(255, 255, 255, 0.15);
     -fx-border-width: 1px;
     -fx-border-radius: 8px;
+    -fx-pref-width: 130px;
+    -fx-pref-height: 30px;
+    -fx-min-width: 130px;
+    -fx-min-height: 30px;
 }
 
 /* ==========================================
@@ -172,10 +182,14 @@
     /* Shadow pour profondeur */
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.4), 8, 0, 0, 2);
     -fx-pref-width: 130px;
+    -fx-min-width: 130px;
+    -fx-max-width: 130px;
     -fx-min-height: 80px;
     -fx-pref-height: 80px;
+    -fx-max-height: 80px;
     -fx-padding: 7px 3px 7px 3px;
     -fx-spacing: 3px;
+    -fx-alignment: top-left;
 }
 
 /* Hover pour cellules normales */
@@ -242,8 +256,11 @@
     -fx-border-radius: 8px;
     -fx-background-radius: 8px;
     -fx-pref-width: 130px;
+    -fx-min-width: 130px;
+    -fx-max-width: 130px;
     -fx-min-height: 80px;
     -fx-pref-height: 80px;
+    -fx-max-height: 80px;
 }
 
 /* ==========================================
@@ -268,6 +285,7 @@
     -fx-alignment: CENTER_LEFT;
     -fx-padding: 3px 6px 3px 6px;
     -fx-background-radius: 6px;
+    -fx-spacing: 4px;
 }
 
 /* Badge expiré - ROUGE */

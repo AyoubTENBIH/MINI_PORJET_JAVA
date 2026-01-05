@@ -3,11 +3,11 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
 
 <VBox xmlns="http://javafx.com/javafx"
       xmlns:fx="http://javafx.com/fxml"
-      fx:controller="com.example.demo.controllers.CalendrierController"
-      spacing="24" styleClass="page-container">
+      spacing="24" styleClass="calendar-root">
     <padding>
         <Insets top="24" right="24" bottom="24" left="24"/>
     </padding>
@@ -17,22 +17,31 @@
     
     <!-- Controls: Navigation -->
     <HBox fx:id="controlsBox" spacing="10" alignment="CENTER_LEFT">
-        <Button fx:id="prevMonthBtn" text="◀ Mois Précédent" styleClass="btn-secondary"/>
-        <Button fx:id="todayBtn" text="Aujourd'hui" styleClass="btn-secondary"/>
-        <Button fx:id="nextMonthBtn" text="Mois Suivant ▶" styleClass="btn-secondary"/>
+        <Button fx:id="prevMonthBtn" text="◀ Mois Précédent" styleClass="nav-button"/>
+        <Button fx:id="todayBtn" text="Aujourd'hui" styleClass="nav-button"/>
+        <Button fx:id="nextMonthBtn" text="Mois Suivant ▶" styleClass="nav-button"/>
         <Label fx:id="monthLabel" styleClass="month-label"/>
     </HBox>
     
     <!-- Legend -->
     <HBox fx:id="legendBox" spacing="20" styleClass="legend-box">
         <padding>
-            <Insets top="10" right="10" bottom="10" left="10"/>
+            <Insets top="16" right="24" bottom="16" left="24"/>
         </padding>
         <children>
             <Label text="Légende :" styleClass="legend-title"/>
-            <Label fx:id="legendGreen" text="🟢 Actif" styleClass="legend-item"/>
-            <Label fx:id="legendOrange" text="🟠 Expire bientôt" styleClass="legend-item"/>
-            <Label fx:id="legendRed" text="🔴 Expiré" styleClass="legend-item"/>
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Circle radius="4" styleClass="legend-circle-green"/>
+                <Label text="Actif" styleClass="legend-item"/>
+            </HBox>
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Circle radius="4" styleClass="legend-circle-orange"/>
+                <Label text="Expire bientôt" styleClass="legend-item"/>
+            </HBox>
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Circle radius="4" styleClass="legend-circle-red"/>
+                <Label text="Expiré" styleClass="legend-item"/>
+            </HBox>
         </children>
     </HBox>
     
@@ -41,7 +50,14 @@
         <padding>
             <Insets top="16" right="16" bottom="16" left="16"/>
         </padding>
+        
+        <!-- Calendar Headers (Jours de la semaine) -->
+        <Label text="Lun" styleClass="calendar-header" GridPane.columnIndex="0" GridPane.rowIndex="0" GridPane.halignment="CENTER"/>
+        <Label text="Mar" styleClass="calendar-header" GridPane.columnIndex="1" GridPane.rowIndex="0" GridPane.halignment="CENTER"/>
+        <Label text="Mer" styleClass="calendar-header" GridPane.columnIndex="2" GridPane.rowIndex="0" GridPane.halignment="CENTER"/>
+        <Label text="Jeu" styleClass="calendar-header" GridPane.columnIndex="3" GridPane.rowIndex="0" GridPane.halignment="CENTER"/>
+        <Label text="Ven" styleClass="calendar-header" GridPane.columnIndex="4" GridPane.rowIndex="0" GridPane.halignment="CENTER"/>
+        <Label text="Sam" styleClass="calendar-header" GridPane.columnIndex="5" GridPane.rowIndex="0" GridPane.halignment="CENTER"/>
+        <Label text="Dim" styleClass="calendar-header" GridPane.columnIndex="6" GridPane.rowIndex="0" GridPane.halignment="CENTER"/>
     </GridPane>
 </VBox>
-
-

@@ -11,10 +11,10 @@ import javafx.animation.FadeTransition;
 import javafx.animation.Timeline;
 import javafx.animation.TranslateTransition;
 import javafx.animation.TranslateTransition;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Node;
 import javafx.scene.chart.*;
@@ -44,7 +44,6 @@ import javafx.scene.shape.SVGPath;
 import javafx.scene.shape.StrokeLineCap;
 import javafx.scene.shape.StrokeLineJoin;
 import javafx.util.Duration;
-
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -66,80 +65,115 @@ public class DashboardController {
     private com.example.demo.services.ActivityService activityService = 
         com.example.demo.services.ActivityService.getInstance();
     
-    // Références aux composants pour le refresh
-    private VBox content;
-    private HBox kpiGrid;
-    private HBox chartsRow;
-    private VBox areaChartCard;
-    private HBox bottomRow;
+    // Références aux composants pour le refresh (chargés depuis FXML)
+    @FXML private VBox content;
+    @FXML private HBox kpiGrid;
+    @FXML private HBox chartsRow;
+    @FXML private VBox areaChartCard;
+    @FXML private HBox bottomRow;
+    
+    // Composants KPI (chargés depuis FXML)
+    @FXML private Label kpiRevenuValue;
+    @FXML private Label kpiRevenuChange;
+    @FXML private SVGPath kpiRevenuIcon;
+    @FXML private Label kpiAdherentsValue;
+    @FXML private Label kpiAdherentsChange;
+    @FXML private SVGPath kpiAdherentsIcon;
+    @FXML private Label kpiTauxValue;
+    @FXML private Label kpiTauxGoal;
+    @FXML private Canvas gaugeCanvas;
+    @FXML private Label kpiNouveauxValue;
+    @FXML private Label kpiNouveauxChange;
+    @FXML private SVGPath kpiNouveauxIcon;
+    
+    // Composants Charts (chargés depuis FXML)
+    @FXML private Canvas donutCanvas;
+    @FXML private Label donutCenterValue;
+    @FXML private VBox donutLegend;
+    @FXML private GridPane miniCardsGrid;
+    @FXML private SVGPath miniCard1Icon;
+    @FXML private Label miniCard1Value;
+    @FXML private Label miniCard1Badge;
+    @FXML private SVGPath miniCard2Icon;
+    @FXML private Label miniCard2Value;
+    @FXML private Label miniCard2Badge;
+    @FXML private SVGPath miniCard3Icon;
+    @FXML private Label miniCard3Value;
+    @FXML private Label miniCard3Badge;
+    @FXML private SVGPath miniCard4Icon;
+    @FXML private Label miniCard4Value;
+    @FXML private Label miniCard4Badge;
+    @FXML private StackPane areaChartContainer;
+    
+    // Composants Table (chargés depuis FXML)
+    @FXML private ScrollPane tableScrollPane;
+    @FXML private VBox tableBody;
+    
+    // Composants Sidebar (chargés depuis FXML)
+    @FXML private VBox notificationsList;
+    @FXML private VBox activitiesList;
+    
+    // Composants Header Icons (chargés depuis FXML)
+    @FXML private SVGPath menuIcon;
+    @FXML private SVGPath starIcon;
+    @FXML private SVGPath moonIcon;
+    @FXML private SVGPath refreshIcon;
+    @FXML private SVGPath bellIcon;
+    @FXML private SVGPath globeIcon;
     
     // Filtre temporel actuel
     private com.example.demo.utils.DateRangeFilter.FilterType currentFilter = 
         com.example.demo.utils.DateRangeFilter.FilterType.TODAY;
     
-    // Références FXML
-    @FXML
-    private HBox header;
-    @FXML
-    private Button menuBtn;
-    @FXML
-    private Button starBtn;
-    @FXML
-    private Label breadcrumbLabel;
-    @FXML
-    private Button moonBtn;
-    @FXML
-    private Button refreshBtn;
-    @FXML
-    private StackPane bellContainer;
-    @FXML
-    private Button bellBtn;
-    @FXML
-    private Label notificationBadge;
-    @FXML
-    private Button globeBtn;
-    @FXML
-    private HBox titleFilterSection;
-    @FXML
-    private Label titleLabel;
-    @FXML
-    private Button filterBtn;
-    @FXML
-    private Label filterLabel;
-    @FXML
-    private Node chevronIcon;
-    @FXML
-    private ScrollPane contentScroll;
-    @FXML
-    private VBox contentWrapper;
-    @FXML
-    private VBox rightSidebar;
-    @FXML
-    private VBox notificationPanel;
-    @FXML
-    private VBox activityPanel;
+    // Références aux composants UI (chargés depuis FXML)
+    @FXML private HBox header;
+    @FXML private Button menuBtn;
+    @FXML private Button starBtn;
+    @FXML private Label breadcrumbLabel;
+    @FXML private Button moonBtn;
+    @FXML private Button refreshBtn;
+    @FXML private StackPane bellContainer;
+    @FXML private Button bellBtn;
+    @FXML private Label notificationBadge;
+    @FXML private Button globeBtn;
+    @FXML private HBox titleFilterSection;
+    @FXML private Label titleLabel;
+    @FXML private Button filterBtn;
+    @FXML private Label filterLabel;
+    @FXML private Node chevronIcon;
+    @FXML private ScrollPane contentScroll;
+    @FXML private VBox contentWrapper;
+    @FXML private VBox rightSidebar;
+    @FXML private VBox notificationPanel;
+    @FXML private VBox activityPanel;
     
     public Parent getView() {
-        // Créer la vue programmatiquement (sans FXML)
-        Parent root = createBasicView();
-        
-        // Charger le CSS du dashboard
-        if (root.getScene() != null) {
-            root.getScene().getStylesheets().add(
-                getClass().getResource("/css/dashboard.css").toExternalForm()
-            );
-        } else {
-            // Si la scène n'existe pas encore, l'ajouter lors de l'ajout à la scène
-            root.sceneProperty().addListener((obs, oldScene, newScene) -> {
-                if (newScene != null) {
-                    newScene.getStylesheets().add(
-                        getClass().getResource("/css/dashboard.css").toExternalForm()
-                    );
-                }
-            });
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dashboard.fxml"));
+            loader.setController(this);
+            Parent root = loader.load();
+            
+            // Charger le CSS du dashboard
+            if (root.getScene() != null) {
+                root.getScene().getStylesheets().add(
+                    getClass().getResource("/css/dashboard.css").toExternalForm()
+                );
+            } else {
+                // Si la scène n'existe pas encore, l'ajouter lors de l'ajout à la scène
+                root.sceneProperty().addListener((obs, oldScene, newScene) -> {
+                    if (newScene != null) {
+                        newScene.getStylesheets().add(
+                            getClass().getResource("/css/dashboard.css").toExternalForm()
+                        );
+                    }
+                });
+            }
+            
+            return root;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return createBasicView();
         }
-        
-        return root;
     }
 
     /**
@@ -153,17 +187,17 @@ public class DashboardController {
         // Configurer la section titre/filtre
         setupTitleFilterSection();
         
-        // Configurer le contenu
+        // Configurer le contenu (charger les données et créer les éléments dynamiques)
         setupContent();
         
         // Configurer la sidebar droite
         setupRightSidebar();
         
-        // Charger l'état initial de la sidebar gauche depuis les préférences
-        if (header != null && header.getScene() != null) {
-            BorderPane root = (BorderPane) header.getScene().getRoot();
-            loadSidebarState(root);
-        }
+        // Initialiser les icônes SVG
+        setupHeaderIcons();
+        
+        // Charger les données initiales
+        refreshDashboard();
     }
 
     /**
@@ -180,9 +214,9 @@ public class DashboardController {
                     String pageName = com.example.demo.utils.DashboardConstants.PAGE_DASHBOARD;
                     boolean isFavorite = favorisDAO.toggleFavorite(1, pageName);
                     if (isFavorite) {
-                        starBtn.setStyle(starBtn.getStyle() + "; -fx-opacity: 1.0;");
+                        starBtn.setOpacity(1.0);
                     } else {
-                        starBtn.setStyle(starBtn.getStyle() + "; -fx-opacity: 0.5;");
+                        starBtn.setOpacity(0.5);
                     }
                 } catch (SQLException ex) {
                     ex.printStackTrace();
@@ -228,34 +262,13 @@ public class DashboardController {
 
     /**
      * Configure le contenu principal
+     * Les composants sont déjà dans le FXML, on configure seulement les éléments dynamiques
      */
     private void setupContent() {
-        if (contentWrapper == null) return;
+        if (content == null || contentWrapper == null) return;
         
-        // Espacement vertical entre les lignes de cartes
-        content = new VBox(20);
-        content.setPadding(new Insets(0));
-        content.setStyle("-fx-background-color: transparent;");
-        content.setMaxWidth(Double.MAX_VALUE);
-        
-        // Row 1: 4 KPI Cards horizontales
-        kpiGrid = createKPIGrid();
-        VBox.setVgrow(kpiGrid, Priority.NEVER);
-        content.getChildren().add(kpiGrid);
-        
-        // Row 2: Donut Chart (60%) + Mini Cards Grid 2x2 (40%)
-        chartsRow = createChartsRowWithMiniCards();
-        content.getChildren().add(chartsRow);
-        
-        // Row 3: Area Chart (100%)
-        areaChartCard = createRevenueAreaChartCard();
-        content.getChildren().add(areaChartCard);
-        
-        // Row 4: Table (65%) + Liste Rouge (35%)
-        bottomRow = createBottomRowWithTable();
-        content.getChildren().add(bottomRow);
-        
-        contentWrapper.getChildren().add(content);
+        // Les composants sont déjà dans le FXML, on configure seulement les éléments dynamiques
+        // Les charts et autres éléments dynamiques seront créés dans refreshDashboard()
     }
 
     /**
@@ -568,11 +581,11 @@ public class DashboardController {
                 String pageName = com.example.demo.utils.DashboardConstants.PAGE_DASHBOARD;
                 boolean isFavorite = favorisDAO.toggleFavorite(1, pageName);
                 
-                // Changer le style de l'icône selon l'état
+                // Changer l'opacité de l'icône selon l'état
                 if (isFavorite) {
-                    starBtn.setStyle(starBtn.getStyle() + "; -fx-opacity: 1.0;");
+                    starBtn.setOpacity(1.0);
                 } else {
-                    starBtn.setStyle(starBtn.getStyle() + "; -fx-opacity: 0.5;");
+                    starBtn.setOpacity(0.5);
                 }
             } catch (SQLException ex) {
                 ex.printStackTrace();
@@ -585,7 +598,7 @@ public class DashboardController {
             com.example.demo.dao.FavorisDAO favorisDAO = new com.example.demo.dao.FavorisDAO();
             boolean isFavorite = favorisDAO.isFavorite(1, com.example.demo.utils.DashboardConstants.PAGE_DASHBOARD);
             if (!isFavorite) {
-                starBtn.setStyle(starBtn.getStyle() + "; -fx-opacity: 0.5;");
+                starBtn.setOpacity(0.5);
             }
         } catch (SQLException ex) {
             // Ignorer l'erreur au démarrage
@@ -600,7 +613,7 @@ public class DashboardController {
         HBox.setHgrow(spacer, Priority.ALWAYS);
         
         // Côté droit : Moon icon (Dark mode)
-        Button moonBtn = createHeaderIconButton("icon-moon", 20);
+        this.moonBtn = createHeaderIconButton("icon-moon", 20);
         moonBtn.setOnAction(e -> {
             try {
                 com.example.demo.services.ThemeService themeService = com.example.demo.services.ThemeService.getInstance();
@@ -615,28 +628,17 @@ public class DashboardController {
         });
         
         // Refresh icon
-        Button refreshBtn = createHeaderIconButton("icon-refresh", 20);
+        this.refreshBtn = createHeaderIconButton("icon-refresh", 20);
         refreshBtn.setOnAction(e -> refreshDashboard());
         
         // Bell icon (Notifications) avec badge du nombre de notifications non lues
-        Button bellBtn = createHeaderIconButton("icon-bell", 20);
-        StackPane bellContainer = new StackPane();
+        this.bellBtn = createHeaderIconButton("icon-bell", 20);
+        this.bellContainer = new StackPane();
         bellContainer.getChildren().add(bellBtn);
         
         // Badge avec nombre de notifications non lues
-        Label notificationBadge = new Label();
-        notificationBadge.setStyle(
-            "-fx-background-color: #ef4444; " +
-            "-fx-background-radius: 10px; " +
-            "-fx-text-fill: white; " +
-            "-fx-font-size: 10px; " +
-            "-fx-font-weight: 700; " +
-            "-fx-padding: 2 6; " +
-            "-fx-min-width: 18px; " +
-            "-fx-alignment: center;"
-        );
-        notificationBadge.setTranslateX(8);
-        notificationBadge.setTranslateY(-8);
+        this.notificationBadge = new Label();
+        notificationBadge.getStyleClass().add("notification-badge");
         
         // Charger le nombre de notifications non lues
         try {
@@ -660,12 +662,15 @@ public class DashboardController {
         });
         
         // Globe icon (Language/Settings)
-        Button globeBtn = createHeaderIconButton("icon-globe", 20);
+        this.globeBtn = createHeaderIconButton("icon-globe", 20);
         globeBtn.setOnAction(e -> {
             // TODO: Language/Settings menu
         });
         
         header.getChildren().addAll(menuBtn, starBtn, breadcrumbLabel, spacer, moonBtn, refreshBtn, bellContainer, globeBtn);
+        
+        // Stocker la référence du header
+        this.header = header;
         
         return header;
     }
